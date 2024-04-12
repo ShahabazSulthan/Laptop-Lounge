@@ -3,6 +3,7 @@ package di
 import (
 	https "Laptop_Lounge/pkg/api"
 	"Laptop_Lounge/pkg/api/handler"
+	"Laptop_Lounge/pkg/api/middlewire"
 	"Laptop_Lounge/pkg/config"
 	"Laptop_Lounge/pkg/db"
 	"Laptop_Lounge/pkg/repository"
@@ -18,6 +19,7 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	}
 
 	service.OtpServices(cfg.Otp)
+	middlewire.NewJwtTokenMiddleWire(cfg.Token)
 
 	userRepository := repository.NewUserRepository(DB)
 	userUseCase := usecase.NewUserUseCase(userRepository, &cfg.Token)
@@ -28,7 +30,9 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	sellerHandler := handler.NewSellerHandler(sellerUseCase)
 
 	adminRepository := repository.NewAdminRepository(DB)
+
 	adminUseCase := usecase.NewAdminUseCase(adminRepository, &cfg.Token)
+
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 
 	serverHTTP := https.NewServerHtttp(

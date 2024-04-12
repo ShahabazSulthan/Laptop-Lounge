@@ -2,11 +2,13 @@ package handler
 
 import (
 	requestmodel "Laptop_Lounge/pkg/models/requestModel"
+	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -80,6 +82,98 @@ func (u *SellerHandler) GetSellers(c *gin.Context) {
 	} else {
 		message := fmt.Sprintf("total sellers  %d", *count)
 		finalReslt := response.Responses(http.StatusOK, message, sellers, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) BlockSeller(c *gin.Context) {
+
+	sellerId:= c.Param("sellerID")
+	id := strings.TrimSpace(sellerId)
+
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": resCustomError.IDParamsEmpty})
+		return
+	}
+
+	err := u.usecase.BlockSeller(sellerId)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Succesfully block", "", nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) UnblockSeller(c *gin.Context) {
+	sellerId := c.Param("sellerID")
+	id := strings.TrimSpace(sellerId)
+
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": resCustomError.IDParamsEmpty})
+		return
+	}
+
+	err := u.usecase.ActiveSeller(sellerId)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Succesfully unblock", "", nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) GetPendingSellers(c *gin.Context) {
+	page := c.DefaultQuery("page","1")
+	limit := c.DefaultQuery("limit", "1")
+
+	sellers, err := u.usecase.GetAllPendingSellers(page, limit)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "", sellers, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) FetchSingleSeller(c *gin.Context) {
+	sellerID := c.Param("sellerID")
+	id := strings.TrimSpace(sellerID)
+
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": resCustomError.IDParamsEmpty})
+		return
+	}
+
+	sellerDetails, err := u.usecase.FetchSingleSeller(sellerID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "", sellerDetails, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+
+}
+
+func (u *SellerHandler) VerifySeller(c *gin.Context) {
+	sellerID := c.Param("sellerID") // Update parameter name here
+	id := strings.TrimSpace(sellerID)
+
+	fmt.Println("--", sellerID)
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id parameter is empty"}) // Use a string directly here
+		return
+	}
+
+	err := u.usecase.ActiveSeller(sellerID) // Pass sellerID here
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Verification Success", "", nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }

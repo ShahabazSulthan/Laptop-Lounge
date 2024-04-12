@@ -227,3 +227,39 @@ func (r *userUseCase) ForgetPassword(newPassword *requestmodel.ForgetPassword, t
 	// Return nil if all steps are successful
 	return nil
 }
+
+func (r *userUseCase) GetAllUsers(page string, limit string) (*[]responsemodel.UserDetails, *int, error) {
+
+	ch := make(chan int)
+
+	go r.repo.UserCount(ch)
+	count := <-ch
+
+	offSet, limits, err := helper.Pagination(page, limit)
+	if err != nil {
+		return nil, &count, err
+	}
+
+	userDetails, err := r.repo.AllUsers(offSet, limits)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return userDetails, &count, nil
+}
+
+func (r *userUseCase) BlcokUser(id string) error {
+	err := r.repo.BlockUser(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userUseCase) UnblockUser(id string) error {
+	err := r.repo.UnblockUser(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

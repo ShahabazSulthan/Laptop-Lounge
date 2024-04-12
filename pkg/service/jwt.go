@@ -95,13 +95,21 @@ func VerifyAccessToken(token string, secretKey string) (string, error) {
 func VerifyRefreshToken(token string, securityKey string) error {
 	key := []byte(securityKey)
 
-	_, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+	// Parse the JWT token
+	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
 	if err != nil {
-		return errors.New("refresh token verification failed: token tampered or expired")
+		// Error occurred during token parsing
+		return errors.New("token tampered or expired")
 	}
 
+	// Check if the token is valid
+	if !parsedToken.Valid {
+		return errors.New("token is not valid")
+	}
+
+	// Token verification successful
 	return nil
 }
 

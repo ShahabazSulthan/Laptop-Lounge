@@ -15,13 +15,15 @@ import (
 
 func Pagination(page string, limit string) (int, int, error) {
 
+	fmt.Println("jj", page, limit)
+
 	pageNO, err := strconv.Atoi(page)
 	if err != nil {
-		return 0, 0, resCustomError.ErrConversionOfPage
+		return 0, 0, resCustomError.ErrConversionOFPage
 	}
 
 	if pageNO < 1 {
-		return 0, 0, resCustomError.ErrConversionOfPage
+		return 0, 0, resCustomError.ErrConversionOFPage
 	}
 
 	limits, err := strconv.Atoi(limit)

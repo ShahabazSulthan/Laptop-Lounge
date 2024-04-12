@@ -1,6 +1,8 @@
 package middlewire
 
 import (
+	"Laptop_Lounge/pkg/config"
+	"Laptop_Lounge/pkg/service"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,6 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
+
+type TokenRequirement struct {
+	tokenSecurityKey config.Token
+}
+
+var token TokenRequirement
+
+
+
+func NewJwtTokenMiddleWire(keys config.Token) {
+	
+	token = TokenRequirement{tokenSecurityKey: keys}
+}
 
 func UserAuthMiddleware(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
@@ -55,5 +70,17 @@ func UserAuthMiddleware(c *gin.Context) {
 
 	fmt.Println("User authenticated:", role, id)
 
+	c.Next()
+}
+
+func AdminAuthorization(c *gin.Context) {
+	adminToken := c.GetHeader("Authorization")
+	fmt.Println("--", token)
+
+	err := service.VerifyRefreshToken(adminToken, token.tokenSecurityKey.AdminSecurityKey)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
+		c.Abort()
+	}
 	c.Next()
 }

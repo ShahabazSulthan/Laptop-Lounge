@@ -144,3 +144,48 @@ func (d *userRepository) FetchPasswordUsingPhone(phone string) (string, error) {
 
 	return password, nil
 }
+
+func (d *userRepository) AllUsers(offSet int, limit int) (*[]responsemodel.UserDetails, error) {
+	var users []responsemodel.UserDetails
+
+	query := "SELECT * FROM users ORDER BY name OFFSET ? LIMIT ?"
+	err := d.DB.Raw(query, offSet, limit).Scan(&users).Error
+	if err != nil {
+		return nil, errors.New("can't get user data from db")
+	}
+
+	return &users, nil
+}
+
+func (d *userRepository) UserCount(ch chan int) {
+	var count int
+	query := "SELECT COUNT(phone) FROM users WHERE status!='delete'"
+	d.DB.Raw(query).Scan(&count)
+	ch <- count
+}
+
+func (d *userRepository) BlockUser(id string) error {
+	query := "UPDATE users SET status = 'block' WHERE id=? "
+	err := d.DB.Exec(query, id)
+	if err.Error != nil {
+		return errors.New("block user process , is not satisfied")
+	}
+	count := err.RowsAffected
+	if count <= 0 {
+		return errors.New("no user exist by id ")
+	}
+	return nil
+}
+
+func (d *userRepository) UnblockUser(id string) error {
+	query := "UPDATE users SET status = 'active' WHERE id=?"
+	err := d.DB.Exec(query, id)
+	if err.Error != nil {
+		return errors.New("active user process , is not satisfied")
+	}
+
+	if err.RowsAffected <= 0 {
+		return errors.New("no user exist by id ")
+	}
+	return nil
+}

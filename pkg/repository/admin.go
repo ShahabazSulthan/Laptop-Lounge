@@ -51,7 +51,7 @@ func (d *adminRepository) TotalRevenue() (uint, uint, error) {
 	query := "SELECT COALESCE(COUNT(*), 0), COALESCE(SUM(price), 0) FROM order_products WHERE order_status='delivered'"
 	result := d.DB.Raw(query).Row().Scan(&count, &sum)
 	if result != nil {
-		return 0, 0, resCustomError.ErrAdminDashboard
+		return 0, 0, resCustomError.ErrAdminDashbord
 	}
 
 	return count, sum, nil
@@ -62,7 +62,7 @@ func (d *adminRepository) GetNetCredit() (uint, error) {
 	query := "SELECT COALESCE(SUM(seller_credit),0) FROM sellers"
 	result := d.DB.Raw(query).Scan(&credit)
 	if result.Error != nil {
-		return 0, resCustomError.ErrAdminDashboard
+		return 0, resCustomError.ErrAdminDashbord
 	}
 	return credit, nil
 }

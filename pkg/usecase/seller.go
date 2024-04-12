@@ -47,7 +47,6 @@ func (r *sellerUseCase) SellerSignup(sellerSignupData *requestmodel.SellerSignup
 
 func (r *sellerUseCase) SellerLogin(loginData *requestmodel.SellerLogin) (*responsemodel.SellerLoginRes, error) {
 	var loginResponse responsemodel.SellerLoginRes
-	
 
 	hashedPassword, sellerID, status, err := r.repo.GetHashPassAndStatus(loginData.Email)
 	if err != nil {
@@ -100,4 +99,43 @@ func (r *sellerUseCase) GetAllSellers(page string, limit string) (*[]responsemod
 	}
 
 	return SellerDetails, &count, nil
+}
+
+func (r *sellerUseCase) BlockSeller(id string) error {
+	err := r.repo.BlockSeller(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *sellerUseCase) ActiveSeller(id string) error {
+	err := r.repo.UnblockSeller(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *sellerUseCase) GetAllPendingSellers(page string, limit string) (*[]responsemodel.SellerDetails, error) {
+
+	offSet, limits, err := helper.Pagination(page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	SellerDetails, err := r.repo.GetPendingSellers(offSet, limits)
+	if err != nil {
+		return nil, err
+	}
+
+	return SellerDetails, nil
+}
+
+func (r *sellerUseCase) FetchSingleSeller(id string) (*responsemodel.SellerDetails, error) {
+	sellerData, err := r.repo.GetSingleSeller(id)
+	if err != nil {
+		return nil, err
+	}
+	return sellerData, nil
 }

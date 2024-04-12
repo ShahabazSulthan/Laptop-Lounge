@@ -2,11 +2,13 @@ package handler
 
 import (
 	requestmodel "Laptop_Lounge/pkg/models/requestModel"
+	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -75,7 +77,7 @@ func (u *UserHandler) SendOtp(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("***",sendOtp)
+	fmt.Println("***", sendOtp)
 	// Call user use case to send OTP
 	tempToken, err := u.userUseCase.SendOtp(&sendOtp)
 	if err != nil {
@@ -144,7 +146,6 @@ func (u *UserHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-
 	// Call user use case for login
 	result, err := u.userUseCase.UserLogin(&loginCredential)
 	if err != nil {
@@ -163,36 +164,89 @@ func (u *UserHandler) UserLogin(c *gin.Context) {
 //  and returning the response to the client based on the outcome of the forgot password process.
 
 func (u *UserHandler) ForgotPassword(c *gin.Context) {
-    var forgotPassword requestmodel.ForgetPassword
+	var forgotPassword requestmodel.ForgetPassword
 
-    // Parse request body
-    if err := c.BindJSON(&forgotPassword); err != nil {
-        response := response.Responses(http.StatusBadRequest, "Invalid request body", nil, err)
-        c.JSON(http.StatusBadRequest, response)
-        return
-    }
+	// Parse request body
+	if err := c.BindJSON(&forgotPassword); err != nil {
+		response := response.Responses(http.StatusBadRequest, "Invalid request body", nil, err)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-    // Extract authorization token
-    token := c.Request.Header.Get("Authorization")
+	// Extract authorization token
+	token := c.Request.Header.Get("Authorization")
 
-    // Validate request data
-    data, err := helper.Validation(forgotPassword)
-    if err != nil {
-        response := response.Responses(http.StatusBadRequest, "Validation failed", data, err)
-        c.JSON(http.StatusBadRequest, response)
-        return
-    }
+	// Validate request data
+	data, err := helper.Validation(forgotPassword)
+	if err != nil {
+		response := response.Responses(http.StatusBadRequest, "Validation failed", data, err)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-    // Call user use case for forgot password
-    err = u.userUseCase.ForgetPassword(&forgotPassword, token)
-    if err != nil {
-        response := response.Responses(http.StatusBadRequest, "Forgot password failed", nil, err)
-        c.JSON(http.StatusBadRequest, response)
-        return
-    }
+	// Call user use case for forgot password
+	err = u.userUseCase.ForgetPassword(&forgotPassword, token)
+	if err != nil {
+		response := response.Responses(http.StatusBadRequest, "Forgot password failed", nil, err)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-    // Send success response
-    response := response.Responses(http.StatusOK, "Forgot password request processed successfully", nil, nil)
-    c.JSON(http.StatusOK, response)
+	// Send success response
+	response := response.Responses(http.StatusOK, "Forgot password request processed successfully", nil, nil)
+	c.JSON(http.StatusOK, response)
 }
 
+func (u *UserHandler) GetUser(c *gin.Context) {
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "1")
+
+	users, count, err := u.userUseCase.GetAllUsers(page, limit)
+	if err != nil {
+		// message := fmt.Sprintf("total users  %d", *count)
+		// finalReslt := response.Responses(http.StatusNotFound, message, "", err.Error())
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		message := fmt.Sprintf("total users  %d", *count)
+		finalReslt := response.Responses(http.StatusOK, message, users, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *UserHandler) BlockUser(c *gin.Context) {
+	userID := c.Param("userID")
+	id := strings.TrimSpace(userID)
+
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": resCustomError.IDParamsEmpty})
+		return
+	}
+
+	err := u.userUseCase.BlcokUser(userID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Succesfully block", "", nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *UserHandler) UnblockUser(c *gin.Context) {
+	userID := c.Param("userID")
+	id := strings.TrimSpace(userID)
+
+	if len(id) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id parameter is empty"})
+		return
+	}
+
+	err := u.userUseCase.UnblockUser(userID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Succesfully unblock", "", nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}

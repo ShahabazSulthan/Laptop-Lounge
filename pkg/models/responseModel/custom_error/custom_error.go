@@ -1,20 +1,18 @@
 package resCustomError
 
-import (
-	"errors"
-)
+import "errors"
 
 var (
-	IDParamsEmpty            = errors.New("ID parameter is empty")
-	BindingConflict          = errors.New("data criteria not met or conflicting data")
-	NotGetSellerIDInContext  = errors.New("failed to retrieve seller ID from context")
-	NotGetUserIDInContext    = errors.New("failed to retrieve user ID from context")
-	ErrConversionOfPage      = errors.New("error converting string to integer for page parameter")
-	ErrConversionOfLimit     = errors.New("error converting string to integer for page limit parameter")
+	IDParamsEmpty            = "id parameter is empty"
+	BindingConflict          = "don't meat data cryteria"
+	NotGetSellerIDinContexr  = "not get seller id "
+	NotGetUserIdInContexr    = "not get user id "
+	ErrConversionOFPage      = errors.New("attempt to convert string to int made error, page")
+	ErrConversionOfLimit     = errors.New("attempt to convert string to int made error, page limit")
 	ErrPagination            = errors.New("page must start from one")
-	ErrPageLimit             = errors.New("page limit must be greater than one")
-	ErrNegativeID            = errors.New("ID must be greater than one")
-	ErrNoRowAffected         = errors.New("no data matching the specified criteria found in the database")
-	ErrProductOrderCompleted = errors.New("product order is already completed")
-	ErrAdminDashboard        = errors.New("encountered an issue in the admin dashboard")
+	ErrPageLimit             = errors.New("page limit must graterthen one")
+	ErrNegativeID            = errors.New("id must be grater than one")
+	ErrNoRowAffected         = errors.New("no data matching the specified criteria was found in the database")
+	ErrProductOrderCompleted = errors.New("the product order is already completed")
+	ErrAdminDashbord         = errors.New("face some issue while admin dashbord ")
 )

@@ -10,5 +10,9 @@ type IuserUseCase interface {
 	VerifyOtp(*requestmodel.OtpVerification, string) (responsemodel.OtpValidation, error)
 	SendOtp(*requestmodel.SendOtp) (string, error)
 	UserLogin(*requestmodel.UserLogin) (responsemodel.UserLogin, error)
-	ForgetPassword(*requestmodel.ForgetPassword,string) error
+	ForgetPassword(*requestmodel.ForgetPassword, string) error
+
+	GetAllUsers(string, string) (*[]responsemodel.UserDetails, *int, error)
+	BlcokUser(string) error
+	UnblockUser(string) error
 }

@@ -91,3 +91,61 @@ func (d *sellerRepository) SellerCount(ch chan int) {
 	ch <- count
 
 }
+
+func (d *sellerRepository) BlockSeller(id string) error {
+	query := "UPDATE sellers SET status = 'block' WHERE id = ?"
+	err := d.DB.Exec(query, id)
+	if err.Error != nil {
+		return errors.New("block seller process is not satisfied")
+	}
+	count := err.RowsAffected
+
+	if count <= 0 {
+		return errors.New("no seller exists with the provided ID")
+	}
+	return nil
+}
+
+func (d *sellerRepository) UnblockSeller(id string) error {
+	query := "UPDATE sellers SET status = 'active' WHERE id = ?"
+	err := d.DB.Exec(query, id)
+	if err.Error != nil {
+		return errors.New("active seller process is not satisfied")
+	}
+
+	count := err.RowsAffected
+	if count <= 0 {
+		return errors.New("no seller exists with the provided ID")
+	}
+	return nil
+}
+
+func (d *sellerRepository) GetPendingSellers(offSet int, limit int) (*[]responsemodel.SellerDetails, error) {
+	var sellers []responsemodel.SellerDetails
+
+	query := "SELECT * FROM sellers WHERE status='pending' ORDER BY name OFFSET ? LIMIT ?"
+	err := d.DB.Raw(query, offSet, limit).Scan(&sellers).Error
+	if err != nil {
+		return nil, errors.New("failed to get the pending list of sellers")
+	}
+
+	return &sellers, nil
+}
+
+func (d *sellerRepository) GetSingleSeller(id string) (*responsemodel.SellerDetails, error) {
+	var seller responsemodel.SellerDetails
+
+	query := "SELECT * FROM sellers WHERE id= ?"
+	err := d.DB.Raw(query, id).Scan(&seller)
+	if err.Error != nil {
+		return nil, errors.New("something wrong at fetching seller details")
+	}
+
+	count := err.RowsAffected
+
+	if count <= 0 {
+		return nil, errors.New("no seller exists with the provided ID")
+	}
+
+	return &seller, nil
+}

@@ -22,7 +22,7 @@ func NewServerHtttp(user *handler.UserHandler, seller *handler.SellerHandler, ad
 	// Set up routes for users and sellers
 	routes.UserRoutes(engin.Group("/"), user)
 	routes.SellerRoutes(engin.Group("/seller"), seller)
-	routes.AdminRoutes(engin.Group("/admin"), admin)
+	routes.AdminRoutes(engin.Group("/admin"), admin, seller, user)
 
 	return &ServerHttp{engin: engin}
 }
