@@ -9,6 +9,8 @@ import (
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
 	"errors"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type sellerUseCase struct {
@@ -138,4 +140,67 @@ func (r *sellerUseCase) FetchSingleSeller(id string) (*responsemodel.SellerDetai
 		return nil, err
 	}
 	return sellerData, nil
+}
+
+// ------------------------------------------Seller Profile------------------------------------\\
+
+func (r *sellerUseCase) GetSellerProfile(userID string) (*responsemodel.SellerProfile, error) {
+	sellerDetails, err := r.repo.GetSellerProfile(userID)
+	if err != nil {
+		return nil, err
+	}
+	return sellerDetails, nil
+}
+
+func (r *sellerUseCase) UpdateSellerProfile(editedProfile *requestmodel.SellerEditProfile) (*responsemodel.SellerProfile, error) {
+
+	exist, err := r.repo.IsSellerExist(editedProfile.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist > 0 {
+		return nil, errors.New("seller exist with same email id , change email")
+	}
+
+	if editedProfile.Password != editedProfile.ConfirmPassword {
+		return nil, errors.New("password and confirmpassword is not match")
+	}
+
+	if editedProfile.Password != "" {
+		editedProfile.Password = helper.HashPassword(editedProfile.Password)
+	}
+
+	SellerProfile, err := r.repo.GetSellerProfile(editedProfile.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(editedProfile)
+	if err != nil {
+		if ve, ok := err.(validator.ValidationErrors); ok {
+			for _, e := range ve {
+				fieldName := e.Field()
+				switch fieldName {
+				// case "ID":
+				// 	editedProfile.ID = SellerProfile.ID
+				case "Name":
+					editedProfile.Name = SellerProfile.Name
+				case "Email":
+					editedProfile.Email = SellerProfile.Email
+				case "Password":
+					editedProfile.Password = SellerProfile.Password
+				case "Description":
+					editedProfile.Description = SellerProfile.Description
+				}
+			}
+		}
+	}
+
+	sellerEdittedProfile, err := r.repo.UpdateSellerProfile(editedProfile)
+	if err != nil {
+		return nil, err
+	}
+	return sellerEdittedProfile, nil
 }

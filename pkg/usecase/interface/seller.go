@@ -13,4 +13,9 @@ type ISellerUseCase interface {
 	ActiveSeller(string) error
 	GetAllPendingSellers(string, string) (*[]responsemodel.SellerDetails, error)
 	FetchSingleSeller(string) (*responsemodel.SellerDetails, error)
+
+	
+	GetSellerProfile(string) (*responsemodel.SellerProfile, error)
+	UpdateSellerProfile(*requestmodel.SellerEditProfile) (*responsemodel.SellerProfile, error)
+
 }

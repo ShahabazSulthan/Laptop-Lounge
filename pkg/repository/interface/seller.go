@@ -16,4 +16,8 @@ type ISellerRepo interface {
 	UnblockSeller(string) error
 	GetPendingSellers(int, int) (*[]responsemodel.SellerDetails, error)
 	GetSingleSeller(string) (*responsemodel.SellerDetails, error)
+
+	GetSellerProfile(string) (*responsemodel.SellerProfile, error)
+	UpdateSellerProfile(*requestmodel.SellerEditProfile) (*responsemodel.SellerProfile, error)
+
 }

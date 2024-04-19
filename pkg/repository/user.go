@@ -145,6 +145,8 @@ func (d *userRepository) FetchPasswordUsingPhone(phone string) (string, error) {
 	return password, nil
 }
 
+//---retrieves a list of users from the database based on the provided offset and limit.
+
 func (d *userRepository) AllUsers(offSet int, limit int) (*[]responsemodel.UserDetails, error) {
 	var users []responsemodel.UserDetails
 
@@ -157,12 +159,16 @@ func (d *userRepository) AllUsers(offSet int, limit int) (*[]responsemodel.UserD
 	return &users, nil
 }
 
+//--counts the number of users in the database whose status is not "delete".
+
 func (d *userRepository) UserCount(ch chan int) {
 	var count int
 	query := "SELECT COUNT(phone) FROM users WHERE status!='delete'"
 	d.DB.Raw(query).Scan(&count)
 	ch <- count
 }
+
+//--blocks a user in the database based on the provided user ID
 
 func (d *userRepository) BlockUser(id string) error {
 	query := "UPDATE users SET status = 'block' WHERE id=? "
@@ -177,6 +183,8 @@ func (d *userRepository) BlockUser(id string) error {
 	return nil
 }
 
+//--unblocks a previously blocked user in the database based on the provided user ID.
+
 func (d *userRepository) UnblockUser(id string) error {
 	query := "UPDATE users SET status = 'active' WHERE id=?"
 	err := d.DB.Exec(query, id)
@@ -188,4 +196,137 @@ func (d *userRepository) UnblockUser(id string) error {
 		return errors.New("no user exist by id ")
 	}
 	return nil
+}
+
+//-------------------------Address --------------------------------------------
+//--creates a new address record in the database.
+
+func (d *userRepository) CreateAddress(address *requestmodel.Address) (*requestmodel.Address, error) {
+
+	query := `INSERT INTO addresses ( userid, first_name, last_name, street, city, state, pincode, land_mark, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *;`
+
+	result := d.DB.Raw(query,
+		address.Userid, address.FirstName, address.LastName,
+		address.Street, address.City, address.State, address.Pincode,
+		address.LandMark, address.PhoneNumber,
+	).Scan(&address)
+
+	if result.Error != nil {
+		return nil, errors.New("face some issue while address insertion ")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+
+	return address, nil
+}
+
+//---Retrieves a list of addresses belonging to a specific user ID from the database.
+
+func (d *userRepository) GetAddress(userID string, offset int, limit int) (*[]requestmodel.Address, error) {
+	if userID == "" {
+		return nil, errors.New("userID is empty")
+	}
+
+	var address []requestmodel.Address
+
+	query := "SELECT * FROM addresses WHERE userid=? AND status='active' ORDER BY id OFFSET ? LIMIT ?"
+	result := d.DB.Raw(query, userID, offset, limit).Scan(&address)
+	if result.Error != nil {
+		return nil, errors.New("error fetching address")
+	}
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &address, nil
+}
+
+//--Updates an existing address record in the database based on the provided address struct.
+
+func (d *userRepository) UpdateAddress(address *requestmodel.EditAddress) (*requestmodel.EditAddress, error) {
+
+	query := "UPDATE addresses SET first_name=?, last_name=?, street=?, city=?, state=?, pincode=?, land_mark=?, phone_number=? WHERE id=? AND userid= ? RETURNING *;"
+	result := d.DB.Raw(query,
+		address.FirstName, address.LastName,
+		address.Street, address.City, address.State, address.Pincode,
+		address.LandMark, address.PhoneNumber,
+		address.ID, address.Userid,
+	).Scan(&address)
+
+	if result.Error != nil {
+		return nil, errors.New("face some issue while update address ")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return address, nil
+}
+
+//--Retrieves a single address record from the database based on the provided address ID.
+
+func (d *userRepository) GetAAddress(addressID string) (*requestmodel.Address, error) {
+
+	var address requestmodel.Address
+
+	query := "SELECT * FROM addresses WHERE id=?"
+	result := d.DB.Raw(query, addressID).Scan(&address)
+	if result.Error != nil {
+		return nil, errors.New("face some issue while address fetch")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return &address, nil
+}
+
+//--Deletes an address record from the database based on the provided address ID and user ID.
+
+func (d *userRepository) DeleteAddress(addressID string, userID string) error {
+
+	query := "DELETE FROM addresses WHERE id= ? AND userid= ?"
+	result := d.DB.Exec(query, addressID, userID)
+	if result.Error != nil {
+		return errors.New("face some issue while deleting address ")
+	}
+	if result.RowsAffected == 0 {
+		return resCustomError.ErrNoRowAffected
+	}
+	return nil
+}
+
+//-----------------------------User Profile----------------------------------------//
+
+//--retrieves a user profile based on the provided user ID from the database.
+
+func (d *userRepository) GetProfile(userID string) (*requestmodel.UserDetails, error) {
+
+	var userDetails requestmodel.UserDetails
+
+	query := "SELECT id, name , email, phone, referal_code FROM users WHERE id= ?"
+	result := d.DB.Raw(query, userID).Scan(&userDetails)
+	if result.Error != nil {
+		return nil, errors.New("face some issue while get user profile ")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return &userDetails, nil
+}
+
+//--updates a user's profile information in the database based on the provided edited profile details.
+
+func (d *userRepository) UpdateProfile(editedProfile *requestmodel.UserDetails) (*requestmodel.UserDetails, error) {
+
+	var profile requestmodel.UserDetails
+
+	query := "UPDATE users SET name=?, email=? WHERE id= ? RETURNING *;"
+	result := d.DB.Raw(query, editedProfile.Name, editedProfile.Email, editedProfile.Id).Scan(&profile)
+	if result.Error != nil {
+		return nil, errors.New("face some issue while update profile")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return &profile, nil
 }

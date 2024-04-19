@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *handler.SellerHandler, user *handler.UserHandler) {
+func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *handler.SellerHandler, user *handler.UserHandler,category *handler.CategoryHandler) {
 
 	engin.POST("/login", admin.AdminLogin)
 
@@ -32,6 +32,20 @@ func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *ha
 			sellermanagement.GET("/pending", seller.GetPendingSellers)
 			sellermanagement.GET("/singleview/:sellerID", seller.FetchSingleSeller)
 			sellermanagement.PATCH("/verify/:sellerID", seller.VerifySeller)
+		}
+		categorymanagement := engin.Group("/category")
+		{
+			categorymanagement.POST("/", category.NewCategory)
+			categorymanagement.GET("/:page", category.FetchAllCatogry)
+			categorymanagement.PATCH("/", category.UpdateCategory)
+			categorymanagement.DELETE("/:id", category.DeleteCategory)
+		}
+		brandmanagement := engin.Group("/brand")
+		{
+			brandmanagement.POST("/", category.CreateBrand)
+			brandmanagement.GET("/:page", category.FetchAllBrand)
+			brandmanagement.PATCH("/", category.UpdateBrand)
+			brandmanagement.DELETE("/:id", category.DeleteBrand)
 		}
 	}
 }

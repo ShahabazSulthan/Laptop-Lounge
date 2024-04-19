@@ -15,14 +15,14 @@ type ServerHttp struct {
 }
 
 // NewServerHttp creates a new HTTP server with the provided handlers.
-func NewServerHtttp(user *handler.UserHandler, seller *handler.SellerHandler, admin *handler.AdminHandler) *ServerHttp {
+func NewServerHtttp(user *handler.UserHandler, seller *handler.SellerHandler, admin *handler.AdminHandler, category *handler.CategoryHandler, product *handler.ProductHandler) *ServerHttp {
 	engin := gin.New()
 	engin.Use(gin.Logger())
 
 	// Set up routes for users and sellers
-	routes.UserRoutes(engin.Group("/"), user)
-	routes.SellerRoutes(engin.Group("/seller"), seller)
-	routes.AdminRoutes(engin.Group("/admin"), admin, seller, user)
+	routes.UserRoutes(engin.Group("/"), user, product)
+	routes.SellerRoutes(engin.Group("/seller"), seller, product, category)
+	routes.AdminRoutes(engin.Group("/admin"), admin, seller, user, category)
 
 	return &ServerHttp{engin: engin}
 }

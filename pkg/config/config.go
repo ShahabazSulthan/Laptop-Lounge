@@ -27,10 +27,20 @@ type OTP struct {
 	ServiceSid string `mapstructure:"Service_SID"`
 }
 
+type S3Bucket struct {
+	AccessKeyID     string `mapstructure:"AccessKeyID"`
+	AccessKeySecret string `mapstructure:"AccessKeySecret"`
+	Region          string `mapstructure:"Region"`
+	BucketName      string `mapstructure:"BucketName"`
+}
+
+// This struct, Config, encapsulates all the other structs 
+
 type Config struct {
 	DB    DataBase
 	Token Token
 	Otp   OTP
+	S3aws S3Bucket
 }
 
 func LoadConfig() (*Config, error) {
@@ -53,6 +63,10 @@ func LoadConfig() (*Config, error) {
 
 	if err := viper.Unmarshal(&c.Otp); err != nil {
 		return nil, fmt.Errorf("error unmarshaling OTP config: %w", err)
+	}
+
+	if err := viper.Unmarshal(&c.S3aws); err != nil {
+		return nil, fmt.Errorf("error unmarshaling S3Bucket config: %w", err)
 	}
 
 	return &c, nil

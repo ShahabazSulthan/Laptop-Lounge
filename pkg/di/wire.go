@@ -30,15 +30,23 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	sellerHandler := handler.NewSellerHandler(sellerUseCase)
 
 	adminRepository := repository.NewAdminRepository(DB)
-
 	adminUseCase := usecase.NewAdminUseCase(adminRepository, &cfg.Token)
-
 	adminHandler := handler.NewAdminHandler(adminUseCase)
+
+	categoryRepository := repository.NewCategoryRepository(DB)
+	CategoryUseCase := usecase.NewCategoryUseCase(categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(CategoryUseCase)
+
+	ProductRepository := repository.NewProductRepository(DB)
+	ProductUseCase := usecase.NewProductUseCase(ProductRepository,&cfg.S3aws)
+	ProductHandler := handler.NewProductHandler(ProductUseCase)
 
 	serverHTTP := https.NewServerHtttp(
 		userHandler,
 		sellerHandler,
 		adminHandler,
+		categoryHandler,
+		ProductHandler,
 	)
 	return serverHTTP, nil
 }

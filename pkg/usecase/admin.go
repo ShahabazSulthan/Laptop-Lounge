@@ -46,7 +46,7 @@ func (s *adminUseCase) AdminLogin(adminData *requestmodel.AdminLoginData) (*resp
 		return nil, errors.New("failed to generate refresh token")
 	}
 
-	fmt.Println("hhh",s.tokenSecurityKey.AdminSecurityKey)
+	fmt.Println("hhh", s.tokenSecurityKey.AdminSecurityKey)
 	adminLoginRes.Token = token
 	return &adminLoginRes, nil
 }
@@ -54,6 +54,7 @@ func (s *adminUseCase) AdminLogin(adminData *requestmodel.AdminLoginData) (*resp
 func (s *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.AdminDashBoard, error) {
 	var dashboard responsemodel.AdminDashBoard
 
+	fmt.Println("nnnn", dashboard)
 	var err error
 	dashboard.TotalSellers, err = s.repo.GetSellersDetailDashBoard("")
 	if err != nil {
@@ -79,17 +80,17 @@ func (s *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.Admin
 		return nil, err
 	}
 
-	dashboard.TotalOrders, dashboard.TotalRevenue, err = s.repo.TotalRevenue()
-	if err != nil {
-		log.Println("Error fetching total revenue:", err)
-		return nil, err
-	}
+	// dashboard.TotalOrders, dashboard.TotalRevenue, err = s.repo.TotalRevenue()
+	// if err != nil {
+	// 	log.Println("Error fetching total revenue:", err)
+	// 	return nil, err
+	// }
 
-	dashboard.TotalCredit, err = s.repo.GetNetCredit()
-	if err != nil {
-		log.Println("Error fetching total credit:", err)
-		return nil, err
-	}
+	// dashboard.TotalCredit, err = s.repo.GetNetCredit()
+	// if err != nil {
+	// 	log.Println("Error fetching total credit:", err)
+	// 	return nil, err
+	// }
 
 	return &dashboard, nil
 }

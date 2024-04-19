@@ -15,4 +15,12 @@ type IuserUseCase interface {
 	GetAllUsers(string, string) (*[]responsemodel.UserDetails, *int, error)
 	BlcokUser(string) error
 	UnblockUser(string) error
+
+	AddAddress(*requestmodel.Address) (*requestmodel.Address, error)
+	GetAddress(string, string, string) (*[]requestmodel.Address, error)
+	EditAddress(*requestmodel.EditAddress) (*requestmodel.EditAddress, error)
+	DeleteAddress(string, string) error
+
+	GetProfiles(string) (*requestmodel.UserDetails, error)
+	UpdateProfile(*requestmodel.UserEditProfile) (*requestmodel.UserDetails, error)
 }

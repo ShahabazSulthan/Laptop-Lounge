@@ -9,7 +9,6 @@ type SignupData struct {
 	Token         string `json:"token,omitempty"`
 	IsUserExist   string `json:"isUserExist,omitempty"`
 	ReferalCode   string `json:"referalCode,omitempty"`
-	//WalletBalance uint   `json:"walletBalance,omitempty"`
 }
 
 type OtpValidation struct {

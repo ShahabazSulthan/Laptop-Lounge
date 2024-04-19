@@ -11,6 +11,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type userUseCase struct {
@@ -46,10 +48,6 @@ func (u *userUseCase) UserSignup(userData *requestmodel.UserDetails) (*responsem
 		return nil, fmt.Errorf("error sending OTP: %v", err)
 	}
 
-	// isExist, referalOFUserID, err := u.repo.CheckReferalCodeExist(userData.ReferalCode)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	// Hash password and generate referral code
 
@@ -75,6 +73,7 @@ func (u *userUseCase) UserSignup(userData *requestmodel.UserDetails) (*responsem
 }
 
 // SendOtp sends an OTP to the specified phone number and returns the OTP along with any errors encountered.
+
 func (r *userUseCase) SendOtp(phone *requestmodel.SendOtp) (string, error) {
 	// Setup Twilio services
 	if err := service.TwilioSetup(); err != nil {
@@ -202,7 +201,7 @@ func (u *userUseCase) UserLogin(loginCredential *requestmodel.UserLogin) (respon
 	return resUserLogin, nil
 }
 
-//  the method follows the workflow of verifying the OTP, hashing the new password, and updating the password in the repository.
+//-----the method follows the workflow of verifying the OTP, hashing the new password, and updating the password in the repository.
 
 func (r *userUseCase) ForgetPassword(newPassword *requestmodel.ForgetPassword, token string) error {
 	// Fetch phone number from token
@@ -228,6 +227,8 @@ func (r *userUseCase) ForgetPassword(newPassword *requestmodel.ForgetPassword, t
 	return nil
 }
 
+//---responsible for retrieving all users with pagination support.
+
 func (r *userUseCase) GetAllUsers(page string, limit string) (*[]responsemodel.UserDetails, *int, error) {
 
 	ch := make(chan int)
@@ -248,6 +249,8 @@ func (r *userUseCase) GetAllUsers(page string, limit string) (*[]responsemodel.U
 	return userDetails, &count, nil
 }
 
+//-- responsible for blocking a user based on their ID.
+
 func (r *userUseCase) BlcokUser(id string) error {
 	err := r.repo.BlockUser(id)
 	if err != nil {
@@ -256,10 +259,159 @@ func (r *userUseCase) BlcokUser(id string) error {
 	return nil
 }
 
+//---responsible for unblocking a user based on their ID.
+
 func (r *userUseCase) UnblockUser(id string) error {
 	err := r.repo.UnblockUser(id)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+//--------------------Address-------------------------------------
+//---adds a new address for a user.
+
+
+func (r *userUseCase) AddAddress(address *requestmodel.Address) (*requestmodel.Address, error) {
+
+	add, err := r.repo.CreateAddress(address)
+	if err != nil {
+		return nil, err
+	}
+	return add, nil
+}
+
+//--- retrieves addresses for a specific user with pagination support
+
+func (r *userUseCase) GetAddress(userID string, page string, limit string) (*[]requestmodel.Address, error) {
+
+	offset, limits, err := helper.Pagination(page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	address, err := r.repo.GetAddress(userID, offset, limits)
+	if err != nil {
+		return nil, err
+	}
+	return address, nil
+}
+
+//---edits an existing address for a user
+
+func (r *userUseCase) EditAddress(address *requestmodel.EditAddress) (*requestmodel.EditAddress, error) {
+
+	add, err := r.repo.GetAAddress(address.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(address)
+	if err != nil {
+		if ve, ok := err.(validator.ValidationErrors); ok {
+			for _, e := range ve {
+				fieldName := e.Field()
+				switch fieldName {
+				case "ID":
+					address.ID = add.ID
+				case "Userid":
+					address.Userid = add.Userid
+				case "FirstName":
+					address.FirstName = add.FirstName
+				case "LastName":
+					address.LastName = add.LastName
+				case "Street":
+					address.Street = add.Street
+				case "City":
+					address.City = add.City
+				case "State":
+					address.State = add.State
+				case "Pincode":
+					address.Pincode = add.Pincode
+				case "LandMark":
+					address.LandMark = add.LandMark
+				case "PhoneNumber":
+					address.PhoneNumber = add.PhoneNumber
+				}
+			}
+		}
+
+	}
+
+	editedAddress, err := r.repo.UpdateAddress(address)
+	if err != nil {
+		return nil, err
+	}
+	return editedAddress, nil
+}
+
+//---deletes an address for a user.
+
+func (r *userUseCase) DeleteAddress(addressID string, userID string) error {
+	err := r.repo.DeleteAddress(addressID, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ------------------------------------------user Profile------------------------------------\\
+//--retrieves the profile details of a user identified by userID.
+
+func (r *userUseCase) GetProfile(userID string) (*requestmodel.UserDetails, error) {
+	userDetails, err := r.repo.GetProfile(userID)
+	if err != nil {
+		return nil, err
+	}
+	userDetails.Password = ""
+	return userDetails, nil
+}
+
+//--GetProfile method to fetch the user's profile details.
+
+func (r *userUseCase) GetProfiles(userID string) (*requestmodel.UserDetails, error) {
+	userDetails, err := r.repo.GetProfile(userID)
+	if err != nil {
+		return nil, err
+	}
+	userDetails.Password = ""
+	return userDetails, nil
+}
+
+//--- updates the profile of a user based on the edited profile details provided.
+
+func (r *userUseCase) UpdateProfile(editedProfile *requestmodel.UserEditProfile) (*requestmodel.UserDetails, error) {
+
+	userProfile, err := r.repo.GetProfile(editedProfile.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(editedProfile)
+	if err != nil {
+		if ve, ok := err.(validator.ValidationErrors); ok {
+			for _, e := range ve {
+				fieldName := e.Field()
+				switch fieldName {
+				case "Id":
+					editedProfile.Id = userProfile.Id
+				case "Name":
+					editedProfile.Name = userProfile.Name
+				case "Email":
+					editedProfile.Email = userProfile.Email
+				}
+			}
+		}
+
+	}
+
+	userProfile, err = r.repo.UpdateProfile((*requestmodel.UserDetails)(editedProfile))
+	if err != nil {
+		return nil, err
+	}
+
+	return userProfile, nil
 }

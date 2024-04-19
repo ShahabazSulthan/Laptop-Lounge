@@ -5,10 +5,8 @@ import (
 	"Laptop_Lounge/pkg/service"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
 
 type TokenRequirement struct {
@@ -17,60 +15,8 @@ type TokenRequirement struct {
 
 var token TokenRequirement
 
-
-
 func NewJwtTokenMiddleWire(keys config.Token) {
-	
 	token = TokenRequirement{tokenSecurityKey: keys}
-}
-
-func UserAuthMiddleware(c *gin.Context) {
-	tokenString := c.GetHeader("Authorization")
-	if tokenString == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing authorization token"})
-		c.Abort()
-		return
-	}
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Fetch the secret key securely from environment variables or config file
-		return []byte("comebuyLaptops"), nil
-	})
-
-	if err != nil || !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization token"})
-		c.Abort()
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract token claims"})
-		c.Abort()
-		return
-	}
-
-	role, ok := claims["role"].(string)
-	if !ok || role != "client" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
-		c.Abort()
-		return
-	}
-
-	id, ok := claims["id"].(float64)
-	if !ok || id == 0 {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Error in retrieving ID"})
-		c.Abort()
-		return
-	}
-
-	c.Set("userRole", role)
-	c.Set("userID", int(id))
-
-	fmt.Println("User authenticated:", role, id)
-
-	c.Next()
 }
 
 func AdminAuthorization(c *gin.Context) {
@@ -83,4 +29,124 @@ func AdminAuthorization(c *gin.Context) {
 		c.Abort()
 	}
 	c.Next()
+}
+
+// func SellerAuthorization(c *gin.Context) {
+// 	accessToken := c.Request.Header.Get("Authorization")
+// 	refreshToken := c.Request.Header.Get("Refreshtoken")
+
+// 	if accessToken == "" {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing access token"})
+// 		c.Abort()
+// 		return
+// 	}
+
+// 	id, err := service.VerifyAccessToken(accessToken, token.tokenSecurityKey.SellerSecurityKey)
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token"})
+// 		c.Abort()
+// 		return
+// 	}
+
+// 	if id == "" {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unable to extract ID from token"})
+// 		c.Abort()
+// 		return
+// 	}
+
+// 	fmt.Println("Seller ID:", id)
+
+// 	// Check if access token is valid, generate a new one if not
+// 	if err := service.VerifyRefreshToken(refreshToken, token.tokenSecurityKey.SellerSecurityKey); err != nil {
+// 		newAccessToken, err := service.GenerateAcessToken(token.tokenSecurityKey.SellerSecurityKey, id)
+// 		if err != nil {
+// 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to generate new access token"})
+// 			c.Abort()
+// 			return
+// 		}
+// 		fmt.Println("New Access Token:", newAccessToken)
+// 		// Update the Authorization header with the new access token
+// 		c.Writer.Header().Set("Authorization", newAccessToken)
+// 	}
+
+// 	// Set SellerID in context
+// 	c.Set("SellerID", id)
+// 	c.Next()
+// }
+
+func SellerAuthorization(c *gin.Context) {
+	accessToken := c.Request.Header.Get("Authorization")
+	refreshToken := c.Request.Header.Get("Refreshtoken")
+
+	if accessToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing access token"})
+		c.Abort()
+		return
+	}
+
+	id, err := service.VerifyAccessToken(accessToken, token.tokenSecurityKey.SellerSecurityKey)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token"})
+		c.Abort()
+		return
+	}
+
+	if id == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unable to extract ID from token"})
+		c.Abort()
+		return
+	}
+
+	fmt.Println("Seller ID:", id)
+
+	// Check if access token is valid, generate a new one if not
+	if err := service.VerifyRefreshToken(refreshToken, token.tokenSecurityKey.SellerSecurityKey); err != nil {
+		newAccessToken, err := service.GenerateAcessToken(token.tokenSecurityKey.SellerSecurityKey, id)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to generate new access token"})
+			c.Abort()
+			return
+		}
+		fmt.Println("New Access Token:", newAccessToken)
+		// Update the Authorization header with the new access token
+		c.Writer.Header().Set("Authorization", newAccessToken)
+	}
+
+	// Set SellerID in context
+	c.Set("SellerID", id)
+	c.Next()
+}
+
+func UserAuthorization(c *gin.Context) {
+	accessToken := c.Request.Header.Get("authorization")
+	refreshToken := c.Request.Header.Get("refreshtoken")
+
+	if accessToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "There is no access token"})
+		c.Abort()
+		return
+	}
+
+	id, err := service.VerifyAccessToken(accessToken, token.tokenSecurityKey.UsersSecurityKey)
+	if err != nil {
+		err := service.VerifyRefreshToken(refreshToken, token.tokenSecurityKey.UsersSecurityKey)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
+			c.Abort()
+		} else {
+			newAccessToken, err := service.GenerateAcessToken(token.tokenSecurityKey.UsersSecurityKey, id)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
+				c.Abort()
+			} else {
+				fmt.Println("New Access Token:", newAccessToken)
+				c.Set("UserID", id)
+				c.Next()
+			}
+		}
+	} else {
+		// c.JSON(http.StatusOK, "All perfect, your access token is up-to-date")
+		c.Set("UserID", id)
+		c.Next()
+	}
 }

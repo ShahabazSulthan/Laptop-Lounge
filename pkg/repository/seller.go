@@ -3,6 +3,7 @@ package repository
 import (
 	requestmodel "Laptop_Lounge/pkg/models/requestModel"
 	responsemodel "Laptop_Lounge/pkg/models/responseModel"
+	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
 	"database/sql"
 	"errors"
@@ -148,4 +149,37 @@ func (d *sellerRepository) GetSingleSeller(id string) (*responsemodel.SellerDeta
 	}
 
 	return &seller, nil
+}
+
+// ------------------------------------------Seller Profile------------------------------------\\
+
+func (d *sellerRepository) GetSellerProfile(userID string) (*responsemodel.SellerProfile, error) {
+
+	var sellerProfile responsemodel.SellerProfile
+
+	query := "SELECT * FROM sellers WHERE id= ?"
+	result := d.DB.Raw(query, userID).Scan(&sellerProfile)
+	if result.Error != nil {
+		return nil, errors.New("face some issue while get user profile ")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return &sellerProfile, nil
+}
+
+func (d *sellerRepository) UpdateSellerProfile(editedProfile *requestmodel.SellerEditProfile) (*responsemodel.SellerProfile, error) {
+
+	var profile responsemodel.SellerProfile
+
+	query := "UPDATE sellers SET name=?, email=?, password=? WHERE id= ? RETURNING *;"
+	result := d.DB.Raw(query, editedProfile.Name, editedProfile.Email, editedProfile.Password, editedProfile.ID).Scan(&profile)
+
+	if result.Error != nil {
+		return nil, errors.New("face some issue while update profile")
+	}
+	if result.RowsAffected == 0 {
+		return nil, resCustomError.ErrNoRowAffected
+	}
+	return &profile, nil
 }

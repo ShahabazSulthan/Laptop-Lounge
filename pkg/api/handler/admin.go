@@ -5,6 +5,7 @@ import (
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -47,6 +48,7 @@ func (u *AdminHandler) AdminLogin(c *gin.Context) {
 
 func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 	result, err := u.AdminUseCase.GetAllSellersDetailAdminDashboard()
+	fmt.Println("Errr", result)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusUnauthorized, "", result, err.Error())
 		c.JSON(http.StatusBadRequest, finalReslt)
@@ -54,4 +56,5 @@ func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 		finalReslt := response.Responses(http.StatusOK, "succesfully login", result, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
+
 }

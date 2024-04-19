@@ -27,6 +27,22 @@ func ConnectDatabse(config config.DataBase) (*gorm.DB, error) {
 		return DB, err
 	}
 
+	if err := DB.AutoMigrate(&domain.Category{}, &domain.Brand{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.CategoryOffer{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.Products{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.Address{}); err != nil {
+		return DB, err
+	}
+
 	CheckAndCreateAdmin(DB)
 
 	return DB, nil
@@ -40,7 +56,6 @@ func CheckAndCreateAdmin(DB *gorm.DB) {
 		Password = "laptop@123"
 	)
 	HashedPassword := helper.HashPassword(Password)
-
 
 	query := "SELECT COUNT(*) FROM admins"
 	DB.Raw(query).Row().Scan(&count)

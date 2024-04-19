@@ -18,4 +18,13 @@ type IUserRepo interface {
 	UserCount(chan int)
 	BlockUser(string) error
 	UnblockUser(string) error
+
+	CreateAddress(*requestmodel.Address) (*requestmodel.Address, error)
+	GetAddress(string, int, int) (*[]requestmodel.Address, error)
+	UpdateAddress(*requestmodel.EditAddress) (*requestmodel.EditAddress, error)
+	GetAAddress(string) (*requestmodel.Address, error)
+	DeleteAddress(string, string) error
+
+	GetProfile(string) (*requestmodel.UserDetails, error)
+	UpdateProfile(*requestmodel.UserDetails) (*requestmodel.UserDetails, error)
 }

@@ -88,7 +88,7 @@ func (u *SellerHandler) GetSellers(c *gin.Context) {
 
 func (u *SellerHandler) BlockSeller(c *gin.Context) {
 
-	sellerId:= c.Param("sellerID")
+	sellerId := c.Param("sellerID")
 	id := strings.TrimSpace(sellerId)
 
 	if len(id) == 0 {
@@ -126,7 +126,7 @@ func (u *SellerHandler) UnblockSeller(c *gin.Context) {
 }
 
 func (u *SellerHandler) GetPendingSellers(c *gin.Context) {
-	page := c.DefaultQuery("page","1")
+	page := c.DefaultQuery("page", "1")
 	limit := c.DefaultQuery("limit", "1")
 
 	sellers, err := u.usecase.GetAllPendingSellers(page, limit)
@@ -174,6 +174,43 @@ func (u *SellerHandler) VerifySeller(c *gin.Context) {
 		c.JSON(http.StatusNotFound, finalReslt)
 	} else {
 		finalReslt := response.Responses(http.StatusOK, "Verification Success", "", nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) GetSellerProfile(c *gin.Context) {
+	sellerID := c.Param("SellerID")
+
+	sellerProfile, err := u.usecase.GetSellerProfile(sellerID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+
+	finalReslt := response.Responses(http.StatusOK, "", sellerProfile, nil)
+	c.JSON(http.StatusOK, finalReslt)
+}
+
+func (u *SellerHandler) EditSellerProfile(c *gin.Context) {
+	var profile requestmodel.SellerEditProfile
+
+	sellerID := c.Param("SellerID")
+
+	profile.ID = sellerID
+
+	if err := c.ShouldBind(&profile); err != nil {
+		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+
+	userProfile, err := u.usecase.UpdateSellerProfile(&profile)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "Successfully Edited", userProfile, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }
