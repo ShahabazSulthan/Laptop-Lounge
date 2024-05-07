@@ -16,14 +16,16 @@ import (
 )
 
 type userUseCase struct {
-	repo  interfaces.IUserRepo
-	token config.Token
+	repo        interfaces.IUserRepo
+	paymentRepo interfaces.IPaymentRepository
+	token       config.Token
 }
 
-func NewUserUseCase(userRepository interfaces.IUserRepo, token *config.Token) interfaceUseCase.IuserUseCase {
+func NewUserUseCase(userRepository interfaces.IUserRepo, payment interfaces.IPaymentRepository, token *config.Token) interfaceUseCase.IuserUseCase {
 	return &userUseCase{
-		repo:  userRepository,
-		token: *token,
+		repo:        userRepository,
+		paymentRepo: payment,
+		token:       *token,
 	}
 }
 
@@ -34,6 +36,7 @@ func (u *userUseCase) UserSignup(userData *requestmodel.UserDetails) (*responsem
 	// Initialize response data
 	var signupData *responsemodel.SignupData
 
+	fmt.Println("111", signupData)
 	// Check if the user already exists
 	if isExist := u.repo.IsUserExist(userData.Phone); isExist >= 1 {
 		return nil, errors.New("user with this phone number already exists, please try again with another phone number")
@@ -47,7 +50,6 @@ func (u *userUseCase) UserSignup(userData *requestmodel.UserDetails) (*responsem
 	if err != nil {
 		return nil, fmt.Errorf("error sending OTP: %v", err)
 	}
-
 
 	// Hash password and generate referral code
 
@@ -271,7 +273,6 @@ func (r *userUseCase) UnblockUser(id string) error {
 
 //--------------------Address-------------------------------------
 //---adds a new address for a user.
-
 
 func (r *userUseCase) AddAddress(address *requestmodel.Address) (*requestmodel.Address, error) {
 

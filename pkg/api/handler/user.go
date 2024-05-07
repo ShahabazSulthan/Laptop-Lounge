@@ -45,8 +45,9 @@ func (u *UserHandler) UserSignup(c *gin.Context) {
 
 	// Call user use case for signup
 	resSignup, err := u.userUseCase.UserSignup(&userSignupData)
+	fmt.Println("333",resSignup)
 	if err != nil {
-		response := response.Responses(http.StatusBadRequest, "Signup failed", nil, err)
+		response := response.Responses(http.StatusBadRequest, "Signup failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -291,14 +292,9 @@ func (u *UserHandler) NewAddress(c *gin.Context) {
 
 func (u *UserHandler) GetAddress(c *gin.Context) {
 
-	userID, exist := c.MustGet("UserID").(string)
-	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
-		c.JSON(http.StatusBadRequest, finalReslt)
-		return
-	}
-
-	page := c.DefaultQuery("page", "1")
+	userID := c.Param("UserID")
+	
+	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
 
 	userAddress, err := u.userUseCase.GetAddress(userID, page, limit)

@@ -133,7 +133,7 @@ func FetchPhoneFromToken(tokenString string, secretKey string) (string, error) {
 
 	LaptopClaim, ok := claims["Laptop"].(string)
 	if !ok {
-		return "", errors.New("phone claim not found or is not a string")
+		return "", errors.New("laptop claim not found or is not a string")
 	}
 
 	return LaptopClaim, nil

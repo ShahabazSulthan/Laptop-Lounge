@@ -21,10 +21,6 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	service.OtpServices(cfg.Otp)
 	middlewire.NewJwtTokenMiddleWire(cfg.Token)
 
-	userRepository := repository.NewUserRepository(DB)
-	userUseCase := usecase.NewUserUseCase(userRepository, &cfg.Token)
-	userHandler := handler.NewUserHandler(userUseCase)
-
 	sellerRepository := repository.NewSellerRepository(DB)
 	sellerUseCase := usecase.NewSellerUseCase(sellerRepository, &cfg.Token)
 	sellerHandler := handler.NewSellerHandler(sellerUseCase)
@@ -38,8 +34,28 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	categoryHandler := handler.NewCategoryHandler(CategoryUseCase)
 
 	ProductRepository := repository.NewProductRepository(DB)
-	ProductUseCase := usecase.NewProductUseCase(ProductRepository,&cfg.S3aws)
+	ProductUseCase := usecase.NewProductUseCase(ProductRepository, &cfg.S3aws)
 	ProductHandler := handler.NewProductHandler(ProductUseCase)
+
+	cartRepository := repository.NewCartRepository(DB)
+	cartUseCase := usecase.NewCartUseCase(cartRepository)
+	cartHanlder := handler.NewCartHandler(cartUseCase)
+
+	paymentRepository := repository.NewPaymentRepository(DB)
+	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, &cfg.Razopay)
+	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
+
+	userRepository := repository.NewUserRepository(DB)
+	userUseCase := usecase.NewUserUseCase(userRepository, paymentRepository, &cfg.Token)
+	userHandler := handler.NewUserHandler(userUseCase)
+
+	couponRepository := repository.NewCoupenRepository(DB)
+	couponUseCase := usecase.NewCouponUseCase(couponRepository)
+	couponHandler := handler.NewCouponHandler(couponUseCase)
+
+	orderRepository := repository.NewOrderRepository(DB)
+	orderUseCase := usecase.NewOrderUseCase(orderRepository, cartRepository, sellerRepository, paymentRepository, couponRepository, &cfg.Razopay)
+	orderHandler := handler.NewOrderHandler(orderUseCase)
 
 	serverHTTP := https.NewServerHtttp(
 		userHandler,
@@ -47,6 +63,10 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 		adminHandler,
 		categoryHandler,
 		ProductHandler,
+		cartHanlder,
+		orderHandler,
+		paymentHandler,
+		couponHandler,
 	)
 	return serverHTTP, nil
 }

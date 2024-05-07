@@ -1,16 +1,14 @@
 package requestmodel
 
-
 type SellerSignup struct {
-	ID              uint   
-	Name            string `json:"name"            validate:"required"`
+	ID              uint
+	Name            string `json:"name"            validate:"required,alpha"`
 	Email           string `json:"email"           validate:"email"`
 	Password        string `json:"password"        validate:"min=4"`
 	ConfirmPassword string `json:"confirmpassword" validate:"eqfield=Password"`
-	GST_NO          string `json:"gstno"           validate:"required,len=15"`     
+	GST_NO          string `json:"gstno"           validate:"required,len=15"`
 	Description     string `json:"description"     validate:"required"`
 }
-
 
 type SellerLogin struct {
 	Email    string `json:"email"    validate:"email"`
@@ -19,10 +17,10 @@ type SellerLogin struct {
 
 type SellerEditProfile struct {
 	ID              string `json:"id,omitempty"   validate:"required"`
-	Name            string `json:"name,omitempty"            validate:"required"`
+	Name            string `json:"name,omitempty"            validate:"required,alpha"`
 	Email           string `json:"email,omitempty"           validate:"required,email"`
 	Password        string `json:"password,omitempty"        validate:"required,min=4"`
 	ConfirmPassword string `json:"confirmpassword,omitempty" validate:"required,eqfield=Password"`
 	GST_NO          string `json:"gstno,omitempty"           validate:"required,len=15"`
-	Description string `json:"description,omitempty"     validate:"required"`
+	Description     string `json:"description,omitempty"     validate:"required"`
 }

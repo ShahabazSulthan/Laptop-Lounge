@@ -39,10 +39,9 @@ func (d *productRepository) CreateProduct(ProductReq *requestmodel.ProductReq) (
 		battery_capacity , 
 		seller_id, 
 		image_url, 
-		discount,
-		status
+		discount
 	) 
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?) 
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
 	RETURNING *;
 `
 
@@ -54,7 +53,7 @@ func (d *productRepository) CreateProduct(ProductReq *requestmodel.ProductReq) (
 		ProductReq.Mrp, ProductReq.SalePrice, ProductReq.Units,
 		ProductReq.OperatingSystem, ProductReq.ProcessorType, ProductReq.ScreenSize,
 		ProductReq.GraphicsCard, ProductReq.StorageCapacityGB, ProductReq.BatteryCapacity,
-		ProductReq.SellerID, ProductReq.ImageURL, ProductReq.Discount, ProductReq.Status,
+		ProductReq.SellerID, ProductReq.ImageURL, ProductReq.Discount,
 	).Scan(&insertedData)
 
 	if result.Error != nil {
@@ -80,7 +79,7 @@ func (d *productRepository) UNBlockSingleProductBySeller(SellerId string, produc
 	query := "UPDATE products SET status='active' WHERE id= $1"
 	err := d.DB.Exec(query, productID).Error
 	if err != nil {
-		return errors.New("can't change the status of product in inverntories")
+		return errors.New("can't change the status of product in Products")
 	}
 	return nil
 }
@@ -97,11 +96,11 @@ func (d *productRepository) DeleteProductBySeller(SellerID string, productID str
 	return nil
 }
 
-func (d *productRepository) GetAllProduct(offset int, limit int) (*[]responsemodel.ProductShowcase, error) {
+func (d *productRepository) GetAllProduct() (*[]responsemodel.ProductShowcase, error) {
 	var Product []responsemodel.ProductShowcase
 
-	query := "SELECT * FROM category_offers RIGHT JOIN products ON category_offers.category_id= products.category_id AND products.seller_id=category_offers.seller_id AND category_offers.status='active' AND category_offers.end_date>=now() WHERE products.status='Active' ORDER BY products.id OFFSET ? LIMIT ?"
-	err := d.DB.Raw(query, offset, limit).Scan(&Product).Error
+	query := "SELECT * FROM category_offers RIGHT JOIN products ON category_offers.category_id= products.category_id AND products.seller_id=category_offers.seller_id AND category_offers.status='active' AND category_offers.end_date>=now() WHERE products.status='active' ORDER BY products.id"
+	err := d.DB.Raw(query).Scan(&Product).Error
 	if err != nil {
 		return nil, errors.New("can't get products data from db")
 	}
@@ -111,7 +110,7 @@ func (d *productRepository) GetAllProduct(offset int, limit int) (*[]responsemod
 func (d *productRepository) GetAProducts(id string) (*responsemodel.ProductRes, error) {
 	var Products responsemodel.ProductRes
 
-	query := "SELECT * FROM category_offers RIGHT JOIN products ON category_offers.category_id= products.category_id AND products.seller_id=category_offers.seller_id AND category_offers.status='active' AND category_offers.end_date>=now() WHERE products.id=? "
+	query := "SELECT * FROM category_offers RIGHT JOIN products ON category_offers.category_id= products.category_id AND products.seller_id=category_offers.seller_id AND category_offers.status='active' AND category_offers.end_date>=now() WHERE products.id=? AND products.status='active'"
 	result := d.DB.Raw(query, id).Scan(&Products)
 	if result.Error != nil {
 		return nil, errors.New("can't get products data from db or products is not active state")
@@ -122,6 +121,27 @@ func (d *productRepository) GetAProducts(id string) (*responsemodel.ProductRes, 
 	return &Products, nil
 }
 
+func (d *productRepository) GetAProductLowtoHigh() (*[]responsemodel.ProductShowcase, error) {
+	var Product []responsemodel.ProductShowcase
+
+	query := `SELECT * FROM products WHERE status = 'active' ORDER BY sale_price ASC;`
+	err := d.DB.Raw(query).Scan(&Product).Error
+	if err != nil {
+		return nil, errors.New("can't get products data from db")
+	}
+	return &Product, nil
+}
+
+func (d *productRepository) GetAProductHightoLow() (*[]responsemodel.ProductShowcase, error) {
+	var Product []responsemodel.ProductShowcase
+
+	query := `SELECT * FROM products WHERE status = 'active' ORDER BY sale_price DESC`
+	err := d.DB.Raw(query).Scan(&Product).Error
+	if err != nil {
+		return nil, errors.New("can't get products data from db")
+	}
+	return &Product, nil
+}
 
 func (d *productRepository) GetSellerProduct(offSet int, limit int, sellerID string) (*[]responsemodel.ProductShowcase, error) {
 	var inventory []responsemodel.ProductShowcase
@@ -162,7 +182,7 @@ func (d *productRepository) GetProductFilter(criterion *requestmodel.FilterCrite
 	 AND category_offers.end_date>=now()  WHERE categories.name ILIKE '%' || $1 || '%' 
 	 AND brands.name ILIKE '%' || $2 || '%' AND products.model_name ILIKE '%' || $3 || '%' 
 	 AND ($4 = 0 OR $4 < products.sale_price AND ($5 = 0 OR $5 >= products.sale_price))`
-	 
+
 	result := d.DB.Raw(query, criterion.Category, criterion.Brand, criterion.Product, criterion.MinPrice, criterion.MaxPrice).Scan(&sortedProduct)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while filter product")

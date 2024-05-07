@@ -71,7 +71,7 @@ func (u *SellerHandler) SellerLogin(c *gin.Context) {
 }
 
 func (u *SellerHandler) GetSellers(c *gin.Context) {
-	page := c.DefaultQuery("page", "1")
+	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
 
 	sellers, count, err := u.usecase.GetAllSellers(page, limit)
@@ -211,6 +211,24 @@ func (u *SellerHandler) EditSellerProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, finalReslt)
 	} else {
 		finalReslt := response.Responses(http.StatusOK, "Successfully Edited", userProfile, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+func (u *SellerHandler) SellerDashbord(c *gin.Context) {
+	sellerID, exist := c.MustGet("SellerID").(string)
+	if !exist {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+
+	dashBord, err := u.usecase.GetSellerDashbord(sellerID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "", dashBord, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }

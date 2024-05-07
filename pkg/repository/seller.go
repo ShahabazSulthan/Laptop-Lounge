@@ -183,3 +183,84 @@ func (d *sellerRepository) UpdateSellerProfile(editedProfile *requestmodel.Selle
 	}
 	return &profile, nil
 }
+
+// ------------------------------------------Seller Money Menagment------------------------------------\\
+
+func (d *sellerRepository) UpdateSellerCredit(sellerID string, credit uint) error {
+	query := "UPDATE sellers SET seller_credit = ? WHERE id=?"
+	result := d.DB.Exec(query, credit, sellerID)
+	if result.Error != nil {
+		return errors.New("face some issue while updating seller credits")
+	}
+	if result.RowsAffected == 0 {
+
+		return resCustomError.ErrNoRowAffected
+	}
+	return nil
+}
+
+func (d *sellerRepository) GetSellerCredit(sellerID string) (uint, error) {
+	var credit uint
+	query := "SELECT seller_credit FROM sellers WHERE id= ?"
+	result := d.DB.Raw(query, sellerID).Scan(&credit)
+	if result.Error != nil {
+		return 0, errors.New("face some issue while get credit from seller table")
+	}
+	if result.RowsAffected == 0 {
+		return 0, resCustomError.ErrNoRowAffected
+	}
+	return credit, nil
+}
+
+func (d *sellerRepository) GetDashBordOrderCount(sellerID string, orderstatus string) (uint, error) {
+
+	var data uint
+	query := "SELECT COALESCE(COUNT(*),0) FROM order_products WHERE seller_id= $1 AND (order_status=$2 OR $2='')"
+	result := d.DB.Raw(query, sellerID, orderstatus).Scan(&data)
+	if result.Error != nil {
+		return 0, errors.New("face some issue while get dashbord criteria")
+	}
+	if result.RowsAffected == 0 {
+		return 0, resCustomError.ErrNoRowAffected
+	}
+	return data, nil
+}
+
+func (d *sellerRepository) GetDashBordOrderSum(sellerID string, criteria string) (uint, error) {
+
+	var data uint
+	query := "SELECT COALESCE(SUM(" + criteria + "),0) FROM order_products WHERE seller_id= ? AND order_status= 'delivered'"
+	result := d.DB.Raw(query, sellerID).Scan(&data)
+	if result.Error != nil {
+		return 0, errors.New("face some issue while get dashbord criteria")
+	}
+	if result.RowsAffected == 0 {
+		return 0, resCustomError.ErrNoRowAffected
+	}
+	return data, nil
+}
+
+// func (d *sellerRepository) GetSellerCredit(sellerID string) (uint, error) {
+
+// 	var data uint
+// 	query := "SELECT seller_credit WHERE id=?"
+// 	result := d.DB.Raw(query, sellerID).Scan(data)
+// 	if result.Error != nil {
+// 		return nil, errors.New("face some issue while get dashbord criteria")
+// 	}
+// 	if result.RowsAffected == 0 {
+// 		return nil, resCustomError.ErrNoRowAffected
+// 	}
+// 	return data, nil
+// }
+
+func (d *sellerRepository) GetLowStokesProduct(sellerID string) ([]uint, error) {
+
+	var data []uint
+	query := "SELECT COALESCE(id,0) FROM products WHERE seller_id= ? AND units<100"
+	result := d.DB.Raw(query, sellerID).Scan(&data)
+	if result.Error != nil {
+		return nil, errors.New("face some issue while get dashbord criteria")
+	}
+	return data, nil
+}

@@ -10,8 +10,10 @@ type IProductUseCase interface {
 	BlockProduct(string, string) error
 	UnblockProduct(string, string) error
 	DeleteProduct(string, string) error
-	GetAllProducts(string, string) (*[]responsemodel.ProductShowcase, error)
+	GetAllProducts() (*[]responsemodel.ProductShowcase, error)
 	GetAProduct(string) (*responsemodel.ProductRes, error)
+	GetAProductHightoLow() (*[]responsemodel.ProductShowcase, error)
+	GetAProductLowtoHigh() (*[]responsemodel.ProductShowcase, error)
 	GetSellerProducts(string, string, string) (*[]responsemodel.ProductShowcase, error)
 	EditProduct(*requestmodel.EditProduct) (*responsemodel.ProductRes, error)
 

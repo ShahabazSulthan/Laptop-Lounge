@@ -9,7 +9,6 @@ import (
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
 	"errors"
-	"fmt"
 	"log"
 )
 
@@ -46,7 +45,7 @@ func (s *adminUseCase) AdminLogin(adminData *requestmodel.AdminLoginData) (*resp
 		return nil, errors.New("failed to generate refresh token")
 	}
 
-	fmt.Println("hhh", s.tokenSecurityKey.AdminSecurityKey)
+	//fmt.Println("hhh", s.tokenSecurityKey.AdminSecurityKey)
 	adminLoginRes.Token = token
 	return &adminLoginRes, nil
 }
@@ -54,7 +53,7 @@ func (s *adminUseCase) AdminLogin(adminData *requestmodel.AdminLoginData) (*resp
 func (s *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.AdminDashBoard, error) {
 	var dashboard responsemodel.AdminDashBoard
 
-	fmt.Println("nnnn", dashboard)
+	//fmt.Println("nnnn", dashboard)
 	var err error
 	dashboard.TotalSellers, err = s.repo.GetSellersDetailDashBoard("")
 	if err != nil {

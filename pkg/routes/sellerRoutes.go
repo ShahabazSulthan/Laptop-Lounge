@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SellerRoutes(engin *gin.RouterGroup, seller *handler.SellerHandler, Product *handler.ProductHandler,category *handler.CategoryHandler) {
+func SellerRoutes(engin *gin.RouterGroup, seller *handler.SellerHandler, Product *handler.ProductHandler,category *handler.CategoryHandler,order *handler.OrderHandler) {
 	engin.POST("/signup", seller.SellerSignup)
 	engin.POST("/login", seller.SellerLogin)
 	engin.GET("/profile/:SellerID", seller.GetSellerProfile)
@@ -15,12 +15,12 @@ func SellerRoutes(engin *gin.RouterGroup, seller *handler.SellerHandler, Product
 	Productmanagement := engin.Group("/products")
 	{
 		Productmanagement.POST("/:SellerID", Product.AddProduct)
-		Productmanagement.GET("/seller/:SellerID", Product.GetSellerIProduct)
+		Productmanagement.GET("/seller/:SellerID/:page", Product.GetSellerIProduct)
 		Productmanagement.GET("/:productid", Product.GetAProduct)
-		Productmanagement.PATCH("/", Product.EditProduct)
-		Productmanagement.DELETE("/:productid", Product.DeleteProduct)
-		Productmanagement.PATCH("/:productid/block", Product.BlockProduct)
-		Productmanagement.PATCH("/:productid/unblock", Product.UnblockProduct)
+		Productmanagement.PATCH("/:SellerID", Product.EditProduct)
+		Productmanagement.DELETE("/:SellerID/:productid", Product.DeleteProduct)
+		Productmanagement.PATCH("/:SellerID/:productid/block", Product.BlockProduct)
+		Productmanagement.PATCH("/:SellerID/:productid/unblock", Product.UnblockProduct)
 	}
 
 	categorymanagement := engin.Group("/categoryoffer")
@@ -33,6 +33,26 @@ func SellerRoutes(engin *gin.RouterGroup, seller *handler.SellerHandler, Product
 			categorymanagement.PATCH("/block/:categoryOfferID", category.BlockCategoryOffer)
 			categorymanagement.PATCH("/unblock/:categoryOfferID", category.UnBlockCategoryOffer)
 			categorymanagement.DELETE("/delete/:categoryOfferID", category.DeleteCategoryOffer)
+		}
+
+		ordermanagenent := engin.Group("/order")
+		{
+			ordermanagenent.GET("/:SellerID", order.GetSellerOrders)
+			ordermanagenent.GET("/processing/:SellerID", order.GetSellerOrdersProcessing)
+			ordermanagenent.GET("/delivered/:SellerID", order.GetSellerOrdersDeliverd)
+			ordermanagenent.GET("/cancelled/:SellerID", order.GetSellerOrdersCancelled)
+			ordermanagenent.PATCH("/:SellerID/:orderID", order.ConfirmDeliverd)
+			ordermanagenent.PATCH("/:SellerID/:orderID/cancel", order.CancelOrder)
+		}
+
+		salesreportmanagement := engin.Group("/report")
+		{
+			// salesreportmanagement.GET("", order.SalesReportByYear)
+			// salesreportmanagement.GET("/month", order.SalesReportByMonth)
+			// salesreportmanagement.GET("/week", order.SalesReportByWeek)
+			salesreportmanagement.GET("/day/:SellerID/:year/:month/:day", order.SalesReport)
+			salesreportmanagement.GET("/days/:SellerID/:days", order.SalesReportCustomDays)
+			salesreportmanagement.GET("/xlsx/:SellerID", order.SalesReportXlSX)
 		}
 
 }

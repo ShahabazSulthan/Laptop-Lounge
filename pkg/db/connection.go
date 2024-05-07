@@ -43,6 +43,30 @@ func ConnectDatabse(config config.DataBase) (*gorm.DB, error) {
 		return DB, err
 	}
 
+	if err := DB.AutoMigrate(&domain.Cart{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.Order{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.OrderProducts{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.Wallet{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.WalletTransaction{}); err != nil {
+		return DB, err
+	}
+
+	if err := DB.AutoMigrate(&domain.Coupons{}); err != nil {
+		return DB, err
+	}
+
 	CheckAndCreateAdmin(DB)
 
 	return DB, nil

@@ -37,21 +37,11 @@ func (ph *ProductHandler) AddProduct(c *gin.Context) {
 	}
 
 	// Bind request body to productDetails
-	if err := c.ShouldBind(&productDetails); err != nil {
+	if err := c.ShouldBindJSON(&productDetails); err != nil {
 		finalResult := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
 		c.JSON(http.StatusBadRequest, finalResult)
 		return
 	}
-
-	// Retrieve productImage from form data
-	image, err := c.FormFile("image")
-	if err != nil {
-		finalResult := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
-		c.JSON(http.StatusBadRequest, finalResult)
-		return
-	}
-
-	productDetails.Image = image
 
 	// Convert SellerID to integer
 	sellerIDInt, err := strconv.Atoi(sellerID)
@@ -72,7 +62,6 @@ func (ph *ProductHandler) AddProduct(c *gin.Context) {
 
 	// Add product using the use case
 	product, err := ph.userCase.AddProduct(&productDetails)
-
 	if err != nil {
 		finalResult := response.Responses(http.StatusBadRequest, "refine request", "", err.Error())
 		c.JSON(http.StatusBadRequest, finalResult)
@@ -85,34 +74,40 @@ func (ph *ProductHandler) AddProduct(c *gin.Context) {
 }
 
 func (u *ProductHandler) BlockProduct(c *gin.Context) {
-	sellerid, exist := c.MustGet("SellerID").(string)
-	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
-		c.JSON(http.StatusBadRequest, finalReslt)
+	// Extract SellerID and productID from URL parameters
+	sellerID := c.Param("SellerID")
+	productID := c.Param("productid")
+
+	// Check if SellerID exists in the request
+	if sellerID == "" {
+		finalResult := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
+		c.JSON(http.StatusBadRequest, finalResult)
 		return
 	}
 
-	productID := c.Param("productid")
-	err := u.userCase.BlockProduct(sellerid, productID)
+	// Block the product using the use case
+	err := u.userCase.BlockProduct(sellerID, productID)
 	if err != nil {
-		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
-		c.JSON(http.StatusNotFound, finalReslt)
+		finalResult := response.Responses(http.StatusNotFound, "", "", err.Error())
+		c.JSON(http.StatusNotFound, finalResult)
 	} else {
-		finalReslt := response.Responses(http.StatusOK, "Succesfully product blocked", "", nil)
-		c.JSON(http.StatusOK, finalReslt)
+		finalResult := response.Responses(http.StatusOK, "Successfully product blocked", "", nil)
+		c.JSON(http.StatusOK, finalResult)
 	}
 }
 
 func (u *ProductHandler) UnblockProduct(c *gin.Context) {
-	sellerid, exist := c.MustGet("SellerID").(string)
-	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
-		c.JSON(http.StatusBadRequest, finalReslt)
+	sellerID := c.Param("SellerID")
+	productID := c.Param("productid")
+
+	// Check if SellerID exists in the request
+	if sellerID == "" {
+		finalResult := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
+		c.JSON(http.StatusBadRequest, finalResult)
 		return
 	}
 
-	productID := c.Param("productid")
-	err := u.userCase.UnblockProduct(sellerid, productID)
+	err := u.userCase.UnblockProduct(sellerID, productID)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
 		c.JSON(http.StatusNotFound, finalReslt)
@@ -123,15 +118,17 @@ func (u *ProductHandler) UnblockProduct(c *gin.Context) {
 }
 
 func (u *ProductHandler) DeleteProduct(c *gin.Context) {
-	sellerid, exist := c.MustGet("Sellerid").(string)
-	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
-		c.JSON(http.StatusBadRequest, finalReslt)
+	sellerID := c.Param("SellerID")
+	productID := c.Param("productid")
+
+	// Check if SellerID exists in the request
+	if sellerID == "" {
+		finalResult := response.Responses(http.StatusBadRequest, resCustomError.NotGetSellerIDinContexr, nil, nil)
+		c.JSON(http.StatusBadRequest, finalResult)
 		return
 	}
 
-	productID := c.Param("productid")
-	err := u.userCase.DeleteProduct(sellerid, productID)
+	err := u.userCase.DeleteProduct(sellerID, productID)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusNotFound, "", "", err.Error())
 		c.JSON(http.StatusNotFound, finalReslt)
@@ -142,34 +139,70 @@ func (u *ProductHandler) DeleteProduct(c *gin.Context) {
 }
 
 func (u *ProductHandler) GetProduct(c *gin.Context) {
-	page := c.DefaultQuery("limit", "1")
-	limit := c.DefaultQuery("limit", "1")
-
-	product, err := u.userCase.GetAllProducts(page, limit)
+	
+	product, err := u.userCase.GetAllProducts()
 	if err != nil {
+		// If there's an error, respond with a JSON error message and status 404
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		finalReslt := response.Responses(http.StatusOK, "", product, nil)
-		c.JSON(http.StatusOK, finalReslt)
+		// If successful, construct the final response using a custom Responses function
+		finalResult := response.Responses(http.StatusOK, "", product, nil)
+
+		// Return the final response with status 200
+		c.JSON(http.StatusOK, finalResult)
 	}
 }
 
 func (u *ProductHandler) GetAProduct(c *gin.Context) {
-    id := c.Param("productid")
+	// Extract the 'productid' parameter from the URL path
+	id := c.Param("productid")
 
-    product, err := u.userCase.GetAProduct(id)
-    if err != nil {
-        finalResult := response.Responses(http.StatusBadRequest, "", nil, err.Error())
-        c.JSON(http.StatusBadRequest, finalResult)
-        return
-    }
+	// Call the GetAProduct method from the userCase with the extracted id
+	product, err := u.userCase.GetAProduct(id)
+	if err != nil {
+		// If there's an error, construct a response with a JSON error message and status 400 (Bad Request)
+		finalResult := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalResult)
+		return // Exit the function to avoid further processing
+	}
 
-    finalResult := response.Responses(http.StatusOK, "", product, nil)
-    c.JSON(http.StatusOK, finalResult)
+	// If successful, construct the final response with the product data and status 200 (OK)
+	finalResult := response.Responses(http.StatusOK, "", product, nil)
+	c.JSON(http.StatusOK, finalResult)
+}
+
+func (u *ProductHandler) GetAProductHightoLow(c *gin.Context) {
+
+	product, err := u.userCase.GetAProductHightoLow()
+	if err != nil {
+		// If there's an error, construct a response with a JSON error message and status 400 (Bad Request)
+		finalResult := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalResult)
+		return // Exit the function to avoid further processing
+	}
+
+	// If successful, construct the final response with the product data and status 200 (OK)
+	finalResult := response.Responses(http.StatusOK, "", product, nil)
+	c.JSON(http.StatusOK, finalResult)
+}
+
+func (u *ProductHandler) GetAProductLowtoHigh(c *gin.Context) {
+
+	product, err := u.userCase.GetAProductLowtoHigh()
+	if err != nil {
+		// If there's an error, construct a response with a JSON error message and status 400 (Bad Request)
+		finalResult := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalResult)
+		return // Exit the function to avoid further processing
+	}
+
+	// If successful, construct the final response with the product data and status 200 (OK)
+	finalResult := response.Responses(http.StatusOK, "", product, nil)
+	c.JSON(http.StatusOK, finalResult)
 }
 
 func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
-	page := c.DefaultQuery("page", "1")
+	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
 	sellerID := c.Param("SellerID") // Assuming the seller ID is in the URL path
 
@@ -184,25 +217,27 @@ func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
 }
 
 func (u *ProductHandler) EditProduct(c *gin.Context) {
+	var editedProduct requestmodel.EditProduct
 
-	var edittedProduct requestmodel.EditProduct
+	// Get SellerID from URL params
+	editedProduct.SellerID = c.Param("SellerID")
 
-	edittedProduct.SellerID = c.MustGet("SellerID").(string)
-
-	if err := c.BindJSON(&edittedProduct); err != nil {
+	// Bind JSON data to editedProduct
+	if err := c.ShouldBindJSON(&editedProduct); err != nil {
 		fmt.Println(err)
-		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, nil)
-		c.JSON(http.StatusBadRequest, finalReslt)
+		finalResult := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalResult)
 		return
 	}
 
-	updatedProduct, err := u.userCase.EditProduct(&edittedProduct)
+	// Call the use case method to edit the product
+	updatedProduct, err := u.userCase.EditProduct(&editedProduct)
 	if err != nil {
-		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
-		c.JSON(http.StatusBadRequest, finalReslt)
+		finalResult := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalResult)
 	} else {
-		finalReslt := response.Responses(http.StatusOK, "", updatedProduct, nil)
-		c.JSON(http.StatusOK, finalReslt)
+		finalResult := response.Responses(http.StatusOK, "", updatedProduct, nil)
+		c.JSON(http.StatusOK, finalResult)
 	}
 }
 

@@ -34,13 +34,19 @@ type S3Bucket struct {
 	BucketName      string `mapstructure:"BucketName"`
 }
 
-// This struct, Config, encapsulates all the other structs 
+type Razopay struct {
+	RazopayKey    string `mapstructure:"RAZOPAYKEY"`
+	RazopaySecret string `mapstructure:"PAZOPAYSECRET"`
+}
+
+// This struct, Config, encapsulates all the other structs
 
 type Config struct {
-	DB    DataBase
-	Token Token
-	Otp   OTP
-	S3aws S3Bucket
+	DB      DataBase
+	Token   Token
+	Otp     OTP
+	S3aws   S3Bucket
+	Razopay Razopay
 }
 
 func LoadConfig() (*Config, error) {
@@ -67,6 +73,10 @@ func LoadConfig() (*Config, error) {
 
 	if err := viper.Unmarshal(&c.S3aws); err != nil {
 		return nil, fmt.Errorf("error unmarshaling S3Bucket config: %w", err)
+	}
+
+	if err := viper.Unmarshal(&c.Razopay); err != nil {
+		return nil, fmt.Errorf("error unmarshaling Razopay config: %w", err)
 	}
 
 	return &c, nil

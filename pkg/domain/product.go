@@ -1,6 +1,5 @@
 package domain
 
-
 type Products struct {
 	ID                 uint `gorm:"primary key"`
 	ModelName          string
@@ -24,3 +23,11 @@ type Products struct {
 	ImageURL           string
 	Status             status `gorm:"default:active"`
 }
+
+// type Rating struct {
+// 	ID        uint `gorm:"primary_key"`
+// 	ProductID uint
+// 	Rating    float64
+// 	CreatedAt time.Time
+// 	UpdatedAt time.Time
+// }

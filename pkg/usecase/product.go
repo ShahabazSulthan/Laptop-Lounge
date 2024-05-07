@@ -6,7 +6,6 @@ import (
 	responsemodel "Laptop_Lounge/pkg/models/responseModel"
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
-	"Laptop_Lounge/pkg/service"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
 	"errors"
@@ -23,21 +22,6 @@ func NewProductUseCase(repository interfaces.IProductRepository, s3aws *config.S
 }
 
 func (d *productUseCase) AddProduct(product *requestmodel.ProductReq) (*responsemodel.ProductRes, error) {
-
-	// Create AWS session
-	sess, err := service.CreateSession(&d.s3)
-	if err != nil {
-		return nil, err // Return the error directly
-	}
-
-	// Upload image to S3
-	ImageURL, err := service.UploadImageToS3(product.Image, sess)
-	if err != nil {
-		return nil, fmt.Errorf("error uploading image to S3: %v", err)
-	}
-
-	// Update product with ImageURL
-	product.ImageURL = ImageURL
 
 	// Calculate discounted price
 	discountedPrice := helper.FindDiscount(float64(product.Mrp), float64(product.Discount))
@@ -76,14 +60,9 @@ func (r *productUseCase) DeleteProduct(sellerID string, productID string) error 
 	return nil
 }
 
-func (r *productUseCase) GetAllProducts(page string, limit string) (*[]responsemodel.ProductShowcase, error) {
+func (r *productUseCase) GetAllProducts() (*[]responsemodel.ProductShowcase, error) {
 
-	offSet, limits, err := helper.Pagination(page, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	Products, err := r.repo.GetAllProduct(offSet, limits)
+	Products, err := r.repo.GetAllProduct()
 	if err != nil {
 		return nil, err
 	}
@@ -98,16 +77,46 @@ func (r *productUseCase) GetAllProducts(page string, limit string) (*[]responsem
 }
 
 func (r *productUseCase) GetAProduct(productID string) (*responsemodel.ProductRes, error) {
-    product, err := r.repo.GetAProducts(productID)
-    if err != nil {
-        return nil, fmt.Errorf("error getting product: %w", err) // Wrap the error for more context
-    }
+	product, err := r.repo.GetAProducts(productID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting product: %w", err) // Wrap the error for more context
+	}
 
-    if product.CategoryDiscount != 0 {
-        product.NetDiscount = product.CategoryDiscount + product.Discount
-        product.FinalPrice = helper.FindDiscount(float64(product.Mrp), float64(product.NetDiscount))
-    }
-    return product, nil
+	if product.CategoryDiscount != 0 {
+		product.NetDiscount = product.CategoryDiscount + product.Discount
+		product.FinalPrice = helper.FindDiscount(float64(product.Mrp), float64(product.NetDiscount))
+	}
+	return product, nil
+}
+
+func (r *productUseCase) GetAProductHightoLow() (*[]responsemodel.ProductShowcase, error) {
+	Products, err := r.repo.GetAProductHightoLow()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, product := range *Products {
+		if product.CategoryDiscount != 0 {
+			(*Products)[i].NetDiscount = product.Discount + product.CategoryDiscount
+			(*Products)[i].PriceAfterApplyCategoryDiscount = helper.FindDiscount(float64(product.Mrp), float64((*Products)[i].NetDiscount))
+		}
+	}
+	return Products, nil
+}
+
+func (r *productUseCase) GetAProductLowtoHigh() (*[]responsemodel.ProductShowcase, error) {
+	Products, err := r.repo.GetAProductLowtoHigh()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, product := range *Products {
+		if product.CategoryDiscount != 0 {
+			(*Products)[i].NetDiscount = product.Discount + product.CategoryDiscount
+			(*Products)[i].PriceAfterApplyCategoryDiscount = helper.FindDiscount(float64(product.Mrp), float64((*Products)[i].NetDiscount))
+		}
+	}
+	return Products, nil
 }
 
 func (r *productUseCase) GetSellerProducts(page string, limit string, sellerID string) (*[]responsemodel.ProductShowcase, error) {
