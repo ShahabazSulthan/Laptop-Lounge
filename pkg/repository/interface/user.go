@@ -20,7 +20,7 @@ type IUserRepo interface {
 	UnblockUser(string) error
 
 	CreateAddress(*requestmodel.Address) (*requestmodel.Address, error)
-	GetAddress(string, int, int) (*[]requestmodel.Address, error)
+	GetAddress(string) (*[]requestmodel.Address, error)
 	UpdateAddress(*requestmodel.EditAddress) (*requestmodel.EditAddress, error)
 	GetAAddress(string) (*requestmodel.Address, error)
 	DeleteAddress(string, string) error

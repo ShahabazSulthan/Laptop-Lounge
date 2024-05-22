@@ -285,14 +285,9 @@ func (r *userUseCase) AddAddress(address *requestmodel.Address) (*requestmodel.A
 
 //--- retrieves addresses for a specific user with pagination support
 
-func (r *userUseCase) GetAddress(userID string, page string, limit string) (*[]requestmodel.Address, error) {
+func (r *userUseCase) GetAddress(userID string) (*[]requestmodel.Address, error) {
 
-	offset, limits, err := helper.Pagination(page, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	address, err := r.repo.GetAddress(userID, offset, limits)
+	address, err := r.repo.GetAddress(userID)
 	if err != nil {
 		return nil, err
 	}

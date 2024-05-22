@@ -32,7 +32,7 @@ type ProductShowcase struct {
 	ModelName                       string `json:"model_name"`
 	Mrp                             int    `json:"mrp" `
 	Discount                        uint   `form:"discount" `
-	Saleprice                       int    `json:"sale_price" `
+	Saleprice                       int    `json:"salePrice,omitempty" `
 	CategoryDiscount                uint   `json:"categoryDiscount,omitempty"`
 	NetDiscount                     uint   `json:"netDiscount,omitempty"`
 	PriceAfterApplyCategoryDiscount uint   `json:"priceApplyCategoryDiscount,omitempty"`

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *handler.SellerHandler, user *handler.UserHandler,category *handler.CategoryHandler,coupon *handler.CouponHandler) {
+func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *handler.SellerHandler, user *handler.UserHandler, category *handler.CategoryHandler, coupon *handler.CouponHandler, helpdesk *handler.HelpDeskHandler) {
 
 	engin.POST("/login", admin.AdminLogin)
 
@@ -36,14 +36,14 @@ func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *ha
 		categorymanagement := engin.Group("/category")
 		{
 			categorymanagement.POST("/", category.NewCategory)
-			categorymanagement.GET("/:page", category.FetchAllCatogry)
+			categorymanagement.GET("/", category.FetchAllCatogry)
 			categorymanagement.PATCH("/", category.UpdateCategory)
 			categorymanagement.DELETE("/:id", category.DeleteCategory)
 		}
 		brandmanagement := engin.Group("/brand")
 		{
 			brandmanagement.POST("/", category.CreateBrand)
-			brandmanagement.GET("/:page", category.FetchAllBrand)
+			brandmanagement.GET("/", category.FetchAllBrand)
 			brandmanagement.PATCH("/", category.UpdateBrand)
 			brandmanagement.DELETE("/:id", category.DeleteBrand)
 		}
@@ -54,6 +54,13 @@ func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *ha
 			couponmanagment.GET("/", coupon.GetCoupons)
 			couponmanagment.PATCH("/unblock/:couponID", coupon.UnblockCoupon)
 			couponmanagment.PATCH("/block/:couponID", coupon.BlockCoupon)
+		}
+
+		helpdeskmenagement := engin.Group("/helpdesk")
+		{
+			helpdeskmenagement.PATCH("/:requestID", helpdesk.UpdateAnswer)
+			helpdeskmenagement.GET("/Updated", helpdesk.GetRepliedRequests)
+			helpdeskmenagement.GET("/Pending", helpdesk.GetUnrepliedRequests)
 		}
 	}
 }

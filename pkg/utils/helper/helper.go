@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -42,36 +43,61 @@ func Pagination(page string, limit string) (int, int, error) {
 }
 
 func Validation(data interface{}) ([]responsemodel.Errors, error) {
-	var afterErrorCorrection []responsemodel.Errors
+	var validationErrors []responsemodel.Errors
 	validate := validator.New()
+
+	// Register custom date validation function
+	if err := validate.RegisterValidation("date", validateDate); err != nil {
+		return validationErrors, err
+	}
 
 	err := validate.Struct(data)
 	if err != nil {
 		if ve, ok := err.(validator.ValidationErrors); ok {
 			errorMessages := map[string]string{
-				"required":  "%s is required",
-				"min":       "%s should be at least %s",
-				"max":       "%s should be at most %s",
-				"email":     "%s should be in email format",
-				"eqfield":   "%s should be equal to %s",
-				"len":       "%s should have length %s",
-				"alpha":     "%s should be alphabetic",
-				"number":    "%s should be numeric",
-				"numeric":   "%s should be numeric",
-				"uppercase": "%s should be uppercase",
-				"gtcsfield": "%s should be greater than %s",
+				"required":         "%s is required",
+				"min":              "%s should be at least %s",
+				"max":              "%s should be at most %s",
+				"email":            "%s should be in email format",
+				"eqfield":          "%s should be equal to %s",
+				"len":              "%s should have length %s",
+				"alpha":            "%s should be alphabetic",
+				"number":           "%s should be numeric",
+				"numeric":          "%s should be numeric",
+				"uppercase":        "%s should be uppercase",
+				"gtcsfield":        "%s should be greater than %s",
+				"date.required":    "%s is required",
+				"date.date":        "%s should be a valid date (YYYY-MM-DD)",
+				"date.layout":      "Invalid date format provided",
+				"date.lesserequal": "%s should be lesser or equal to ExpireDate",
 			}
 
 			for _, e := range ve {
 				if msg, exists := errorMessages[e.Tag()]; exists {
 					errMsg := fmt.Sprintf(msg, e.Field(), e.Param())
-					afterErrorCorrection = append(afterErrorCorrection, responsemodel.Errors{Err: errMsg})
+					validationErrors = append(validationErrors, responsemodel.Errors{Err: errMsg})
 				}
 			}
 		}
-		return afterErrorCorrection, errors.New("doesn't fulfill the requirements")
+		return validationErrors, errors.New("validation failed")
 	}
-	return afterErrorCorrection, nil
+
+	return validationErrors, nil
+}
+
+// ValidateDate checks if the provided date is in the correct format and is not in the past
+func validateDate(fl validator.FieldLevel) bool {
+	dateStr := fl.Field().String()
+	layout := "2006-01-02"
+
+	// Check if date is in the correct format
+	if _, err := time.Parse(layout, dateStr); err != nil {
+		return false
+	}
+
+	// Check if date is not in the past
+	date, _ := time.Parse(layout, dateStr)
+	return date.After(time.Now().AddDate(0, 0, -1))
 }
 
 func GenerateUUID() string {

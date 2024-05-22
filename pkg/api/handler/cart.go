@@ -5,7 +5,6 @@ import (
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -20,15 +19,27 @@ func NewCartHandler(carUseCase interfaceUseCase.ICartUseCase) *CartHandler {
 	return &CartHandler{useCase: carUseCase}
 }
 
-func (u *CartHandler) CreateCart(c *gin.Context) {
+// @Summary		Create User Cart
+// @Description	Create a user cart.
+// @Tags			UserCart
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Param			cart	body		requestmodel.Cart	true	"Cart details for creating"
+// @Success		200		{object}	response.Response	"User cart created successfully"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/cart/ [post]
 
+func (u *CartHandler) CreateCart(c *gin.Context) {
 	var cart requestmodel.Cart
 
-	fmt.Println("Context:", c.Keys)
-
-	userID := c.Param("UserID") // Extract UserID from URL parameter
-    fmt.Println("Extracted UserID:", userID)
-	
+	userID, exist := c.MustGet("UserID").(string)
+	if !exist {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
 	cart.UserID = userID
 
@@ -38,15 +49,34 @@ func (u *CartHandler) CreateCart(c *gin.Context) {
 		return
 	}
 
+	// Check if quantity exceeds the limit of 5
+	if cart.Quantity > 5 {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, "Maximum cart quantity exceeded (max 5 per user).")
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+
 	result, err := u.useCase.CreateCart(&cart)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
 		c.JSON(http.StatusBadRequest, finalReslt)
 	} else {
-		finalReslt := response.Responses(http.StatusOK, "Succesfully added", result, nil)
+		finalReslt := response.Responses(http.StatusOK, "Successfully added", result, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }
+
+// @Summary		Delete Item from User Cart
+// @Description	Delete a product from the user's cart.
+// @Tags			UserCart
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Param			productID	query		string				true	"Product ID to delete from the cart"
+// @Success		200			{object}	response.Response	"Product deleted from the cart successfully"
+// @Failure		400			{object}	response.Response	"Bad request"
+// @Router			/cart/:productID [delete]
 
 func (u *CartHandler) DeleteProductFromCart(c *gin.Context) {
 
@@ -59,7 +89,12 @@ func (u *CartHandler) DeleteProductFromCart(c *gin.Context) {
 		return
 	}
 
-	userID := c.Param("UserID")
+	userID, exist := c.MustGet("UserID").(string)
+	if !exist {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
 	err := u.useCase.DeleteProductFromCart(id, userID)
 	if err != nil {
@@ -71,6 +106,18 @@ func (u *CartHandler) DeleteProductFromCart(c *gin.Context) {
 	}
 
 }
+
+// @Summary		Increment Product Count in User Cart
+// @Description	Increase the count of a product in the user's cart.
+// @Tags			UserCart
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Param			productID	query		string				true	"Inventory ID of the product to increment in the cart"
+// @Success		200			{object}	response.Response	"Product count incremented in the cart successfully"
+// @Failure		400			{object}	response.Response	"Bad request"
+// @Router			/cart/increment/:productID [patch]
 
 func (u *CartHandler) IncrementQuantityCart(c *gin.Context) {
 
@@ -100,6 +147,18 @@ func (u *CartHandler) IncrementQuantityCart(c *gin.Context) {
 	}
 }
 
+// @Summary		Decrement Product Count in User Cart
+// @Description	Decrease the count of a product in the user's cart.
+// @Tags			UserCart
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Param			productID	path		string				true	"Product ID to decrement in the cart"
+// @Success		200			{object}	response.Response	"Product count decremented in the cart successfully"
+// @Failure		400			{object}	response.Response	"Bad request"
+// @Router			/cart/decrement/:productID [patch]
+
 func (u *CartHandler) DecrementQuantityCart(c *gin.Context) {
 
 	id := c.Param("productID")
@@ -120,6 +179,17 @@ func (u *CartHandler) DecrementQuantityCart(c *gin.Context) {
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }
+
+// @Summary		Get User Cart
+// @Description	Retrieve all items in the user's cart.
+// @Tags			UserCart
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Success		200	{object}	response.Response	"Successfully retrieved user cart items"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router			/cart/ [get]
 
 func (u *CartHandler) ShowCart(c *gin.Context) {
 

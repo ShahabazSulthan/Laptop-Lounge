@@ -216,9 +216,10 @@ func (u *SellerHandler) EditSellerProfile(c *gin.Context) {
 }
 
 func (u *SellerHandler) SellerDashbord(c *gin.Context) {
-	sellerID, exist := c.MustGet("SellerID").(string)
-	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
+	
+	sellerID := c.Param("SellerID")
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
 		c.JSON(http.StatusBadRequest, finalReslt)
 		return
 	}

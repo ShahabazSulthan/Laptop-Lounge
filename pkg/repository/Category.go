@@ -28,11 +28,11 @@ func (d *categoryRepository) InsertCategory(categoryDetails *requestmodel.Catego
 	return nil
 }
 
-func (d *categoryRepository) GetAllCategory(offSet int, limit int) (*[]responsemodel.CategoryDetails, error) {
+func (d *categoryRepository) GetAllCategory() (*[]responsemodel.CategoryDetails, error) {
 	var categories []responsemodel.CategoryDetails
 
-	query := "SELECT * FROM categories WHERE status!='delete' ORDER BY name OFFSET ? LIMIT ?"
-	err := d.DB.Raw(query, offSet, limit).Scan(&categories).Error
+	query := "SELECT * FROM categories WHERE status!='delete' ORDER BY name"
+	err := d.DB.Raw(query).Scan(&categories).Error
 	if err != nil {
 		return nil, errors.New("can't fetch categories from database")
 	}
@@ -75,11 +75,11 @@ func (d *categoryRepository) InsertBrand(name *requestmodel.Brand) error {
 	return nil
 }
 
-func (d *categoryRepository) GetAllBrand(offSet int, limit int) (*[]responsemodel.BrandRes, error) {
+func (d *categoryRepository) GetAllBrand() (*[]responsemodel.BrandRes, error) {
 	var Brands []responsemodel.BrandRes
 
-	query := "SELECT * FROM brands WHERE status!='delete' ORDER BY name OFFSET ? LIMIT ?"
-	err := d.DB.Raw(query, offSet, limit).Scan(&Brands).Error
+	query := "SELECT * FROM brands WHERE status!='delete' ORDER BY name"
+	err := d.DB.Raw(query).Scan(&Brands).Error
 	if err != nil {
 		return nil, errors.New("can't fetch brand from database")
 	}
@@ -110,7 +110,7 @@ func (d *categoryRepository) DeleteBrand(id string) error {
 	return nil
 }
 
-//---------------------------Category Offer--------------------------------------------------------
+//---------------------------Create Category Offer--------------------------------------------------------//
 
 func (d *categoryRepository) InsertCategoryOffer(categoryOffer *requestmodel.CategoryOffer) (*responsemodel.CategoryOffer, error) {
 
@@ -128,6 +128,8 @@ func (d *categoryRepository) InsertCategoryOffer(categoryOffer *requestmodel.Cat
 	return &categoryOfferres, nil
 }
 
+//---------------------------Check Seller Have Category Offer--------------------------------------------------------//
+
 func (d *categoryRepository) ChekSellerHaveCategoryOffer(sellerID, categoryID string) (*uint, error) {
 	var exist uint
 
@@ -139,6 +141,8 @@ func (d *categoryRepository) ChekSellerHaveCategoryOffer(sellerID, categoryID st
 	}
 	return &exist, nil
 }
+
+//---------------------------Change Status of Category Offer--------------------------------------------------------//
 
 func (d *categoryRepository) ChangeStatus(status, categoryOfferID string) (*responsemodel.CategoryOffer, error) {
 
@@ -155,6 +159,8 @@ func (d *categoryRepository) ChangeStatus(status, categoryOfferID string) (*resp
 	return &categoryOffer, nil
 }
 
+//---------------------------Get ALL Category Offer--------------------------------------------------------//
+
 func (d *categoryRepository) GetAllCategoryOffers(sellerID string) (*[]responsemodel.CategoryOffer, error) {
 
 	var categoryOffers *[]responsemodel.CategoryOffer
@@ -168,6 +174,8 @@ func (d *categoryRepository) GetAllCategoryOffers(sellerID string) (*[]responsem
 	}
 	return categoryOffers, nil
 }
+
+//---------------------------Update Category Offer--------------------------------------------------------//
 
 func (d *categoryRepository) UpdateCategoryOffer(updateData *requestmodel.EditCategoryOffer) (*responsemodel.CategoryOffer, error) {
 

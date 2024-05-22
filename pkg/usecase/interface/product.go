@@ -14,6 +14,8 @@ type IProductUseCase interface {
 	GetAProduct(string) (*responsemodel.ProductRes, error)
 	GetAProductHightoLow() (*[]responsemodel.ProductShowcase, error)
 	GetAProductLowtoHigh() (*[]responsemodel.ProductShowcase, error)
+	GetAProductAtoZ() (*[]responsemodel.ProductShowcase, error)
+	GetAProductZtoA() (*[]responsemodel.ProductShowcase, error)
 	GetSellerProducts(string, string, string) (*[]responsemodel.ProductShowcase, error)
 	EditProduct(*requestmodel.EditProduct) (*responsemodel.ProductRes, error)
 

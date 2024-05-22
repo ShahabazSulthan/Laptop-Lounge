@@ -4,9 +4,9 @@ import responsemodel "Laptop_Lounge/pkg/models/responseModel"
 
 type Order struct {
 	ID             uint                        `json:"-"`
-	UserID         string                      `json:"userid"`
-	Address        string                      `json:"addressid" validate:"required,numeric"`
-	Payment        string                      `json:"payment" validate:"required,alpha,uppercase"`
+	UserID         string                      `json:"userid" validate:"required,numeric"`
+	AddressID      string                      `json:"addressid" validate:"required,numeric"`
+	Payment        string                      `json:"paymentMethod" validate:"required,alpha,uppercase"`
 	Coupon         string                      `json:"couponid"`
 	OrderIDRazopay string                      `json:"-"`
 	FinalPrice     uint                        `json:"-"`

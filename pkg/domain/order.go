@@ -3,15 +3,15 @@ package domain
 import "time"
 
 type Order struct {
-	ID        uint `gorm:"primary key"`
-	UserID    uint
-	User      Users `gorm:"foreignkey:UserID;association_foreignkey:ID"`
-	AddressID uint
-	Location  Address `gorm:"foreignkey:AddressID;association_foreignkey:ID"`
+	ID             uint `gorm:"primary key"`
+	UserID         uint
+	User           Users `gorm:"foreignkey:UserID;association_foreignkey:ID"`
+	AddressID      uint
+	Location       Address `gorm:"foreignkey:AddressID;association_foreignkey:ID"`
 	PaymentMethod  string
 	OrderIDRazopay string
-	CouponCode     string
-	Coupon         Coupons `gorm:"foreignkey:CouponCode;association_foreignkey:ID"`
+	CouponCode     uint
+	//Coupon         Coupons `gorm:"foreignkey:CouponCode;association_foreignkey:ID"`
 }
 
 type OrderProducts struct {

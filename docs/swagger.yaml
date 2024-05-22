@@ -1,0 +1,77 @@
+definitions:
+  requestmodel.AdminLoginData:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 4
+        type: string
+    type: object
+  response.Response:
+    properties:
+      error: {}
+      message:
+        type: string
+      result: {}
+      status_code:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /admin/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details for the admin. Requires a valid Bearer token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Admin details retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Admin Dashboard Details
+      tags:
+      - Admins
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, admins can log in and receive an authentication
+        token.
+      parameters:
+      - description: Admin login details
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.AdminLoginData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in. Token returned.
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized. Authentication failed.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Admin Login
+      tags:
+      - Admins
+swagger: "2.0"

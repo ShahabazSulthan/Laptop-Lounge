@@ -50,46 +50,39 @@ func (s *adminUseCase) AdminLogin(adminData *requestmodel.AdminLoginData) (*resp
 	return &adminLoginRes, nil
 }
 
-func (s *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.AdminDashBoard, error) {
-	var dashboard responsemodel.AdminDashBoard
-
-	//fmt.Println("nnnn", dashboard)
+func (r *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.AdminDashBoard, error) {
+	var dashBord responsemodel.AdminDashBoard
 	var err error
-	dashboard.TotalSellers, err = s.repo.GetSellersDetailDashBoard("")
+
+	dashBord.TotalSellers, err = r.repo.GetSellersDetailDashBoard("")
 	if err != nil {
-		log.Println("Error fetching total sellers:", err)
 		return nil, err
 	}
 
-	dashboard.ActiveSellers, err = s.repo.GetSellersDetailDashBoard("active")
+	dashBord.ActiveSellers, err = r.repo.GetSellersDetailDashBoard("active")
 	if err != nil {
-		log.Println("Error fetching active sellers:", err)
 		return nil, err
 	}
 
-	dashboard.BlockSellers, err = s.repo.GetSellersDetailDashBoard("block")
+	dashBord.BlockSellers, err = r.repo.GetSellersDetailDashBoard("block")
 	if err != nil {
-		log.Println("Error fetching blocked sellers:", err)
 		return nil, err
 	}
 
-	dashboard.PendingSellers, err = s.repo.GetSellersDetailDashBoard("pending")
+	dashBord.PendingSellers, err = r.repo.GetSellersDetailDashBoard("pending")
 	if err != nil {
-		log.Println("Error fetching pending sellers:", err)
 		return nil, err
 	}
 
-	// dashboard.TotalOrders, dashboard.TotalRevenue, err = s.repo.TotalRevenue()
-	// if err != nil {
-	// 	log.Println("Error fetching total revenue:", err)
-	// 	return nil, err
-	// }
+	dashBord.TotalOrders, dashBord.TotalRevenue, err = r.repo.TotalRevenue()
+	if err != nil {
+		return nil, err
+	}
 
-	// dashboard.TotalCredit, err = s.repo.GetNetCredit()
-	// if err != nil {
-	// 	log.Println("Error fetching total credit:", err)
-	// 	return nil, err
-	// }
+	dashBord.TotalCredit, err = r.repo.GetNetCredit()
+	if err != nil {
+		return nil, err
+	}
 
-	return &dashboard, nil
+	return &dashBord, nil
 }

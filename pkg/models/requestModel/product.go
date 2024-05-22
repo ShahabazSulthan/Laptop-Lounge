@@ -20,6 +20,7 @@ type ProductReq struct {
 }
 
 type EditProduct struct {
+	ModelName string `json:"modelName" validate:"required,min=3,max=100"`
 	ID        string `json:"id" validate:"required"`
 	Mrp       uint   `json:"mrp" validate:"required,min=0"`
 	Discount  uint   `json:"discount" validate:"required,min=0,max=99,number"`

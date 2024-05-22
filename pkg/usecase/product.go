@@ -119,6 +119,36 @@ func (r *productUseCase) GetAProductLowtoHigh() (*[]responsemodel.ProductShowcas
 	return Products, nil
 }
 
+func (r *productUseCase) GetAProductAtoZ() (*[]responsemodel.ProductShowcase, error) {
+	Products, err := r.repo.GetAProductAtoZ()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, product := range *Products {
+		if product.CategoryDiscount != 0 {
+			(*Products)[i].NetDiscount = product.Discount + product.CategoryDiscount
+			(*Products)[i].PriceAfterApplyCategoryDiscount = helper.FindDiscount(float64(product.Mrp), float64((*Products)[i].NetDiscount))
+		}
+	}
+	return Products, nil
+}
+
+func (r *productUseCase) GetAProductZtoA() (*[]responsemodel.ProductShowcase, error) {
+	Products, err := r.repo.GetAProductZtoA()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, product := range *Products {
+		if product.CategoryDiscount != 0 {
+			(*Products)[i].NetDiscount = product.Discount + product.CategoryDiscount
+			(*Products)[i].PriceAfterApplyCategoryDiscount = helper.FindDiscount(float64(product.Mrp), float64((*Products)[i].NetDiscount))
+		}
+	}
+	return Products, nil
+}
+
 func (r *productUseCase) GetSellerProducts(page string, limit string, sellerID string) (*[]responsemodel.ProductShowcase, error) {
 
 	offSet, limits, err := helper.Pagination(page, limit)

@@ -53,6 +53,18 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 	couponUseCase := usecase.NewCouponUseCase(couponRepository)
 	couponHandler := handler.NewCouponHandler(couponUseCase)
 
+	wishlistRepository := repository.NewWishlistRepository(DB)
+	wishlistUseCase := usecase.NewWishlisttUseCase(wishlistRepository)
+	wishlistHandler := handler.NewwishlistHandler(wishlistUseCase)
+
+	ReviewRepository := repository.NewReviewRepository(DB)
+	ReviewUseCase := usecase.NewReviewtUseCase(ReviewRepository)
+	ReviewHandler := handler.NewReviewHandler(ReviewUseCase)
+
+	HelpDeskRepository := repository.NewHelpDeskRepository(DB)
+	HelpDeskUseCase := usecase.NewHelpDeskUseCase(HelpDeskRepository)
+	HelpDeskHandler := handler.NewHelpDeskHandler(HelpDeskUseCase)
+
 	orderRepository := repository.NewOrderRepository(DB)
 	orderUseCase := usecase.NewOrderUseCase(orderRepository, cartRepository, sellerRepository, paymentRepository, couponRepository, &cfg.Razopay)
 	orderHandler := handler.NewOrderHandler(orderUseCase)
@@ -67,6 +79,9 @@ func InitializeAPI(cfg *config.Config) (*https.ServerHttp, error) {
 		orderHandler,
 		paymentHandler,
 		couponHandler,
+		wishlistHandler,
+		ReviewHandler,
+		HelpDeskHandler,
 	)
 	return serverHTTP, nil
 }

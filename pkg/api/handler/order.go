@@ -6,6 +6,7 @@ import (
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
 	"Laptop_Lounge/pkg/utils/helper"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,8 @@ func NewOrderHandler(orderUseCase interfaceUseCase.IOrderUseCase) *OrderHandler 
 	return &OrderHandler{useCase: orderUseCase}
 }
 
+//---------------------------------Create a NewOrder-----------------------------------//
+
 func (u *OrderHandler) NewOrder(c *gin.Context) {
 
 	var order *requestmodel.Order
@@ -27,12 +30,15 @@ func (u *OrderHandler) NewOrder(c *gin.Context) {
 	if !exist {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetUserIdInContexr)
 		c.JSON(http.StatusBadRequest, finalReslt)
+		fmt.Println("aaa", finalReslt)
 		return
 	}
 
+	fmt.Println("rrr", order)
 	if err := c.BindJSON(&order); err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
 		c.JSON(http.StatusBadRequest, finalReslt)
+		fmt.Println("bbb", finalReslt)
 		return
 	}
 
@@ -40,6 +46,7 @@ func (u *OrderHandler) NewOrder(c *gin.Context) {
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", data, err.Error())
 		c.JSON(http.StatusBadRequest, finalReslt)
+		fmt.Println("ccc", finalReslt)
 		return
 	}
 
@@ -49,12 +56,15 @@ func (u *OrderHandler) NewOrder(c *gin.Context) {
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
 		c.JSON(http.StatusBadRequest, finalReslt)
+		fmt.Println("ddd", finalReslt)
 	} else {
 		finalReslt := response.Responses(http.StatusOK, "", orderDetais, nil)
 		c.JSON(http.StatusOK, finalReslt)
+		fmt.Println("eee", finalReslt)
 	}
 }
 
+//---------------------------------Get All Orders-----------------------------------//
 
 func (u *OrderHandler) ShowAbstractOrders(c *gin.Context) {
 
@@ -75,10 +85,11 @@ func (u *OrderHandler) ShowAbstractOrders(c *gin.Context) {
 	}
 }
 
+//---------------------------------Get Single Order-----------------------------------//
 
 func (u *OrderHandler) SingleOrderDetails(c *gin.Context) {
 
-	orderID, _ := c.Params.Get("orderID")
+	orderID, _ := c.Params.Get("orderItemID")
 
 	userID, exist := c.MustGet("UserID").(string)
 	if !exist {
@@ -97,6 +108,7 @@ func (u *OrderHandler) SingleOrderDetails(c *gin.Context) {
 	}
 }
 
+//---------------------------------Cancel User Order-----------------------------------//
 
 func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 
@@ -106,7 +118,7 @@ func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, finalReslt)
 		return
 	}
-	orderID := c.Param("orderID")
+	orderID := c.Param("orderItemID")
 
 	orderDetais, err := u.useCase.CancelUserOrder(orderID, userID)
 	if err != nil {
@@ -118,6 +130,8 @@ func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 	}
 }
 
+//---------------------------------Return User Order-----------------------------------//
+
 func (u *OrderHandler) ReturnUserOrder(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -126,7 +140,7 @@ func (u *OrderHandler) ReturnUserOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, finalReslt)
 		return
 	}
-	orderID := c.Param("orderID")
+	orderID := c.Param("orderItemID")
 
 	orderDetais, err := u.useCase.ReturnUserOrder(orderID, userID)
 	if err != nil {
@@ -140,17 +154,18 @@ func (u *OrderHandler) ReturnUserOrder(c *gin.Context) {
 
 // ------------------------------------------Seller Control Orders------------------------------------\\
 
+//---------------------------------Get All Seller Order-----------------------------------//
+
 func (u *OrderHandler) GetSellerOrders(c *gin.Context) {
-	
+
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
-
-	remainingQuery := " IN ('processing','delivered','cancelled')"
+	remainingQuery := " IN ('processing','delivered','cancel')"
 	orderDetais, err := u.useCase.GetSellerOrders(sellerID, remainingQuery)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
@@ -161,14 +176,15 @@ func (u *OrderHandler) GetSellerOrders(c *gin.Context) {
 	}
 }
 
+//---------------------------------Get Seller Order Processing-----------------------------------//
 
 func (u *OrderHandler) GetSellerOrdersProcessing(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
 	remainingQuery := " IN ('processing')"
 	orderDetais, err := u.useCase.GetSellerOrders(sellerID, remainingQuery)
@@ -181,14 +197,15 @@ func (u *OrderHandler) GetSellerOrdersProcessing(c *gin.Context) {
 	}
 }
 
+//---------------------------------Get Seller Order Delivered-----------------------------------//
 
 func (u *OrderHandler) GetSellerOrdersDeliverd(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
 	remainingQuery := " IN ('delivered')"
 	orderDetais, err := u.useCase.GetSellerOrders(sellerID, remainingQuery)
@@ -201,15 +218,17 @@ func (u *OrderHandler) GetSellerOrdersDeliverd(c *gin.Context) {
 	}
 }
 
+//---------------------------------Get Seller Order Cancelled-----------------------------------//
+
 func (u *OrderHandler) GetSellerOrdersCancelled(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
-	remainingQuery := " IN ('cancelled')"
+	remainingQuery := " IN ('cancel')"
 	orderDetais, err := u.useCase.GetSellerOrders(sellerID, remainingQuery)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
@@ -220,16 +239,17 @@ func (u *OrderHandler) GetSellerOrdersCancelled(c *gin.Context) {
 	}
 }
 
+//---------------------------------Seller Conform Delivered-----------------------------------//
 
 func (u *OrderHandler) ConfirmDeliverd(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
-	orderID := c.Param("orderID")
+	orderID := c.Param("orderItemID")
 	orderDetais, err := u.useCase.ConfirmDeliverd(sellerID, orderID)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
@@ -240,14 +260,16 @@ func (u *OrderHandler) ConfirmDeliverd(c *gin.Context) {
 	}
 }
 
+//---------------------------------Seller Cancel Order-----------------------------------//
+
 func (u *OrderHandler) CancelOrder(c *gin.Context) {
 
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 	orderID := c.Param("orderID")
 
 	orderDetais, err := u.useCase.CancelOrder(orderID, sellerID)
@@ -260,20 +282,19 @@ func (u *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 }
 
-// ------------------------------------------Sales Report------------------------------------\\
-
+// ------------------------------------------Sales Report YEAR-MONTH-DAY------------------------------------\\
 
 func (u *OrderHandler) SalesReport(c *gin.Context) {
 
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
-	year := c.Param("year")
-	month := c.Param("month")
-	day := c.Param("day")
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+	year := c.Query("year")
+	month := c.Query("month")
+	day := c.Query("day")
 
 	report, err := u.useCase.GetSalesReport(sellerID, year, month, day)
 	if err != nil {
@@ -285,13 +306,15 @@ func (u *OrderHandler) SalesReport(c *gin.Context) {
 	}
 }
 
+//---------------------------------Sales Report in Days-----------------------------------//
+
 func (u *OrderHandler) SalesReportCustomDays(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 	day := c.Param("days")
 
 	report, err := u.useCase.GetSalesReportByDays(sellerID, day)
@@ -304,14 +327,15 @@ func (u *OrderHandler) SalesReportCustomDays(c *gin.Context) {
 	}
 }
 
+//---------------------------------Get Sales Report in Excel-----------------------------------//
 
 func (u *OrderHandler) SalesReportXlSX(c *gin.Context) {
 	sellerID := c.Param("SellerID")
-    if sellerID == "" {
-    finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-    c.JSON(http.StatusBadRequest, finalReslt)
-    return
-}
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
 
 	result, err := u.useCase.GenerateXlOfSalesReport(sellerID)
 	if err != nil {
@@ -327,7 +351,7 @@ func (u *OrderHandler) SalesReportXlSX(c *gin.Context) {
 
 func (u *OrderHandler) GetInvoice(c *gin.Context) {
 
-	orderItemID := c.Param("OrderID")
+	orderItemID := c.Param("orderItemID")
 	pdfLink, err := u.useCase.OrderInvoiceCreation(orderItemID)
 	if err != nil {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())

@@ -18,19 +18,19 @@ type OrderShowcase struct {
 }
 
 type OrderDetails struct {
-	ID            string `gorm:"id" json:"orderid"`
-	ItemID        string `json:"itemID"`
-	UserID        string `gorm:"column:user_id" json:"userid"`
-	Address       string `gorm:"column:address_id" json:"address_id"`
-	Payment       string `gorm:"column:payment_method" json:"payment"`
+	ID            string `json:"orderid" gorm:"column:order_id"`
+	ItemID        string `json:"itemID" gorm:"column:item_id"`
+	UserID        string `json:"user_id" gorm:"column:user_id"`
+	Address       string `json:"address_id" gorm:"column:address_id"`
+	Payment       string `json:"payment_method" gorm:"column:payment_method"`
 	SellerID      string `json:"seller_id" gorm:"column:seller_id"`
-	ProductID     string `gorm:"column:product_id" json:"productid"`
+	ProductID     string `json:"productid" gorm:"column:product_id"`
 	Quantity      uint   `json:"quantity"`
-	Price         uint   `json:"price"`
-	Saleprice     uint   `json:"userPayableAmount" gorm:"column:payable_amount" `
-	OrderStatus   string `json:"orderstatus,omitempty"`
-	PaymentStatus string `json:"paymentStatus,omitempty"`
-	WalletBalance uint   `json:"walletBelance,omitempty"`
+	Price         uint   `json:"sale_price"`
+	Saleprice     uint   `json:"userPayableAmount" gorm:"column:payable_amount"`
+	OrderStatus   string `json:"orderstatus,omitempty" gorm:"column:order_status"`
+	PaymentStatus string `json:"paymentStatus,omitempty" gorm:"column:payment_status"`
+	WalletBalance uint   `json:"walletBelance,omitempty" gorm:"-"`
 }
 
 type OrderProducts struct {
@@ -64,7 +64,7 @@ type Order struct {
 }
 
 type SingleOrder struct {
-	Model_name   string `json:"model_name" validate:"required,min=3,max=100"`
+	Model_name    string `json:"model_name" validate:"required,min=3,max=100"`
 	SingleOrderID string `json:"singleorderid" gorm:"column:item_id"`
 	ID            string `gorm:"column:order_id" json:"orderID" validate:"required,number"`
 	SingleUnit    uint   `json:"PriceOfAUnit" gorm:"column:saleprice"`
@@ -114,17 +114,18 @@ type Invoice struct {
 	AddressID     string
 	UserID        string
 	PaymentMethod string
-	ProductID   string
+	ProductID     string
 	SellerID      string
 	Quantity      uint
 	PayableAmount uint
+	PaymentStatus string
 	OrderDate     time.Time
 }
 
 type XlSalesReport struct {
 	ItemID        string
-	ProductID   string
-	Productname   string
+	ProductID     string
+	Model_name    string
 	Quantity      uint
 	PayableAmount uint
 	OrderDate     time.Time

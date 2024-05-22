@@ -14,6 +14,8 @@ type IProductRepository interface {
 	GetAProducts(string) (*responsemodel.ProductRes, error)
 	GetAProductLowtoHigh() (*[]responsemodel.ProductShowcase, error)
 	GetAProductHightoLow() (*[]responsemodel.ProductShowcase, error)
+	GetAProductAtoZ() (*[]responsemodel.ProductShowcase, error)
+	GetAProductZtoA() (*[]responsemodel.ProductShowcase, error)
 	GetSellerProduct(int, int, string) (*[]responsemodel.ProductShowcase, error)
 	UpdateProduct(*requestmodel.EditProduct) (*responsemodel.ProductRes, error)
 

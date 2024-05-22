@@ -7,12 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler, cart *handler.CartHandler, order *handler.OrderHandler, payment *handler.PaymentHandler) {
+func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler, cart *handler.CartHandler, order *handler.OrderHandler, payment *handler.PaymentHandler, wishlist *handler.WishlistHandler, review *handler.ReviewHandler, helpdesk *handler.HelpDeskHandler) {
 
 	engin.GET("/products", product.GetProduct)
 	engin.GET("/product/:productid", product.GetAProduct)
 	engin.GET("/product/HighToLow", product.GetAProductHightoLow)
 	engin.GET("/product/LowToHigh", product.GetAProductLowtoHigh)
+	engin.GET("/product/AtoZ", product.GetAProductAtoZ)
+	engin.GET("/product/ZtoA", product.GetAProductZtoA)
 	engin.GET("/filter", product.FilterProduct)
 
 	engin.GET("/razopay", payment.OnlinePayment)
@@ -29,7 +31,7 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 		addressmanagement := engin.Group("/address")
 		{
 			addressmanagement.POST("/", user.NewAddress)
-			addressmanagement.GET("/:UserID/:page", user.GetAddress)
+			addressmanagement.GET("/", user.GetAddress)
 			addressmanagement.PATCH("/", user.EditAddress)
 			addressmanagement.DELETE("/:id", user.DeleteAddress)
 		}
@@ -42,8 +44,8 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 
 		cartmanagement := engin.Group("/cart")
 		{
-			cartmanagement.POST("/:UserID", cart.CreateCart)
-			cartmanagement.DELETE("/:productID/:UserID", cart.DeleteProductFromCart)
+			cartmanagement.POST("/", cart.CreateCart)
+			cartmanagement.DELETE("/:productID", cart.DeleteProductFromCart)
 			cartmanagement.PATCH("/increment/:productID", cart.IncrementQuantityCart)
 			cartmanagement.PATCH("/decrement/:productID", cart.DecrementQuantityCart)
 			cartmanagement.GET("/", cart.ShowCart)
@@ -51,12 +53,15 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 
 		ordermanagement := engin.Group("/order")
 		{
-			ordermanagement.POST("/", order.NewOrder)
+			ordermanagement.POST("", order.NewOrder)
+			ordermanagement.POST("/Address", user.NewAddress)
+			ordermanagement.GET("/Address", user.GetAddress)
+			ordermanagement.PATCH("/EditAddress", user.EditAddress)
 			ordermanagement.GET("/", order.ShowAbstractOrders)
-			ordermanagement.GET("/:orderID", order.SingleOrderDetails)
-			ordermanagement.PATCH("/:orderID", order.CancelUserOrder)
-			ordermanagement.PATCH("/return/:orderID", order.ReturnUserOrder)
-			ordermanagement.GET("/invoice/:OrderID", order.GetInvoice)
+			ordermanagement.GET("/:orderItemID", order.SingleOrderDetails)
+			ordermanagement.PATCH("/cancel/:orderItemID", order.CancelUserOrder)
+			ordermanagement.PATCH("/return/:orderItemID", order.ReturnUserOrder)
+			ordermanagement.GET("/invoice/:orderItemID", order.GetInvoice)
 		}
 
 		paymentmanagement := engin.Group("/payment")
@@ -64,12 +69,34 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 			paymentmanagement.POST("/verify", payment.VerifyOnlinePayment)
 		}
 
-		// walletmenagement := engin.Group("/wallet")
-		// {
-		// 	walletmenagement.GET("/", payment.ViewWallet)
-		// 	walletmenagement.GET("/transaction", payment.GetWalletTransaction)
-		// }
+		walletmenagement := engin.Group("/wallet")
+		{
+			walletmenagement.GET("/", payment.ViewWallet)
+			walletmenagement.GET("/transaction", payment.GetWalletTransaction)
+		}
 
+		wishlistmenagement := engin.Group("/wishlist")
+		{
+			wishlistmenagement.POST("/:productID", wishlist.AddToWishlist)
+			wishlistmenagement.GET("/", wishlist.GetWishlist)
+			wishlistmenagement.DELETE("/:productID", wishlist.DeleteWishlist)
+		}
+
+		reviewmenagement := engin.Group("/review")
+		{
+			reviewmenagement.POST("/:productID", review.AddReview)
+			reviewmenagement.GET("/", review.GetReviewsByProductID)
+			reviewmenagement.DELETE("/:reviewID", review.DeleteReviewByID)
+			reviewmenagement.GET("/:productID", review.GetAverageRating)
+
+		}
+
+		helpdeskmenagement := engin.Group("/helpdesk")
+		{
+			helpdeskmenagement.POST("/", helpdesk.CreateRequest)
+			helpdeskmenagement.GET("/replayed", helpdesk.GetRepliedRequests)
+			helpdeskmenagement.GET("/unreplayed", helpdesk.GetUnrepliedRequests)
+		}
 	}
 
 }
