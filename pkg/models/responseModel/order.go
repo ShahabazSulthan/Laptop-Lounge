@@ -86,9 +86,11 @@ type SingleOrder struct {
 }
 
 type SalesReport struct {
-	Orders   uint `json:"total -orders"`
-	Quantity uint `json:"total-unit-saled"`
-	Price    uint `json:"total-revenue"`
+	DeliveredOrders uint `json:"deliveredOrders"`
+	OngoingOrders   uint `json:"OngoingOrders"`
+	CancelledOrders uint `json:"cancelledOrders"`
+	Quantity        uint `json:"total-unit-saled"`
+	Price           uint `json:"total-revenue"`
 }
 
 type DashBord struct {

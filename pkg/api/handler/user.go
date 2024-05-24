@@ -24,15 +24,14 @@ func NewUserHandler(userUseCase interfaceUseCase.IuserUseCase) *UserHandler {
 // ---------------------------User Signup----------------------------------------
 
 // @Summary		User Signup
-// @Description	using this handler User can SIgnup
+// @Description	Using this handler, users can sign up.
 // @Tags			User
 // @Accept			json
 // @Produce		json
-// @Param			user	body		requestmodel.UserDetails{}	true	"User Signup details"
-// @Success		200		{object}	responsemodel.SignupData{}
-// @Failure		400		{object}	response.Response{}
-// @Router			/signup/ [post]
-
+// @Param			user	body		requestmodel.UserDetails	true	"User Signup details"
+// @Success		200		{object}	responsemodel.SignupData
+// @Failure		400		{object}	response.Response
+// @Router			/signup [post]
 func (u *UserHandler) UserSignup(c *gin.Context) {
 	fmt.Println("--- UserSignup called")
 
@@ -67,9 +66,7 @@ func (u *UserHandler) UserSignup(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// this handler function handles the process of sending an OTP by parsing the request,
-// validating the data, calling the appropriate use case method,
-//  and returning the response to the client based on the outcome of the OTP sending process.
+// ---------------------------Send OTP------------------------------------------
 
 // @Summary		Send OTP To Mobile
 // @Description	Send OTP (One-Time Password) for verification.
@@ -77,10 +74,9 @@ func (u *UserHandler) UserSignup(c *gin.Context) {
 // @Accept			json
 // @Produce		json
 // @Param			otp	body		requestmodel.SendOtp	true	"OTP details for sending"
-// @Success		200	{object}	response.Response		"OTP sent successfully"
-// @Failure		400	{object}	response.Response		"Bad request"
-// @Router			/sendotp [post]
-
+// @Success		200	{object}	response.Response	"OTP sent successfully"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router			/sendOTP [post]
 func (u *UserHandler) SendOtp(c *gin.Context) {
 	// Parse request body into SendOtp struct
 	var sendOtp requestmodel.SendOtp
@@ -112,21 +108,17 @@ func (u *UserHandler) SendOtp(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// this handler function handles the process of verifying an OTP by parsing the request,
-// validating the data, calling the appropriate use case method with the token,
-// and returning the response to the client based on the outcome of the verification process.
+// ---------------------------Verify OTP----------------------------------------
 
-// @Summary		User Otp Verification
-// @Description	using this handler User can send otp
-// @Tags			User
-// @Accept			json
+// @Summary	Verify OTP
+// @Description	Verify the OTP (One-Time Password) sent to the user.
+// @Tags		User
+// @Accept		json
 // @Produce		json
-// @Security		BearerTokenAuth
-// @Param			user	body		requestmodel.OtpVerification{}	true	"User otp details"
-// @Success		200		{object}	response.Response{}
-// @Failure		400		{object}	response.Response{}
-// @Router			/verifyOTP [post]
-
+// @Param		otp	body		requestmodel.OtpVerification	true	"OTP details for verification"
+// @Success	200	{object}	response.Response		"OTP verified successfully"
+// @Failure	400	{object}	response.Response		"Bad request"
+// @Router		/verifyOTP [post]
 func (u *UserHandler) VerifyOTP(c *gin.Context) {
 	var otpData requestmodel.OtpVerification
 	token := c.Request.Header.Get("Authorization")
@@ -157,20 +149,17 @@ func (u *UserHandler) VerifyOTP(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-//  this handler function handles the process of user login by parsing the request,
-// validating the data, calling the appropriate use case method,
-// and returning the response to the client based on the outcome of the login process.
+// ---------------------------User Login----------------------------------------
 
 // @Summary		User Login
-// @Description	using this handler User can Login
+// @Description	Using this handler, users can log in.
 // @Tags			User
 // @Accept			json
 // @Produce		json
-// @Param			user	body		requestmodel.UserLogin{}	true	"User Login details"
-// @Success		200		{object}	response.Response{}
-// @Failure		400		{object}	response.Response{}
+// @Param			user	body		requestmodel.UserLogin	true	"User Login details"
+// @Success		200		{object}	response.Response
+// @Failure		400		{object}	response.Response
 // @Router			/login [post]
-
 func (u *UserHandler) UserLogin(c *gin.Context) {
 
 	var loginCredential requestmodel.UserLogin
@@ -201,20 +190,8 @@ func (u *UserHandler) UserLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// this handler function handles the process of handling forgot password requests by parsing the request,
-//  validating the data, calling the appropriate use case method with the token,
-//  and returning the response to the client based on the outcome of the forgot password process.
+// ---------------------------Forgot Password----------------------------------------
 
-// @Summary		Forgot Password
-// @Description	Initiate the process for resetting the password.
-// @Tags			User
-// @Accept			json
-// @Produce		json
-// @Security		BearerTokenAuth
-// @Param			forgotPassword	body		requestmodel.ForgotPassword	true	"Details for initiating password reset"
-// @Success		200				{object}	response.Response			"Password reset initiated successfully"
-// @Failure		400				{object}	response.Response			"Bad request"
-// @Router			/forgetpassword [post]
 
 func (u *UserHandler) ForgotPassword(c *gin.Context) {
 	var forgotPassword requestmodel.ForgetPassword
@@ -250,8 +227,10 @@ func (u *UserHandler) ForgotPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// @Summary		All User
-// @Description	using this handler admin can view user
+// ---------------------------Get All Users----------------------------------------
+
+// @Summary		Get All Users
+// @Description	Using this handler, admin can view users.
 // @Tags			Admins
 // @Accept			json
 // @Produce		json
@@ -261,7 +240,6 @@ func (u *UserHandler) ForgotPassword(c *gin.Context) {
 // @Success		200		{object}	response.Response{}
 // @Failure		400		{object}	response.Response{}
 // @Router			/admin/users/getuser [get]
-
 func (u *UserHandler) GetUser(c *gin.Context) {
 	page := c.DefaultQuery("page", "1")
 	limit := c.DefaultQuery("limit", "1")
@@ -278,17 +256,18 @@ func (u *UserHandler) GetUser(c *gin.Context) {
 	}
 }
 
+// ---------------------------Block User----------------------------------------
+
 // @Summary		Block User
-// @Description	using this handler admin can block user
+// @Description	Using this handler, admin can block a user.
 // @Tags			Admins
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
-// @Param			id	query		string	true	"User ID in the URL path"
-// @Success		200	{object}	response.Response{}
-// @Failure		400	{object}	response.Response{}
-// @Router			/admin/users/block/:userID [patch]
-
+// @Param			userID	path	string	true	"User ID in the URL path"
+// @Success		200		{object}	response.Response{}
+// @Failure		400		{object}	response.Response{}
+// @Router			/admin/users/block/{userID} [patch]
 func (u *UserHandler) BlockUser(c *gin.Context) {
 	userID := c.Param("userID")
 	id := strings.TrimSpace(userID)
@@ -308,17 +287,18 @@ func (u *UserHandler) BlockUser(c *gin.Context) {
 	}
 }
 
+// ---------------------------Unblock User----------------------------------------
+
 // @Summary		Unblock User
-// @Description	using this handler admin Unblock user
+// @Description	Using this handler, admin can unblock a user.
 // @Tags			Admins
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
-// @Param			id	query		string	true	"User ID in the URL path"
-// @Success		200	{object}	response.Response{}
-// @Failure		400	{object}	response.Response{}
-// @Router			/admin/users/unblock/:userID [patch]
-
+// @Param			userID	path	string	true	"User ID in the URL path"
+// @Success		200		{object}	response.Response{}
+// @Failure		400		{object}	response.Response{}
+// @Router			/admin/users/unblock/{userID} [patch]
 func (u *UserHandler) UnblockUser(c *gin.Context) {
 	userID := c.Param("userID")
 	id := strings.TrimSpace(userID)
@@ -338,20 +318,18 @@ func (u *UserHandler) UnblockUser(c *gin.Context) {
 	}
 }
 
-// ------------------------------------------user Address------------------------------------\\
+// ---------------------------Add Address----------------------------------------
 
 // @Summary		Add Address
 // @Description	Add a new address.
 // @Tags			User Addresses
 // @Accept			json
 // @Produce		json
-// @security		BearerTokenAuth
-// @security		Refreshtoken
-// @Param			address	body		requestmodel.Address{}	true	"Address object to be added"
-// @Success		201		{object}	response.Response{}		"Successfully added the address"
-// @Failure		400		{object}	response.Response{}		"Bad request"
+// @Security		BearerTokenAuth
+// @Param			address	body		requestmodel.Address	true	"Address object to be added"
+// @Success		201		{object}	response.Response		"Successfully added the address"
+// @Failure		400		{object}	response.Response		"Bad request"
 // @Router			/address/ [post]
-
 func (u *UserHandler) NewAddress(c *gin.Context) {
 
 	var Address requestmodel.Address
@@ -388,19 +366,19 @@ func (u *UserHandler) NewAddress(c *gin.Context) {
 	}
 }
 
+// ---------------------------Get Addresses----------------------------------------
+
 // @Summary		Get Addresses
 // @Description	Retrieve a list of addresses.
 // @Tags			User Addresses
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
-// @Security		Refreshtoken
 // @Param			page	query		int						false	"Page number"				default(1)
 // @Param			limit	query		int						false	"Number of items per page"	default(5)
 // @Success		200		{object}	[]requestmodel.Address	"Successfully retrieved addresses"
 // @Failure		400		{object}	response.Response		"Bad request"
 // @Router			/address/ [get]
-
 func (u *UserHandler) GetAddress(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -420,18 +398,18 @@ func (u *UserHandler) GetAddress(c *gin.Context) {
 	}
 }
 
+// ---------------------------Update Address----------------------------------------
+
 // @Summary		Update Address
 // @Description	Update an existing address.
 // @Tags			User Addresses
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
-// @Security		Refreshtoken
 // @Param			address	body		requestmodel.EditAddress	true	"Updated address information"
 // @Success		200		{object}	response.Response			"Successfully updated the address"
 // @Failure		400		{object}	response.Response			"Bad request"
 // @Router			/address/ [patch]
-
 func (u *UserHandler) EditAddress(c *gin.Context) {
 
 	var Address requestmodel.EditAddress
@@ -468,11 +446,10 @@ func (u *UserHandler) EditAddress(c *gin.Context) {
 // @Produce		json
 // @Security		BearerTokenAuth
 // @Security		Refreshtoken
-// @Param			id	query		string				true	"Address ID in the query parameter"
+// @Param			id	path		string				true	"Address ID in the query parameter"
 // @Success		200	{object}	response.Response	"Successfully deleted the address"
 // @Failure		400	{object}	response.Response	"Bad request"
-// @Router			/address/:id [delete]
-
+// @Router			/address/{id} [delete]
 func (u *UserHandler) DeleteAddress(c *gin.Context) {
 
 	addressID := c.Param("id")
@@ -510,10 +487,9 @@ func (u *UserHandler) DeleteAddress(c *gin.Context) {
 // @Produce		json
 // @Security		BearerTokenAuth
 // @Security		Refreshtoken
-// @Success		200	{object}	requestmodel.UserDetails{}	"Successfully retrieved the user's profile"
-// @Failure		400	{object}	response.Response			"Bad request"
-// @Router			/profile/ [get]
-
+// @Success		200	{object}	requestmodel.UserDetails	"Successfully retrieved the user's profile"
+// @Failure		400	{object}	response.Response		"Bad request"
+// @Router			/profile [get]
 func (u *UserHandler) GetProfile(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -544,7 +520,6 @@ func (u *UserHandler) GetProfile(c *gin.Context) {
 // @Success		200		{object}	response.Response				"Successfully updated the user's profile"
 // @Failure		400		{object}	response.Response				"Bad request"
 // @Router			/profile/ [patch]
-
 func (u *UserHandler) EditProfile(c *gin.Context) {
 
 	var profile requestmodel.UserEditProfile

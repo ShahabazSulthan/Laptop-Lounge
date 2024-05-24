@@ -1,6 +1,7 @@
 package repository
 
 import (
+	responsemodel "Laptop_Lounge/pkg/models/responseModel"
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
 	"errors"
@@ -65,4 +66,16 @@ func (d *adminRepository) GetNetCredit() (uint, error) {
 		return 0, resCustomError.ErrAdminDashbord
 	}
 	return credit, nil
+}
+
+func (d *adminRepository) GetCouponDetails() ([]responsemodel.Coupon, error) {
+	var coupons []responsemodel.Coupon
+	query := "SELECT id, name, type, discount, minimum_required, maximum_allowed, start_date, end_date FROM coupons WHERE status = 'active'"
+	result := d.DB.Raw(query).Scan(&coupons)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return coupons, nil
 }

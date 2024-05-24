@@ -84,5 +84,10 @@ func (r *adminUseCase) GetAllSellersDetailAdminDashboard() (*responsemodel.Admin
 		return nil, err
 	}
 
+	dashBord.Coupons, err = r.repo.GetCouponDetails()
+	if err != nil {
+		return nil, err
+	}
+
 	return &dashBord, nil
 }

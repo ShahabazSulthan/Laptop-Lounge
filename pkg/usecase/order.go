@@ -376,7 +376,7 @@ func (r *orderUseCase) GetSalesReport(sellerID, year, month, days string) (*resp
 
 //---------------------------------Get Sales Reports by days-----------------------------------//
 
-func (r *orderUseCase) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
+func (r *orderUseCase) GetSalesReportByDays(sellerID string, days int) (*responsemodel.SalesReport, error) {
 	report, err := r.repo.GetSalesReportByDays(sellerID, days)
 	if err != nil {
 		return nil, err

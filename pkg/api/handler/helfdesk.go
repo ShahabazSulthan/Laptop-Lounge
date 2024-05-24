@@ -18,6 +18,16 @@ func NewHelpDeskHandler(useCase interfaceUseCase.IHelpDeskUseCase) *HelpDeskHand
 	return &HelpDeskHandler{useCase: useCase}
 }
 
+// @Summary Create Help Desk Request
+// @Description Create a new help desk request.
+// @Tags Help Desk
+// @Accept json
+// @Produce json
+// @Param request body requestmodel.HelpDeskRequest true "Help desk request details"
+// @Success 201 {object} response.Response "Request created successfully"
+// @Failure 400 {object} response.Response "Bad Request. Invalid input."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /helpdesk/request [post]
 func (h *HelpDeskHandler) CreateRequest(c *gin.Context) {
 	var req requestmodel.HelpDeskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -33,6 +43,17 @@ func (h *HelpDeskHandler) CreateRequest(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Request created successfully"})
 }
 
+// @Summary Update Help Desk Answer
+// @Description Update the answer for a help desk request.
+// @Tags Help Desk
+// @Accept json
+// @Produce json
+// @Param requestID path int true "ID of the request to update"
+// @Param answer body requestmodel.HelpDeskAnswer true "Updated answer details"
+// @Success 200 {object} response.Response "Answer updated successfully"
+// @Failure 400 {object} response.Response "Bad Request. Invalid input."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /helpdesk/request/:requestID [patch]
 func (h *HelpDeskHandler) UpdateAnswer(c *gin.Context) {
 	var ans requestmodel.HelpDeskAnswer
 	if err := c.ShouldBindJSON(&ans); err != nil {
@@ -55,6 +76,14 @@ func (h *HelpDeskHandler) UpdateAnswer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Answer updated successfully"})
 }
 
+// @Summary Get Replied Help Desk Requests
+// @Description Retrieve all help desk requests that have been replied to.
+// @Tags Help Desk
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response "Successfully retrieved replied requests"
+// @Failure 400 {object} response.Response "Bad Request. Unable to retrieve replied requests."
+// @Router /helpdesk/replied [get]
 func (h *HelpDeskHandler) GetRepliedRequests(c *gin.Context) {
 
 	replay, err := h.useCase.GetRepliedRequests()
@@ -70,6 +99,14 @@ func (h *HelpDeskHandler) GetRepliedRequests(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
+// @Summary Get Unreplied Help Desk Requests
+// @Description Retrieve all help desk requests that are yet to be replied to.
+// @Tags Help Desk
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response "Successfully retrieved unreplied requests"
+// @Failure 400 {object} response.Response "Bad Request"
+// @Router /helpdesk/unreplied [get]
 func (h *HelpDeskHandler) GetUnrepliedRequests(c *gin.Context) {
 	unreplay, err := h.useCase.GetUnrepliedRequests()
 	if err != nil {

@@ -11,5 +11,5 @@ type Coupon struct {
 	MaximumAllowed  uint      `json:"maximum_allowed"`
 	StartDate       time.Time `json:"createTime,omitempty"`
 	EndDate         time.Time `json:"expire_date"`
-	Status          string    `json:"status"`
+	Status          string    `json:"status,omitempty"`
 }

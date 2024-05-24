@@ -56,16 +56,16 @@ func (u *AdminHandler) AdminLogin(c *gin.Context) {
 	}
 }
 
-// @Summary      Get Admin Dashboard Details
-// @Description  Retrieve details for the admin. Requires a valid Bearer token.
-// @Tags         Admins
-// @Accept       json
-// @Produce      json
-// @Security     BearerTokenAuth
-// @Success      200  {object}  response.Response  "Admin details retrieved successfully"
-// @Failure      401  {object}  response.Response  "Unauthorized. Authentication required."
-// @Failure      500  {object}  response.Response  "Internal Server Error."
-// @Router       /admin/ [get]
+// @Summary Get Admin Dashboard Details
+// @Description Retrieve details for the admin. Requires a valid Bearer token.
+// @Tags Admins
+// @Accept json
+// @Produce json
+// @Security BearerTokenAuth
+// @Success 200 {object} response.Response "Admin details retrieved successfully"
+// @Failure 401 {object} response.Response "Unauthorized. Authentication required."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /admin/ [get]
 func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 	result, err := u.AdminUseCase.GetAllSellersDetailAdminDashboard()
 	fmt.Println("Errr", result)
@@ -76,5 +76,4 @@ func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 		finalReslt := response.Responses(http.StatusOK, "succesfully login", result, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
-
 }

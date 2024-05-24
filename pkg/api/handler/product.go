@@ -21,19 +21,17 @@ func NewProductHandler(usercase interfaceUseCase.IProductUseCase) *ProductHandle
 	return &ProductHandler{userCase: usercase}
 }
 
-// POST endpoint for adding a product for a specific seller
-
-//	@Summary		Add Product
-//	@Description	Add a new product from the seller.
-//	@Tags			Seller Products
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Param			productImage	formData	file						true	"Product image for adding"
-//	@Param			product			formData	requestmodel.InventoryReq	true	"Product details for adding"
-//	@Success		200				{object}	response.Response			"Successfully added the product"
-//	@Failure		400				{object}	response.Response			"Bad request"
-//	@Router			/seller/products/:SellerID [post]
-
+// AddProduct adds a new product for a specific seller.
+// @Summary      Add Product
+// @Description  Add a new product from the seller.
+// @Tags         Seller Products
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        productImage  formData  file                     true  "Product image for adding"
+// @Param        product       formData  requestmodel.ProductReq  true  "Product details for adding"
+// @Success      200           {object}  response.Response        "Successfully added the product"
+// @Failure      400           {object}  response.Response        "Bad request"
+// @Router       /seller/products/{SellerID} [post]
 func (ph *ProductHandler) AddProduct(c *gin.Context) {
 	var productDetails requestmodel.ProductReq
 
@@ -85,16 +83,17 @@ func (ph *ProductHandler) AddProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Block Product
-//	@Description	Block a product from being displayed.
-//	@Tags			Seller Products
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string				true	"Product ID in the URL path"
-//	@Success		200	{object}	response.Response	"Successfully blocked the product"
-//	@Failure		400	{object}	response.Response	"Bad request"
-//	@Router			/seller/products/:SellerID/:productid/block[patch]
-
+// BlockProduct blocks a product from being displayed.
+// @Summary      Block Product
+// @Description  Block a product from being displayed.
+// @Tags         Seller Products
+// @Accept       json
+// @Produce      json
+// @Param        SellerID   path     string                true  "Seller ID in the URL path"
+// @Param        productid  path     string                true  "Product ID in the URL path"
+// @Success      200        {object} response.Response     "Successfully blocked the product"
+// @Failure      400        {object} response.Response     "Bad request"
+// @Router       /seller/products/{SellerID}/{productid}/block [patch]
 func (u *ProductHandler) BlockProduct(c *gin.Context) {
 	// Extract SellerID and productID from URL parameters
 	sellerID := c.Param("SellerID")
@@ -118,16 +117,17 @@ func (u *ProductHandler) BlockProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Unblock Product
-//	@Description	Unblock a product for display.
-//	@Tags			Seller Products
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string				true	"Product ID in the URL path"
-//	@Success		200	{object}	response.Response	"Successfully unblocked the product"
-//	@Failure		400	{object}	response.Response	"Bad request"
-//	@Router			/seller/products/:SellerID/:productid/unblock [patch]
-
+// UnblockProduct unblocks a product for display.
+// @Summary      Unblock Product
+// @Description  Unblock a product for display.
+// @Tags         Seller Products
+// @Accept       json
+// @Produce      json
+// @Param        SellerID   path     string                true  "Seller ID in the URL path"
+// @Param        productid  path     string                true  "Product ID in the URL path"
+// @Success      200        {object} response.Response     "Successfully unblocked the product"
+// @Failure      400        {object} response.Response     "Bad request"
+// @Router       /seller/products/{SellerID}/{productid}/unblock [patch]
 func (u *ProductHandler) UnblockProduct(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	productID := c.Param("productid")
@@ -149,16 +149,17 @@ func (u *ProductHandler) UnblockProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Delete Product
-//	@Description	Delete a product by ID.
-//	@Tags			Seller Products
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string				true	"Product ID in the URL path"
-//	@Success		200	{object}	response.Response	"Successfully deleted the product"
-//	@Failure		400	{object}	response.Response	"Bad request"
-//	@Router			/seller/products/:SellerID/:productid [delete]
-
+// DeleteProduct deletes a product by ID.
+// @Summary      Delete Product
+// @Description  Delete a product by ID.
+// @Tags         Seller Products
+// @Accept       json
+// @Produce      json
+// @Param        SellerID   path     string                true  "Seller ID in the URL path"
+// @Param        productid  path     string                true  "Product ID in the URL path"
+// @Success      200        {object} response.Response     "Successfully deleted the product"
+// @Failure      400        {object} response.Response     "Bad request"
+// @Router       /seller/products/{SellerID}/{productid} [delete]
 func (u *ProductHandler) DeleteProduct(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	productID := c.Param("productid")
@@ -180,17 +181,17 @@ func (u *ProductHandler) DeleteProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Get Available Laptops
-//	@Description	Retrieve a list of products.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			page	query		int					false	"Page number"				default(1)
-//	@Param			limit	query		int					false	"Number of items per page"	default(5)
-//	@Success		200		{object}	response.Response	"Successfully retrieved products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router		    /products [get]
-
+// GetProduct retrieves a list of available products.
+// @Summary      Get Available Laptops
+// @Description  Retrieve a list of products.
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param        page   query    int     false  "Page number"                 default(1)
+// @Param        limit  query    int     false  "Number of items per page"    default(5)
+// @Success      200    {object} response.Response "Successfully retrieved products"
+// @Failure      400    {object} response.Response "Bad request"
+// @Router       /products [get]
 func (u *ProductHandler) GetProduct(c *gin.Context) {
 
 	product, err := u.userCase.GetAllProducts()
@@ -206,18 +207,18 @@ func (u *ProductHandler) GetProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Get Seller Product
+// /	@Summary		Get Seller Product
+//
 //	@Description	Retrieve details of a single seller product.
 //	@Tags			Seller Products
 //	@Accept			json
 //	@Produce		json
 //	@Security		BearerTokenAuth
 //	@Security		Refreshtoken
-//	@Param			id	path		string				true	"Product ID in the URL path"
+//	@Param			productid	path		string				true	"Product ID in the URL path"
 //	@Success		200	{object}	response.Response	"Successfully retrieved the seller product"
 //	@Failure		400	{object}	response.Response	"Bad request"
-//	@Router			/product/:productid [get]
-
+//	@Router			/product/{productid} [get]
 func (u *ProductHandler) GetAProduct(c *gin.Context) {
 	// Extract the 'productid' parameter from the URL path
 	id := c.Param("productid")
@@ -236,15 +237,14 @@ func (u *ProductHandler) GetAProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Get High To Low Price
-//	@Description	Retrieve a list of products.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	response.Response	"Successfully retrieved products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router		    /product/HighToLow [get]
-
+// @Summary		Get High To Low Price
+// @Description	Retrieve a list of products sorted by price from high to low.
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	response.Response	"Successfully retrieved products"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router		    /product/HighToLow [get]
 func (u *ProductHandler) GetAProductHightoLow(c *gin.Context) {
 
 	product, err := u.userCase.GetAProductHightoLow()
@@ -260,15 +260,14 @@ func (u *ProductHandler) GetAProductHightoLow(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Get Low To High Price
-//	@Description	Retrieve a list of products.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	response.Response	"Successfully retrieved products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router		    /product/LowToHigh [get]
-
+// @Summary		Get Low To High Price
+// @Description	Retrieve a list of products sorted by price from low to high.
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	response.Response	"Successfully retrieved products"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router		    /product/LowToHigh [get]
 func (u *ProductHandler) GetAProductLowtoHigh(c *gin.Context) {
 
 	product, err := u.userCase.GetAProductLowtoHigh()
@@ -284,15 +283,14 @@ func (u *ProductHandler) GetAProductLowtoHigh(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Get A To Z ProductName
-//	@Description	Retrieve a list of products.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	response.Response	"Successfully retrieved products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router		    /product/AtoZ [get]
-
+// @Summary		Get A To Z Product Name
+// @Description	Retrieve a list of products sorted by name from A to Z.
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	response.Response	"Successfully retrieved products"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router		    /product/AtoZ [get]
 func (u *ProductHandler) GetAProductAtoZ(c *gin.Context) {
 
 	product, err := u.userCase.GetAProductAtoZ()
@@ -308,15 +306,14 @@ func (u *ProductHandler) GetAProductAtoZ(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Get Z To A ProductName
-//	@Description	Retrieve a list of products.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	response.Response	"Successfully retrieved products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router		    /product/ZtoA [get]
-
+// @Summary		Get Z To A Product Name
+// @Description	Retrieve a list of products sorted by name from Z to A.
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	response.Response	"Successfully retrieved products"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router		    /product/ZtoA [get]
 func (u *ProductHandler) GetAProductZtoA(c *gin.Context) {
 
 	product, err := u.userCase.GetAProductZtoA()
@@ -332,17 +329,17 @@ func (u *ProductHandler) GetAProductZtoA(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
-//	@Summary		Get Seller Products
-//	@Description	Retrieve a list of seller products.
-//	@Tags			Seller Products
-//	@Accept			json
-//	@Produce		json
-//	@Param			page	query		int					false	"Page number"				default(1)
-//	@Param			limit	query		int					false	"Number of items per page"	default(5)
-//	@Success		200		{object}	response.Response	"Successfully retrieved seller products"
-//	@Failure		400		{object}	response.Response	"Bad request"
-//	@Router			/seller/:SellerID/:page [get]
-
+// @Summary		Get Seller Products
+// @Description	Retrieve a list of seller products with pagination.
+// @Tags			Seller Products
+// @Accept			json
+// @Produce		json
+// @Param			SellerID	path		string	true	"Seller ID"
+// @Param			page		path		int		true	"Page number"
+// @Param			limit		query		int		false	"Number of items per page"	default(5)
+// @Success		200		{object}	response.Response	"Successfully retrieved seller products"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/seller/{SellerID}/{page} [get]
 func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
 	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
@@ -358,16 +355,17 @@ func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Edit Seller Product
-//	@Description	Edit details of a seller product.
-//	@Tags			Seller Products
-//	@Accept			json
-//	@Produce		json
-//	@Param			product	body		requestmodel.EditInventory	true	"Updated product details"
-//	@Success		200		{object}	response.Response			"Successfully edited the seller product"
-//	@Failure		400		{object}	response.Response			"Bad request"
-//	@Router			/seller/products/:SellerID/:productid [patch]
-
+// @Summary		Edit Seller Product
+// @Description	Edit details of a seller product.
+// @Tags			Seller Products
+// @Accept			json
+// @Produce		json
+// @Param			SellerID	path		string						true	"Seller ID"
+// @Param			productid	path		string						true	"Product ID"
+// @Param			product		body		requestmodel.EditProduct	true	"Updated product details"
+// @Success		200		{object}	response.Response			"Successfully edited the seller product"
+// @Failure		400		{object}	response.Response			"Bad request"
+// @Router			/seller/products/{SellerID}/{productid} [patch]
 func (u *ProductHandler) EditProduct(c *gin.Context) {
 	var editedProduct requestmodel.EditProduct
 
@@ -393,20 +391,19 @@ func (u *ProductHandler) EditProduct(c *gin.Context) {
 	}
 }
 
-//	@Summary		Filter Products
-//	@Description	Filter products based on category, brand, product name, and price range.
-//	@Tags			User
-//	@Accept			json
-//	@Produce		json
-//	@Param			category	query		string				false	"Category filter"
-//	@Param			brand		query		string				false	"Brand filter"
-//	@Param			product		query		string				false	"Product name filter"
-//	@Param			minprice	query		int					false	"Minimum price filter"
-//	@Param			maxprice	query		int					false	"Maximum price filter"
-//	@Success		200			{object}	response.Response	"Products filtered successfully"
-//	@Failure		400			{object}	response.Response	"Bad request. Please provide valid filter criteria."
-//	@Router			/filter [get]
-
+// @Summary		Filter Products
+// @Description	Filter products based on category, brand, product name, and price range.
+// @Tags			User
+// @Accept			json
+// @Produce		json
+// @Param			category	query		string				false	"Category filter"
+// @Param			brand		query		string				false	"Brand filter"
+// @Param			product		query		string				false	"Product name filter"
+// @Param			minprice	query		int					false	"Minimum price filter"
+// @Param			maxprice	query		int					false	"Maximum price filter"
+// @Success		200			{object}	response.Response	"Products filtered successfully"
+// @Failure		400			{object}	response.Response	"Bad request. Please provide valid filter criteria."
+// @Router			/filter [get]
 func (u *ProductHandler) FilterProduct(c *gin.Context) {
 	var criterial requestmodel.FilterCriterion
 

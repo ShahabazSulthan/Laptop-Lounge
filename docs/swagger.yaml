@@ -1,4 +1,36 @@
 definitions:
+  requestmodel.Address:
+    properties:
+      addressID:
+        type: string
+      city:
+        type: string
+      firstName:
+        type: string
+      landmark:
+        type: string
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      pincode:
+        minLength: 6
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      userid:
+        type: string
+    required:
+    - city
+    - firstName
+    - landmark
+    - phoneNumber
+    - state
+    - street
+    - userid
+    type: object
   requestmodel.AdminLoginData:
     properties:
       email:
@@ -6,6 +38,359 @@ definitions:
       password:
         minLength: 4
         type: string
+    type: object
+  requestmodel.Brand:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  requestmodel.BrandDetails:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  requestmodel.Cart:
+    properties:
+      cartid_userid:
+        type: string
+      price:
+        type: integer
+      productid:
+        type: string
+      quantity:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - productid
+    - quantity
+    type: object
+  requestmodel.Category:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  requestmodel.CategoryDetails:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  requestmodel.CategoryOffer:
+    properties:
+      category_discount:
+        maximum: 99
+        minimum: 1
+        type: integer
+      category_id:
+        type: string
+      seller_id:
+        type: string
+      title:
+        type: string
+      validity:
+        minimum: 0
+        type: integer
+    required:
+    - category_discount
+    - category_id
+    - title
+    - validity
+    type: object
+  requestmodel.Coupon:
+    properties:
+      discount:
+        maximum: 100
+        minimum: 1
+        type: integer
+      expire_date:
+        type: string
+      maximum_allowed:
+        type: integer
+      minimum_required:
+        minimum: 0
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - expire_date
+    - name
+    - type
+    type: object
+  requestmodel.EditAddress:
+    properties:
+      addressID:
+        type: string
+      city:
+        type: string
+      firstName:
+        type: string
+      landmark:
+        type: string
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      pincode:
+        minLength: 6
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      userid:
+        type: string
+    required:
+    - addressID
+    - city
+    - firstName
+    - landmark
+    - lastName
+    - phoneNumber
+    - pincode
+    - state
+    - street
+    - userid
+    type: object
+  requestmodel.EditCategoryOffer:
+    properties:
+      category_discount:
+        maximum: 99
+        minimum: 1
+        type: integer
+      id:
+        type: string
+      sellerID:
+        type: string
+      title:
+        type: string
+      validity:
+        type: integer
+    required:
+    - category_discount
+    - id
+    - title
+    type: object
+  requestmodel.EditProduct:
+    properties:
+      discount:
+        maximum: 99
+        minimum: 0
+        type: integer
+      id:
+        type: string
+      modelName:
+        maxLength: 100
+        minLength: 3
+        type: string
+      mrp:
+        minimum: 0
+        type: integer
+      saleprice:
+        type: integer
+      units:
+        minimum: 0
+        type: integer
+    required:
+    - discount
+    - id
+    - modelName
+    - mrp
+    - units
+    type: object
+  requestmodel.HelpDeskAnswer:
+    properties:
+      answer:
+        type: string
+    required:
+    - answer
+    type: object
+  requestmodel.HelpDeskRequest:
+    properties:
+      message:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      subject:
+        type: string
+    required:
+    - message
+    - name
+    - phone_number
+    - subject
+    type: object
+  requestmodel.OnlinePaymentVerification:
+    properties:
+      order_id:
+        type: string
+      payment_id:
+        type: string
+      signature:
+        type: string
+    required:
+    - order_id
+    - payment_id
+    - signature
+    type: object
+  requestmodel.Order:
+    properties:
+      addressid:
+        type: string
+      couponid:
+        type: string
+      paymentMethod:
+        type: string
+      userid:
+        type: string
+    required:
+    - addressid
+    - paymentMethod
+    - userid
+    type: object
+  requestmodel.OtpVerification:
+    properties:
+      otp:
+        type: string
+    type: object
+  requestmodel.ReviewRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - rating
+    type: object
+  requestmodel.SellerEditProfile:
+    properties:
+      confirmpassword:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      gstno:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 4
+        type: string
+    required:
+    - confirmpassword
+    - description
+    - email
+    - gstno
+    - id
+    - name
+    - password
+    type: object
+  requestmodel.SellerLogin:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 4
+        type: string
+    type: object
+  requestmodel.SellerSignup:
+    properties:
+      confirmpassword:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      gstno:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        minLength: 4
+        type: string
+    required:
+    - description
+    - gstno
+    - name
+    type: object
+  requestmodel.SendOtp:
+    properties:
+      phone:
+        type: string
+    type: object
+  requestmodel.UserDetails:
+    properties:
+      confirmpassword:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 4
+        type: string
+      phone:
+        type: string
+      referalcode:
+        type: string
+    required:
+    - name
+    type: object
+  requestmodel.UserEditProfile:
+    properties:
+      confirmPassword:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      userid:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - phone
+    - userid
+    type: object
+  requestmodel.UserLogin:
+    properties:
+      password:
+        minLength: 4
+        type: string
+      phone:
+        type: string
+    required:
+    - password
     type: object
   response.Response:
     properties:
@@ -16,9 +401,152 @@ definitions:
       status_code:
         type: integer
     type: object
+  responsemodel.SignupData:
+    properties:
+      email:
+        type: string
+      isUserExist:
+        type: string
+      name:
+        type: string
+      otp:
+        type: string
+      phone:
+        type: string
+      referalCode:
+        type: string
+      token:
+        type: string
+      userID:
+        type: string
+    type: object
 info:
-  contact: {}
+  contact:
+    email: shahabazsulthan4@gmail.com
+    name: API Support
+  description: "Laptop Lounge - \U0001F680 Your One-Stop Destination for Ultimate
+    Laptop Shopping! \U0001F6D2\U0001F4BB Browse, compare, and buy top-notch laptops
+    effortlessly. Powered by cutting-edge technology, we bring you a seamless shopping
+    experience. \U0001F31F Dive into the future of laptop shopping with Laptop Lounge!
+    \U0001F680\U0001F525"
+  title: Laptop Lounge API
 paths:
+  /address/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of addresses.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 5
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved addresses
+          schema:
+            items:
+              $ref: '#/definitions/requestmodel.Address'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Addresses
+      tags:
+      - User Addresses
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing address.
+      parameters:
+      - description: Updated address information
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.EditAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated the address
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Update Address
+      tags:
+      - User Addresses
+    post:
+      consumes:
+      - application/json
+      description: Add a new address.
+      parameters:
+      - description: Address object to be added
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Address'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully added the address
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Add Address
+      tags:
+      - User Addresses
+  /address/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an address by ID.
+      parameters:
+      - description: Address ID in the query parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted the address
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Delete Address
+      tags:
+      - User Addresses
   /admin/:
     get:
       consumes:
@@ -31,13 +559,348 @@ paths:
           description: Admin details retrieved successfully
           schema:
             $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized. Authentication required.
+          schema:
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal Server Error.
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
       summary: Get Admin Dashboard Details
       tags:
       - Admins
+  /admin/brand/:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of brands using this handler.
+      parameters:
+      - default: 1
+        description: Page number for pagination (default 1)
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items to return per page (default 5)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of brands
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get List of Brands
+      tags:
+      - Brand
+    patch:
+      consumes:
+      - application/json
+      description: Edit an existing brand using this handler.
+      parameters:
+      - description: Updated name of the brand
+        in: body
+        name: name
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.BrandDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Brand edited successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Edit a Brand by ID
+      tags:
+      - Brand
+    post:
+      consumes:
+      - application/json
+      description: Create a new brand using this handler.
+      parameters:
+      - description: Name of the brand
+        in: body
+        name: Brand
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Brand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Brand created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Create a Brand
+      tags:
+      - Brand
+  /admin/brand/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing brand by its ID.
+      parameters:
+      - description: ID of the brand to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Brand deleted successfully
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Delete a Brand by ID
+      tags:
+      - Brand
+  /admin/category/:
+    get:
+      consumes:
+      - application/json
+      description: Using this handler, admin can get a list of all categories
+      parameters:
+      - default: 1
+        description: Page number for pagination (default 1)
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items to return per page (default 5)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of categories
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get All Categories
+      tags:
+      - Category
+    patch:
+      consumes:
+      - application/json
+      description: Edit an existing category using this handler.
+      parameters:
+      - description: Updated category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.CategoryDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category edited successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Edit a Category by ID
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, admin can add a new category
+      parameters:
+      - description: Details of the category
+        in: body
+        name: Details
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Add Category
+      tags:
+      - Category
+  /admin/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing category using this handler.
+      parameters:
+      - description: ID of the category to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Category deleted successfully
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Delete a Category by ID
+      tags:
+      - Category
+  /admin/coupon/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of coupons for the admin.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Coupons retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Unable to retrieve coupons.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Coupons (Admin)
+      tags:
+      - Admin Coupons
+    post:
+      consumes:
+      - application/json
+      description: Create a new coupon by the admin.
+      parameters:
+      - description: Coupon details to be created
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Coupon'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Coupon created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Unable to create the coupon.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Create Coupon (Admin)
+      tags:
+      - Admin Coupons
+  /admin/coupon/block/{couponID}:
+    patch:
+      consumes:
+      - application/json
+      description: Block a coupon by the admin.
+      parameters:
+      - description: ID of the coupon to be blocked
+        in: path
+        name: couponID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Coupon blocked successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide a valid coupon ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Block Coupon (Admin)
+      tags:
+      - Admin Coupons
+  /admin/coupon/unblock/{couponID}:
+    patch:
+      consumes:
+      - application/json
+      description: Unblock a coupon by the admin.
+      parameters:
+      - description: ID of the coupon to be unblocked
+        in: path
+        name: couponID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Coupon unblocked successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide a valid coupon ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Unblock Coupon (Admin)
+      tags:
+      - Admin Coupons
   /admin/login:
     post:
       consumes:
@@ -74,4 +937,2058 @@ paths:
       summary: Admin Login
       tags:
       - Admins
+  /admin/sellers/block/{sellerID}:
+    patch:
+      consumes:
+      - application/json
+      description: Using this handler, admin can block a seller.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: sellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully blocked seller
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Block Seller
+      tags:
+      - Admin
+  /admin/sellers/getsellers:
+    get:
+      consumes:
+      - application/json
+      description: Using this handler, admin can get a list of sellers.
+      parameters:
+      - default: 1
+        description: Page number for pagination (default 1)
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items to return per page (default 5)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved list of sellers
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Sellers
+      tags:
+      - Admin
+  /admin/sellers/pending:
+    get:
+      consumes:
+      - application/json
+      description: Using this handler, admin can get a list of pending sellers.
+      parameters:
+      - default: 1
+        description: Page number for pagination (default 1)
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items to return per page (default 5)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved list of pending sellers
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Pending Sellers
+      tags:
+      - Admin
+  /admin/sellers/singleview/{sellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Using this handler, admin can get details of a single seller.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: sellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved seller details
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get Single Seller Details
+      tags:
+      - Admin
+  /admin/sellers/unblock/:sellerID:
+    patch:
+      consumes:
+      - application/json
+      description: Using this handler, admin can block a seller
+      parameters:
+      - description: Seller ID in the URL path
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Block Seller
+      tags:
+      - Admins
+  /admin/sellers/verify/{sellerID}:
+    patch:
+      consumes:
+      - application/json
+      description: Using this handler, admin can verify a seller.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: sellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully verified the seller
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Verify Seller
+      tags:
+      - Admins
+  /admin/users/block/{userID}:
+    patch:
+      consumes:
+      - application/json
+      description: Using this handler, admin can block a user.
+      parameters:
+      - description: User ID in the URL path
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Block User
+      tags:
+      - Admins
+  /admin/users/getuser:
+    get:
+      consumes:
+      - application/json
+      description: Using this handler, admin can view users.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 5
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Get All Users
+      tags:
+      - Admins
+  /admin/users/unblock/{userID}:
+    patch:
+      consumes:
+      - application/json
+      description: Using this handler, admin can unblock a user.
+      parameters:
+      - description: User ID in the URL path
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Unblock User
+      tags:
+      - Admins
+  /cart/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all items in the user's cart.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved user cart items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Get User Cart
+      tags:
+      - UserCart
+    post:
+      consumes:
+      - application/json
+      description: Create a user cart.
+      parameters:
+      - description: Cart details for creating
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Cart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User cart created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Create User Cart
+      tags:
+      - UserCart
+  /cart/:productID:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product from the user's cart.
+      parameters:
+      - description: Product ID to delete from the cart
+        in: query
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product deleted from the cart successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Delete Item from User Cart
+      tags:
+      - UserCart
+  /cart/decrement/{productID}:
+    patch:
+      consumes:
+      - application/json
+      description: Decrease the count of a product in the user's cart.
+      parameters:
+      - description: Product ID to decrement in the cart
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product count decremented in the cart successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Decrement Product Count in User Cart
+      tags:
+      - UserCart
+  /cart/increment/{productID}:
+    patch:
+      consumes:
+      - application/json
+      description: Increase the count of a product in the user's cart.
+      parameters:
+      - description: Inventory ID of the product to increment in the cart
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product count incremented in the cart successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Increment Product Count in User Cart
+      tags:
+      - UserCart
+  /filter:
+    get:
+      consumes:
+      - application/json
+      description: Filter products based on category, brand, product name, and price
+        range.
+      parameters:
+      - description: Category filter
+        in: query
+        name: category
+        type: string
+      - description: Brand filter
+        in: query
+        name: brand
+        type: string
+      - description: Product name filter
+        in: query
+        name: product
+        type: string
+      - description: Minimum price filter
+        in: query
+        name: minprice
+        type: integer
+      - description: Maximum price filter
+        in: query
+        name: maxprice
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Products filtered successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide valid filter criteria.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Filter Products
+      tags:
+      - User
+  /helpdesk/replied:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all help desk requests that have been replied to.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved replied requests
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Unable to retrieve replied requests.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Replied Help Desk Requests
+      tags:
+      - Help Desk
+  /helpdesk/request:
+    post:
+      consumes:
+      - application/json
+      description: Create a new help desk request.
+      parameters:
+      - description: Help desk request details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.HelpDeskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Request created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create Help Desk Request
+      tags:
+      - Help Desk
+  /helpdesk/request/:requestID:
+    patch:
+      consumes:
+      - application/json
+      description: Update the answer for a help desk request.
+      parameters:
+      - description: ID of the request to update
+        in: path
+        name: requestID
+        required: true
+        type: integer
+      - description: Updated answer details
+        in: body
+        name: answer
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.HelpDeskAnswer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Answer updated successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update Help Desk Answer
+      tags:
+      - Help Desk
+  /helpdesk/unreplied:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all help desk requests that are yet to be replied to.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved unreplied requests
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Unreplied Help Desk Requests
+      tags:
+      - Help Desk
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, users can log in.
+      parameters:
+      - description: User Login details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: User Login
+      tags:
+      - User
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all orders for the logged in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get all orders
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with the input payload
+      parameters:
+      - description: Order data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Create a new order
+      tags:
+      - orders
+  /orders/{orderItemID}:
+    delete:
+      consumes:
+      - application/json
+      description: Cancel an order by its ID for the logged-in user
+      parameters:
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshToken: []
+      summary: Cancel order
+      tags:
+      - orders
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a single order by its ID
+      parameters:
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get order details
+      tags:
+      - orders
+  /orders/invoice/{orderItemID}:
+    get:
+      consumes:
+      - application/json
+      description: Generate an invoice for the specified order item ID
+      parameters:
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshToken: []
+      summary: Generate invoice
+      tags:
+      - orders
+  /orders/return/{orderItemID}:
+    post:
+      consumes:
+      - application/json
+      description: Return an order by its ID for the logged-in user
+      parameters:
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshToken: []
+      summary: Return order
+      tags:
+      - orders
+  /orders/seller/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all seller orders
+      tags:
+      - orders
+  /orders/seller/{SellerID}/cancel/{orderID}:
+    delete:
+      consumes:
+      - application/json
+      description: Cancel an order by its ID for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Cancel order
+      tags:
+      - orders
+  /orders/seller/{SellerID}/confirm/{orderItemID}:
+    post:
+      consumes:
+      - application/json
+      description: Confirm an order as delivered by its ID for the specified seller
+        ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Confirm order delivered
+      tags:
+      - orders
+  /orders/seller/cancelled/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all cancelled orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller cancelled orders
+      tags:
+      - orders
+  /orders/seller/delivered/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all delivered orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller delivered orders
+      tags:
+      - orders
+  /orders/seller/processing/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all processing orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller processing orders
+      tags:
+      - orders
+  /payment/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify an online payment using the provided details.
+      parameters:
+      - description: Details for online payment verification
+        in: body
+        name: verificationDetails
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.OnlinePaymentVerification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment verification successful
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide valid verification details.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Verify Online Payment
+      tags:
+      - PaymentIntegration
+  /product/{productid}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details of a single seller product.
+      parameters:
+      - description: Product ID in the URL path
+        in: path
+        name: productid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the seller product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      tags:
+      - Seller Products
+  /product/AtoZ:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products sorted by name from A to Z.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get A To Z Product Name
+      tags:
+      - User
+  /product/HighToLow:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products sorted by price from high to low.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get High To Low Price
+      tags:
+      - User
+  /product/LowToHigh:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products sorted by price from low to high.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Low To High Price
+      tags:
+      - User
+  /product/ZtoA:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products sorted by name from Z to A.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Z To A Product Name
+      tags:
+      - User
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of products.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 5
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Available Laptops
+      tags:
+      - User
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the user's profile.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the user's profile
+          schema:
+            $ref: '#/definitions/requestmodel.UserDetails'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get User
+      tags:
+      - User Profile
+  /profile/:
+    patch:
+      consumes:
+      - application/json
+      description: Update the user's profile.
+      parameters:
+      - description: User profile details for updating
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.UserEditProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated the user's profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Update User Profile
+      tags:
+      - User Profile
+  /razorpay:
+    get:
+      consumes:
+      - text/html
+      description: Retrieve the Razorpay payment page for the specified user.
+      parameters:
+      - description: User ID for which the payment page is requested
+        in: query
+        name: userID
+        required: true
+        type: integer
+      - description: Order ID for which the payment page is requested
+        in: query
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML page for Razorpay payment
+          schema:
+            type: string
+        "400":
+          description: Bad request. Please provide valid user ID and order ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Razorpay Payment Page
+      tags:
+      - PaymentIntegration
+  /review/{productID}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve reviews for a product by its ID.
+      parameters:
+      - description: ID of the product
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved reviews
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Reviews by Product ID
+      tags:
+      - Reviews
+    post:
+      consumes:
+      - application/json
+      description: Add a review for a product.
+      parameters:
+      - description: ID of the product
+        in: path
+        name: productID
+        required: true
+        type: string
+      - description: Review details
+        in: body
+        name: reviewRequest
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.ReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Review added successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add Review
+      tags:
+      - Reviews
+  /review/{reviewID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a review by its ID.
+      parameters:
+      - description: ID of the review
+        in: path
+        name: reviewID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Review deleted successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete Review by ID
+      tags:
+      - Reviews
+  /review/average/{productID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the average rating for a product.
+      parameters:
+      - description: ID of the product
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved average rating
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Average Rating
+      tags:
+      - Reviews
+  /sales/seller/{SellerID}/report/days/{days}:
+    get:
+      consumes:
+      - application/json
+      description: Generate a custom sales report for the specified seller ID for
+        the given number of days
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Number of days
+        in: path
+        name: days
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate custom sales report
+      tags:
+      - sales
+  /sales/seller/{SellerID}/report/xlsx:
+    get:
+      consumes:
+      - application/json
+      description: Generate a sales report in XLSX format for the specified seller
+        ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate sales report in XLSX
+      tags:
+      - sales
+  /seller/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details for the seller sales.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Details retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized. Authentication required.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get Seller Dashboard
+      tags:
+      - Seller
+  /seller/{SellerID}/{page}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of seller products with pagination.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved seller products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Seller Products
+      tags:
+      - Seller Products
+  /seller/categoryoffer/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all category offers by the seller.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category offers retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Unable to retrieve category offers.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Seller Category Offers
+      tags:
+      - Seller category offers
+  /seller/categoryoffer/{seller_id}:
+    patch:
+      consumes:
+      - application/json
+      description: Edit details of a category offer by the seller.
+      parameters:
+      - description: Details for editing a category offer
+        in: body
+        name: editDetails
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.EditCategoryOffer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category offer edited successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide valid edit details.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Edit Category Offer
+      tags:
+      - Seller category offers
+    post:
+      consumes:
+      - application/json
+      description: Create a new offer for a category by the seller.
+      parameters:
+      - description: Details for creating a category offer
+        in: body
+        name: categoryOffer
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.CategoryOffer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Category offer created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide valid details for creating a category
+            offer.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create Category Offer
+      tags:
+      - Seller category offers
+  /seller/categoryoffer/block/{categoryOfferID}:
+    patch:
+      consumes:
+      - application/json
+      description: Block or disable a category offer by the seller.
+      parameters:
+      - description: ID of the category offer to be blocked
+        in: path
+        name: categoryOfferID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category offer blocked successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide a valid category offer ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Block Category Offer
+      tags:
+      - Seller category offers
+  /seller/categoryoffer/delete/{categoryOfferID}:
+    patch:
+      consumes:
+      - application/json
+      description: Delete a category offer by the seller.
+      parameters:
+      - description: ID of the category offer to be deleted
+        in: path
+        name: categoryOfferID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category offer deleted successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide a valid category offer ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete Category Offer
+      tags:
+      - Seller category offers
+  /seller/categoryoffer/unblock/{categoryOfferID}:
+    patch:
+      consumes:
+      - application/json
+      description: Unblock or enable a previously blocked category offer by the seller.
+      parameters:
+      - description: ID of the category offer to be unblocked
+        in: path
+        name: categoryOfferID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Category offer unblocked successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Please provide a valid category offer ID.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Unblock Category Offer
+      tags:
+      - Seller category offers
+  /seller/login:
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, a seller can log in.
+      parameters:
+      - description: Seller login details
+        in: body
+        name: Seller
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.SellerLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Seller Login
+      tags:
+      - Seller
+  /seller/products/{SellerID}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a new product from the seller.
+      parameters:
+      - description: Product image for adding
+        in: formData
+        name: productImage
+        required: true
+        type: file
+      - in: formData
+        minimum: 3000
+        name: batteryCapacity
+        required: true
+        type: integer
+      - in: formData
+        name: brandID
+        required: true
+        type: integer
+      - in: formData
+        name: categoryID
+        required: true
+        type: integer
+      - in: formData
+        minLength: 5
+        name: description
+        required: true
+        type: string
+      - in: formData
+        maximum: 99
+        minimum: 0
+        name: discount
+        required: true
+        type: integer
+      - in: formData
+        name: graphicsCard
+        required: true
+        type: string
+      - in: formData
+        name: imageURL
+        type: string
+      - in: formData
+        maxLength: 100
+        minLength: 3
+        name: modelName
+        required: true
+        type: string
+      - in: formData
+        minimum: 0
+        name: mrp
+        required: true
+        type: integer
+      - in: formData
+        name: operatingSystem
+        required: true
+        type: string
+      - in: formData
+        name: processorType
+        required: true
+        type: string
+      - in: formData
+        name: salePrice
+        type: integer
+      - in: formData
+        minimum: 10
+        name: screenSize
+        required: true
+        type: number
+      - in: formData
+        name: sellerID
+        type: integer
+      - in: formData
+        minimum: 128
+        name: storageCapacityGB
+        required: true
+        type: integer
+      - in: formData
+        minimum: 0
+        name: units
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added the product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add Product
+      tags:
+      - Seller Products
+  /seller/products/{SellerID}/{productid}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product by ID.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Product ID in the URL path
+        in: path
+        name: productid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted the product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete Product
+      tags:
+      - Seller Products
+    patch:
+      consumes:
+      - application/json
+      description: Edit details of a seller product.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: productid
+        required: true
+        type: string
+      - description: Updated product details
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.EditProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully edited the seller product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Edit Seller Product
+      tags:
+      - Seller Products
+  /seller/products/{SellerID}/{productid}/block:
+    patch:
+      consumes:
+      - application/json
+      description: Block a product from being displayed.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Product ID in the URL path
+        in: path
+        name: productid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully blocked the product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Block Product
+      tags:
+      - Seller Products
+  /seller/products/{SellerID}/{productid}/unblock:
+    patch:
+      consumes:
+      - application/json
+      description: Unblock a product for display.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Product ID in the URL path
+        in: path
+        name: productid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully unblocked the product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Unblock Product
+      tags:
+      - Seller Products
+  /seller/profile/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details of the seller's profile.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved the seller's profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Seller Profile
+      tags:
+      - Seller Profile
+    patch:
+      consumes:
+      - application/json
+      description: Update the seller's profile.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Seller profile details for updating
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.SellerEditProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated the seller's profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update Seller Profile
+      tags:
+      - Seller Profile
+  /seller/signup:
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, a seller can sign up.
+      parameters:
+      - description: Seller signup details
+        in: body
+        name: Seller
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.SellerSignup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully signed up
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Seller Signup
+      tags:
+      - Seller
+  /sendOTP:
+    post:
+      consumes:
+      - application/json
+      description: Send OTP (One-Time Password) for verification.
+      parameters:
+      - description: OTP details for sending
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.SendOtp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Send OTP To Mobile
+      tags:
+      - User
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Using this handler, users can sign up.
+      parameters:
+      - description: User Signup details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.UserDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responsemodel.SignupData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: User Signup
+      tags:
+      - User
+  /verifyOTP:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP (One-Time Password) sent to the user.
+      parameters:
+      - description: OTP details for verification
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.OtpVerification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP verified successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Verify OTP
+      tags:
+      - User
+  /wallet/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details of the user's wallet.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User wallet details retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Unable to retrieve user wallet details.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get User Wallet
+      tags:
+      - User Wallet
+  /wallet/transaction:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the transaction history of the user's wallet.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User wallet transactions retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request. Unable to retrieve user wallet transactions.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - Refreshtoken: []
+      summary: Get User Wallet Transactions
+      tags:
+      - User Wallet
+  /wishlist:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the user's wishlist.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Wishlist retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. User ID not found in context.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Get User Wishlist
+      tags:
+      - Wishlist
+  /wishlist/{productID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a product from the user's wishlist.
+      parameters:
+      - description: ID of the product to remove
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product removed from wishlist successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. User ID not found in context.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Remove Product from Wishlist
+      tags:
+      - Wishlist
+    post:
+      consumes:
+      - application/json
+      description: Add a product to the user's wishlist.
+      parameters:
+      - description: ID of the product to add
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Product added to wishlist successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized. User ID not found in context.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Add Product to Wishlist
+      tags:
+      - Wishlist
+securityDefinitions:
+  BearerTokenAuth:
+    description: 'Use your Bearer token for authentication. Example: "Bearer {token}"'
+    in: header
+    name: Authorization
+    type: apiKey
+  RefreshTokenAuth:
+    description: 'Use your Refresh token to obtain a new Bearer token. Example: "{token}"'
+    in: header
+    name: Refreshtoken
+    type: apiKey
 swagger: "2.0"

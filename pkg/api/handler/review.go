@@ -19,6 +19,17 @@ func NewReviewHandler(useCase interfaceUseCase.IReviewUseCase) *ReviewHandler {
 	return &ReviewHandler{useCase: useCase}
 }
 
+// @Summary Add Review
+// @Description Add a review for a product.
+// @Tags Reviews
+// @Accept json
+// @Produce json
+// @Param productID path string true "ID of the product"
+// @Param reviewRequest body requestmodel.ReviewRequest true "Review details"
+// @Success 201 {object} response.Response "Review added successfully"
+// @Failure 400 {object} response.Response "Bad Request. Invalid input."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /review/{productID} [post]
 func (r *ReviewHandler) AddReview(c *gin.Context) {
 	var reviewRequest *requestmodel.ReviewRequest
 
@@ -54,6 +65,15 @@ func (r *ReviewHandler) AddReview(c *gin.Context) {
 	}
 }
 
+// @Summary Get Reviews by Product ID
+// @Description Retrieve reviews for a product by its ID.
+// @Tags Reviews
+// @Accept json
+// @Produce json
+// @Param productID path string true "ID of the product"
+// @Success 200 {object} response.Response "Successfully retrieved reviews"
+// @Failure 500 {object} response.Response "Internal Server Error"
+// @Router /review/{productID} [get]
 func (r *ReviewHandler) GetReviewsByProductID(c *gin.Context) {
 	productID := c.Param("productID")
 
@@ -68,6 +88,15 @@ func (r *ReviewHandler) GetReviewsByProductID(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
+// @Summary Delete Review by ID
+// @Description Delete a review by its ID.
+// @Tags Reviews
+// @Accept json
+// @Produce json
+// @Param reviewID path string true "ID of the review"
+// @Success 200 {object} response.Response "Review deleted successfully"
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /review/{reviewID} [delete]
 func (r *ReviewHandler) DeleteReviewByID(c *gin.Context) {
 	reviewID := c.Param("reviewID")
 
@@ -82,6 +111,15 @@ func (r *ReviewHandler) DeleteReviewByID(c *gin.Context) {
 	c.JSON(http.StatusOK, finalResult)
 }
 
+// @Summary Get Average Rating
+// @Description Get the average rating for a product.
+// @Tags Reviews
+// @Accept json
+// @Produce json
+// @Param productID path string true "ID of the product"
+// @Success 200 {object} response.Response "Successfully retrieved average rating"
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /review/average/{productID} [get]
 func (r *ReviewHandler) GetAverageRating(c *gin.Context) {
 	productID := c.Param("productID")
 
@@ -99,4 +137,3 @@ func (r *ReviewHandler) GetAverageRating(c *gin.Context) {
 	finalResult := response.Responses(http.StatusOK, "", responseData, nil)
 	c.JSON(http.StatusOK, finalResult)
 }
-

@@ -21,6 +21,15 @@ func NewSellerHandler(sellerUseCase interfaceUseCase.ISellerUseCase) *SellerHand
 	return &SellerHandler{usecase: sellerUseCase}
 }
 
+// @Summary		Seller Signup
+// @Description	Using this handler, a seller can sign up.
+// @Tags			Seller
+// @Accept			json
+// @Produce		json
+// @Param			Seller	body		requestmodel.SellerSignup	true	"Seller signup details"
+// @Success		200		{object}	response.Response	"Successfully signed up"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/seller/signup [post]
 func (u *SellerHandler) SellerSignup(c *gin.Context) {
 	var sellerDetails requestmodel.SellerSignup
 
@@ -46,6 +55,15 @@ func (u *SellerHandler) SellerSignup(c *gin.Context) {
 	}
 }
 
+// @Summary		Seller Login
+// @Description	Using this handler, a seller can log in.
+// @Tags			Seller
+// @Accept			json
+// @Produce		json
+// @Param			Seller	body		requestmodel.SellerLogin	true	"Seller login details"
+// @Success		200		{object}	response.Response	"Successfully logged in"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/seller/login [post]
 func (u *SellerHandler) SellerLogin(c *gin.Context) {
 	var loginData requestmodel.SellerLogin
 	if err := c.BindJSON(&loginData); err != nil {
@@ -70,6 +88,17 @@ func (u *SellerHandler) SellerLogin(c *gin.Context) {
 	}
 }
 
+// @Summary		Get Sellers
+// @Description	Using this handler, admin can get a list of sellers.
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			page	query		int	true	"Page number for pagination (default 1)"	default(1)
+// @Param			limit	query		int	true	"Number of items to return per page (default 5)"	default(5)
+// @Success		200		{object}	response.Response	"Successfully retrieved list of sellers"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/admin/sellers/getsellers [get]
 func (u *SellerHandler) GetSellers(c *gin.Context) {
 	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
@@ -86,6 +115,16 @@ func (u *SellerHandler) GetSellers(c *gin.Context) {
 	}
 }
 
+// @Summary		Block Seller
+// @Description	Using this handler, admin can block a seller.
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			sellerID	path		string	true	"Seller ID in the URL path"
+// @Success		200		{object}	response.Response	"Successfully blocked seller"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/admin/sellers/block/{sellerID} [patch]
 func (u *SellerHandler) BlockSeller(c *gin.Context) {
 
 	sellerId := c.Param("sellerID")
@@ -106,6 +145,16 @@ func (u *SellerHandler) BlockSeller(c *gin.Context) {
 	}
 }
 
+// @Summary		Block Seller
+// @Description	Using this handler, admin can block a seller
+// @Tags			Admins
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			id	query		string	true	"Seller ID in the URL path"
+// @Success		200	{object}	response.Response{}
+// @Failure		400	{object}	response.Response{}
+// @Router			/admin/sellers/unblock/:sellerID  [patch]
 func (u *SellerHandler) UnblockSeller(c *gin.Context) {
 	sellerId := c.Param("sellerID")
 	id := strings.TrimSpace(sellerId)
@@ -125,6 +174,17 @@ func (u *SellerHandler) UnblockSeller(c *gin.Context) {
 	}
 }
 
+// @Summary		Get Pending Sellers
+// @Description	Using this handler, admin can get a list of pending sellers.
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			page	query		int	true	"Page number for pagination (default 1)"	default(1)
+// @Param			limit	query		int	true	"Number of items to return per page (default 5)"	default(5)
+// @Success		200		{object}	response.Response	"Successfully retrieved list of pending sellers"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/admin/sellers/pending [get]
 func (u *SellerHandler) GetPendingSellers(c *gin.Context) {
 	page := c.DefaultQuery("page", "1")
 	limit := c.DefaultQuery("limit", "1")
@@ -138,6 +198,16 @@ func (u *SellerHandler) GetPendingSellers(c *gin.Context) {
 	}
 }
 
+// @Summary		Get Single Seller Details
+// @Description	Using this handler, admin can get details of a single seller.
+// @Tags			Admin
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			sellerID	path		string	true	"Seller ID in the URL path"
+// @Success		200		{object}	response.Response	"Successfully retrieved seller details"
+// @Failure		400		{object}	response.Response	"Bad request"
+// @Router			/admin/sellers/singleview/{sellerID} [get]
 func (u *SellerHandler) FetchSingleSeller(c *gin.Context) {
 	sellerID := c.Param("sellerID")
 	id := strings.TrimSpace(sellerID)
@@ -158,6 +228,16 @@ func (u *SellerHandler) FetchSingleSeller(c *gin.Context) {
 
 }
 
+// @Summary		Verify Seller
+// @Description	Using this handler, admin can verify a seller.
+// @Tags			Admins
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			sellerID	path		string	true	"Seller ID in the URL path"
+// @Success		200	{object}	response.Response	"Successfully verified the seller"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router			/admin/sellers/verify/{sellerID} [patch]
 func (u *SellerHandler) VerifySeller(c *gin.Context) {
 	sellerID := c.Param("sellerID") // Update parameter name here
 	id := strings.TrimSpace(sellerID)
@@ -178,6 +258,16 @@ func (u *SellerHandler) VerifySeller(c *gin.Context) {
 	}
 }
 
+// ------------------------------------------Seller Profile------------------------------------\\
+
+// @Summary		Get Seller Profile
+// @Description	Retrieve details of the seller's profile.
+// @Tags			Seller Profile
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	response.Response	"Successfully retrieved the seller's profile"
+// @Failure		400	{object}	response.Response	"Bad request"
+// @Router			/seller/profile/{SellerID} [get]
 func (u *SellerHandler) GetSellerProfile(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 
@@ -192,6 +282,16 @@ func (u *SellerHandler) GetSellerProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, finalReslt)
 }
 
+// @Summary		Update Seller Profile
+// @Description	Update the seller's profile.
+// @Tags			Seller Profile
+// @Accept			json
+// @Produce		json
+// @Param			SellerID	path		string							true	"Seller ID in the URL path"
+// @Param			profile		body		requestmodel.SellerEditProfile	true	"Seller profile details for updating"
+// @Success		200			{object}	response.Response				"Successfully updated the seller's profile"
+// @Failure		400			{object}	response.Response				"Bad request"
+// @Router			/seller/profile/{SellerID} [patch]
 func (u *SellerHandler) EditSellerProfile(c *gin.Context) {
 	var profile requestmodel.SellerEditProfile
 
@@ -215,8 +315,19 @@ func (u *SellerHandler) EditSellerProfile(c *gin.Context) {
 	}
 }
 
+// @Summary		Get Seller Dashboard
+// @Description	Retrieve details for the seller sales.
+// @Tags			Seller
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Security		Refreshtoken
+// @Param			SellerID	path		string	true	"Seller ID in the URL path"
+// @Success		200	{object}	response.Response	"Details retrieved successfully"
+// @Failure		401	{object}	response.Response	"Unauthorized. Authentication required."
+// @Router			/seller/{SellerID} [get]
 func (u *SellerHandler) SellerDashbord(c *gin.Context) {
-	
+
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
 		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)

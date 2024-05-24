@@ -340,39 +340,129 @@ func (d *orderRepository) GetOrderExistOfSeller(orderID, sellerID string) error 
 //-------------------------Get Sales Report by Year-Month-Day-----------------------------------//
 
 func (d *orderRepository) GetSalesReport(sellerID, year, month, day string) (*responsemodel.SalesReport, error) {
-
 	var remainingQuery string
 
 	if year != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year
 	}
 	if year != "" && month != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(Month FROM order_date)=" + month
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(MONTH FROM order_date)=" + month
 	}
 	if year != "" && month != "" && day != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(Month FROM order_date)=" + month + " AND EXTRACT(Day FROM order_date)=" + day
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(MONTH FROM order_date)=" + month + " AND EXTRACT(DAY FROM order_date)=" + day
 	}
 
 	var report responsemodel.SalesReport
-	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id= ? AND order_status='delivered' AND" + remainingQuery
-	result := d.DB.Raw(query, sellerID).Scan(&report)
-	if result.Error != nil {
-		return nil, errors.New("face some issue while get report (no data matched the specified criteria)")
+
+	// Query for delivered orders, total units sold, and total revenue
+	query1 := `SELECT
+                    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
+                    SUM(CASE WHEN order_status = 'delivered' THEN quantity ELSE 0 END) AS total_units_sold,
+                    SUM(CASE WHEN order_status = 'delivered' THEN price ELSE 0 END) AS total_revenue
+               FROM order_products
+               WHERE seller_id = ? AND ` + remainingQuery
+
+	var deliveredData struct {
+		DeliveredOrders uint
+		TotalUnitsSold  uint
+		TotalRevenue    uint
 	}
+
+	result1 := d.DB.Raw(query1, sellerID).Scan(&deliveredData)
+	if result1.Error != nil {
+		return nil, errors.New("error occurred while fetching the delivered orders, total units sold, and total revenue: " + result1.Error.Error())
+	}
+
+	// Query for ongoing and cancelled orders
+	query2 := `SELECT
+                    SUM(CASE WHEN order_status = 'processing' THEN 1 ELSE 0 END) AS ongoing_orders,
+                    SUM(CASE WHEN order_status = 'cancel' THEN 1 ELSE 0 END) AS cancelled_orders
+               FROM order_products
+               WHERE seller_id = ? AND ` + remainingQuery
+
+	var additionalData struct {
+		OngoingOrders   uint
+		CancelledOrders uint
+	}
+
+	result2 := d.DB.Raw(query2, sellerID).Scan(&additionalData)
+	if result2.Error != nil {
+		return nil, errors.New("error occurred while fetching the ongoing and cancelled orders: " + result2.Error.Error())
+	}
+
+	// Populate the report struct with the fetched data
+	report.DeliveredOrders = deliveredData.DeliveredOrders
+	report.Quantity = deliveredData.TotalUnitsSold
+	report.Price = deliveredData.TotalRevenue
+	report.OngoingOrders = additionalData.OngoingOrders
+	report.CancelledOrders = additionalData.CancelledOrders
+
 	return &report, nil
 }
 
 //-------------------------Get Sales Report by Days-----------------------------------//
 
-func (d *orderRepository) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
-	var report responsemodel.SalesReport
-	remainingQuery := "(now() - interval '" + days + " day')"
-	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id = ? AND order_status='delivered' AND order_date >= " + remainingQuery
-	result := d.DB.Raw(query, sellerID).Scan(&report)
+// func (d *orderRepository) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
+// 	var report responsemodel.SalesReport
+// 	remainingQuery := "(now() - interval '" + days + " day')"
+// 	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id = ? AND order_date >= " + remainingQuery
+// 	result := d.DB.Raw(query, sellerID).Scan(&report)
 
-	if result.Error != nil {
-		return nil, errors.New("face some issue while get report by days (no data matched the specified criteria)")
+// 	if result.Error != nil {
+// 		return nil, errors.New("face some issue while get report by days (no data matched the specified criteria)")
+// 	}
+// 	return &report, nil
+// }
+
+func (d *orderRepository) GetSalesReportByDays(sellerID string, days int) (*responsemodel.SalesReport, error) {
+	var report responsemodel.SalesReport
+
+	// Calculate the date for the interval
+	intervalDate := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
+
+	// Query for delivered orders, total units sold, and total revenue
+	query1 := `SELECT
+                    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
+                    SUM(CASE WHEN order_status = 'delivered' THEN quantity ELSE 0 END) AS total_units_sold,
+                    SUM(CASE WHEN order_status = 'delivered' THEN price ELSE 0 END) AS total_revenue
+               FROM order_products
+               WHERE seller_id = ? AND order_date >= ?`
+
+	var deliveredData struct {
+		DeliveredOrders uint
+		TotalUnitsSold  uint
+		TotalRevenue    uint
 	}
+
+	result1 := d.DB.Raw(query1, sellerID, intervalDate).Scan(&deliveredData)
+	if result1.Error != nil {
+		return nil, errors.New("error occurred while fetching the delivered orders, total units sold, and total revenue: " + result1.Error.Error())
+	}
+
+	// Query for ongoing and cancelled orders
+	query2 := `SELECT
+                    SUM(CASE WHEN order_status = 'processing' THEN 1 ELSE 0 END) AS ongoing_orders,
+                    SUM(CASE WHEN order_status = 'cancel' THEN 1 ELSE 0 END) AS cancelled_orders
+               FROM order_products
+               WHERE seller_id = ? AND order_date >= ?`
+
+	var additionalData struct {
+		OngoingOrders   uint
+		CancelledOrders uint
+	}
+
+	result2 := d.DB.Raw(query2, sellerID, intervalDate).Scan(&additionalData)
+	if result2.Error != nil {
+		return nil, errors.New("error occurred while fetching the ongoing and cancelled orders: " + result2.Error.Error())
+	}
+
+	// Populate the report struct with the fetched data
+	report.DeliveredOrders = deliveredData.DeliveredOrders
+	report.Quantity = deliveredData.TotalUnitsSold
+	report.Price = deliveredData.TotalRevenue
+	report.OngoingOrders = additionalData.OngoingOrders
+	report.CancelledOrders = additionalData.CancelledOrders
+
 	return &report, nil
 }
 

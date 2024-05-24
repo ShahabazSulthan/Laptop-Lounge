@@ -19,6 +19,19 @@ func NewwishlistHandler(useCase interfaceUseCase.IwishlistRepo) *WishlistHandler
 	return &WishlistHandler{useCase: useCase}
 }
 
+// @Summary Add Product to Wishlist
+// @Description Add a product to the user's wishlist.
+// @Tags Wishlist
+// @Accept json
+// @Produce json
+// @Security     BearerTokenAuth
+// @Security     RefreshtokenAuth
+// @Param productID path string true "ID of the product to add"
+// @Success 201 {object} response.Response "Product added to wishlist successfully"
+// @Failure 400 {object} response.Response "Bad Request. Invalid input."
+// @Failure 401 {object} response.Response "Unauthorized. User ID not found in context."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /wishlist/{productID} [post]
 func (w *WishlistHandler) AddToWishlist(c *gin.Context) {
 	var wishlist *requestmodel.WishlistRequest
 
@@ -54,6 +67,17 @@ func (w *WishlistHandler) AddToWishlist(c *gin.Context) {
 	}
 }
 
+// @Summary Get User Wishlist
+// @Description Retrieve the user's wishlist.
+// @Tags Wishlist
+// @Accept json
+// @Produce json
+// @Security     BearerTokenAuth
+// @Security     RefreshtokenAuth
+// @Success 200 {object} response.Response "Wishlist retrieved successfully"
+// @Failure 400 {object} response.Response "Bad Request. User ID not found in context."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /wishlist [get]
 func (w *WishlistHandler) GetWishlist(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -73,6 +97,18 @@ func (w *WishlistHandler) GetWishlist(c *gin.Context) {
 	}
 }
 
+// @Summary Remove Product from Wishlist
+// @Description Remove a product from the user's wishlist.
+// @Tags Wishlist
+// @Accept json
+// @Produce json
+// @Security     BearerTokenAuth
+// @Security     RefreshtokenAuth
+// @Param productID path string true "ID of the product to remove"
+// @Success 200 {object} response.Response "Product removed from wishlist successfully"
+// @Failure 400 {object} response.Response "Bad Request. User ID not found in context."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /wishlist/{productID} [delete]
 func (w *WishlistHandler) DeleteWishlist(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
