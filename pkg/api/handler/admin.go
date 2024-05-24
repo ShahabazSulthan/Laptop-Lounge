@@ -19,6 +19,16 @@ func NewAdminHandler(useCase interfaceUseCase.IAdminUseCAse) *AdminHandler {
 	return &AdminHandler{AdminUseCase: useCase}
 }
 
+// @Summary Admin Login
+// @Description Using this handler, admins can log in and receive an authentication token.
+// @Tags Admins
+// @Accept json
+// @Produce json
+// @Param admin body requestmodel.AdminLoginData true "Admin login details"
+// @Success 200 {object} response.Response{data=string} "Successfully logged in. Token returned."
+// @Failure 400 {object} response.Response "Bad Request. Invalid input."
+// @Failure 401 {object} response.Response "Unauthorized. Authentication failed."
+// @Router /admin/login [post]
 func (u *AdminHandler) AdminLogin(c *gin.Context) {
 	var loginCredential requestmodel.AdminLoginData
 
@@ -46,6 +56,16 @@ func (u *AdminHandler) AdminLogin(c *gin.Context) {
 	}
 }
 
+// @Summary Get Admin Dashboard Details
+// @Description Retrieve details for the admin. Requires a valid Bearer token.
+// @Tags Admins
+// @Accept json
+// @Produce json
+// @Security BearerTokenAuth
+// @Success 200 {object} response.Response "Admin details retrieved successfully"
+// @Failure 401 {object} response.Response "Unauthorized. Authentication required."
+// @Failure 500 {object} response.Response "Internal Server Error."
+// @Router /admin/ [get]
 func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 	result, err := u.AdminUseCase.GetAllSellersDetailAdminDashboard()
 	fmt.Println("Errr", result)
@@ -56,5 +76,4 @@ func (u *AdminHandler) AdminDashBord(c *gin.Context) {
 		finalReslt := response.Responses(http.StatusOK, "succesfully login", result, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
-
 }

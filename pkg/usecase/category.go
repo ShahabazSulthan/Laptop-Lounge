@@ -6,7 +6,6 @@ import (
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
-	"Laptop_Lounge/pkg/utils/helper"
 	"errors"
 	"strconv"
 )
@@ -29,14 +28,9 @@ func (r *categoryUseCase) NewCategory(categoryDetails *requestmodel.Category) (*
 	return nil, nil
 }
 
-func (r *categoryUseCase) GetAllCategory(page string, limit string) (*[]responsemodel.CategoryDetails, error) {
+func (r *categoryUseCase) GetAllCategory() (*[]responsemodel.CategoryDetails, error) {
 
-	offSet, limits, err := helper.Pagination(page, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	categoryDetails, err := r.repo.GetAllCategory(offSet, limits)
+	categoryDetails, err := r.repo.GetAllCategory()
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +76,9 @@ func (r *categoryUseCase) CreateBrand(brandDetails *requestmodel.Brand) (*respon
 	return nil, nil
 }
 
-func (r *categoryUseCase) GetAllBrand(page string, limit string) (*[]responsemodel.BrandRes, error) {
+func (r *categoryUseCase) GetAllBrand() (*[]responsemodel.BrandRes, error) {
 
-	offSet, limits, err := helper.Pagination(page, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	brandDetails, err := r.repo.GetAllBrand(offSet, limits)
+	brandDetails, err := r.repo.GetAllBrand()
 	if err != nil {
 		return nil, err
 	}
@@ -126,6 +115,9 @@ func (r *categoryUseCase) DeleteBrand(id string) error {
 
 //------------------------------Category offer----------------------------//
 
+//---------------------------Create Category Offer--------------------------------------------------------//
+
+
 func (r *categoryUseCase) CategoryOffer(categoryOffer *requestmodel.CategoryOffer) (*responsemodel.CategoryOffer, error) {
 	categoryCount, err := r.repo.ChekSellerHaveCategoryOffer(categoryOffer.SellerID, categoryOffer.CategoryID)
 	if err != nil {
@@ -142,6 +134,8 @@ func (r *categoryUseCase) CategoryOffer(categoryOffer *requestmodel.CategoryOffe
 	return categoryOfferRes, nil
 }
 
+//---------------------------Change Status of Category Offer--------------------------------------------------------//
+
 func (r *categoryUseCase) ChangeStatusOfCategoryOffer(status, categoryOfferID string) (*responsemodel.CategoryOffer, error) {
 	offer, err := r.repo.ChangeStatus(status, categoryOfferID)
 	if err != nil {
@@ -150,6 +144,8 @@ func (r *categoryUseCase) ChangeStatusOfCategoryOffer(status, categoryOfferID st
 	return offer, nil
 }
 
+//---------------------------Get All Category Offer--------------------------------------------------------//
+
 func (r *categoryUseCase) GetAllCategoryOffer(sellerID string) (*[]responsemodel.CategoryOffer, error) {
 	offers, err := r.repo.GetAllCategoryOffers(sellerID)
 	if err != nil {
@@ -157,6 +153,8 @@ func (r *categoryUseCase) GetAllCategoryOffer(sellerID string) (*[]responsemodel
 	}
 	return offers, nil
 }
+
+//---------------------------Update Category Offer--------------------------------------------------------//
 
 func (r *categoryUseCase) UpdateCategoryOffer(updateData *requestmodel.EditCategoryOffer) (*responsemodel.CategoryOffer, error) {
 	newCategoryOffer, err := r.repo.UpdateCategoryOffer(updateData)

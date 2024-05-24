@@ -30,10 +30,10 @@ type IOrderRepository interface {
 	UpdateOrderCancel(string, string) (*responsemodel.OrderDetails, error)
 	UpdateOrderPaymetSuccess(string, string) error
 	GetOrderExistOfSeller(string, string) error
-	 CheckCouponAppliedOrNot(string, string) uint
+	CheckCouponAppliedOrNot(string, string) uint
 
 	GetSalesReport(string, string, string, string) (*responsemodel.SalesReport, error)
-	GetSalesReportByDays(string, string) (*responsemodel.SalesReport, error)
+	GetSalesReportByDays(string, int) (*responsemodel.SalesReport, error)
 
-	 GetCategoryOffers(string) uint
+	GetCategoryOffers(string) uint
 }

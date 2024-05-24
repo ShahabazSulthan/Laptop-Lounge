@@ -31,7 +31,7 @@ func TemperveryTokenForOtpVerification(securityKey string, Laptop string) (strin
 func GenerateAcessToken(securityKey string, id string) (string, error) {
 	key := []byte(securityKey)
 	claims := jwt.MapClaims{
-		"exp": time.Now().Unix() + 300, // Adjust expiration time as needed
+		"exp": time.Now().Unix() + 3000, // Adjust expiration time as needed
 		"id":  id,                      // Include the user ID in the token claims
 	}
 

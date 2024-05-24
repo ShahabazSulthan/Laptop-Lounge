@@ -3,7 +3,6 @@ package repository
 import (
 	requestmodel "Laptop_Lounge/pkg/models/requestModel"
 	responsemodel "Laptop_Lounge/pkg/models/responseModel"
-	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
 	"errors"
 	"fmt"
@@ -20,34 +19,42 @@ func NewOrderRepository(db *gorm.DB) interfaces.IOrderRepository {
 	return &orderRepository{DB: db}
 }
 
+//-------------------------Create the Order-----------------------------------//
+
 func (d *orderRepository) CreateOrder(order *requestmodel.Order) (*responsemodel.Order, error) {
 
 	var orderSucess = &responsemodel.Order{}
 
-	query := "INSERT INTO orders (user_id, address_id, payment_method, order_id_razopay, coupon_code) VALUES(?, ?, ?, ?, ?) RETURNING*"
-	result := d.DB.Raw(query, order.UserID, order.Address, order.Payment, order.OrderIDRazopay, order.Coupon).Scan(&orderSucess)
+	query := "INSERT INTO orders (user_id, address_id, payment_method, order_id_razopay) VALUES(?, ?, ?, ?) RETURNING*"
+	result := d.DB.Raw(query, order.UserID, order.AddressID, order.Payment, order.OrderIDRazopay).Scan(&orderSucess)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while creating order")
 	}
 	if result.RowsAffected == 0 {
 
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("creating order row is not affected (no data matched the specified criteria)")
 	}
 	return orderSucess, nil
 }
 
-func (d *orderRepository) AddProdutToOrderProductTable(order *requestmodel.Order, orderDetails *responsemodel.Order) (*responsemodel.Order, error) {
+//-------------------------Add Products Order_Product Table-----------------------------------//
 
+func (d *orderRepository) AddProdutToOrderProductTable(order *requestmodel.Order, orderDetails *responsemodel.Order) (*responsemodel.Order, error) {
 	var orderProduct responsemodel.OrderProducts
 	today := time.Now().Format("2006-01-02 15:04:05")
 
 	for _, data := range order.Cart {
 		query := "INSERT INTO order_products (order_id, product_id, seller_id, quantity, order_date, order_status, payment_status, price, discount, payable_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *"
-		d.DB.Raw(query, orderDetails.ID, data.ProductID, data.SellerID, data.Quantity, today, order.OrderStatus, order.PaymentStatus, data.Price, data.Discount, data.FinalPrice).Scan(&orderProduct)
+		result := d.DB.Raw(query, orderDetails.ID, data.ProductID, data.SellerID, data.Quantity, today, order.OrderStatus, order.PaymentStatus, data.Price, data.Discount, data.FinalPrice).Scan(&orderProduct)
+		if result.Error != nil {
+			return nil, result.Error
+		}
 		orderDetails.Orders = append(orderDetails.Orders, orderProduct)
 	}
 	return orderDetails, nil
 }
+
+//-------------------------Check Address is Exist-----------------------------------//
 
 func (d *orderRepository) GetAddressExist(userID, addressesID string) error {
 	query := "SELECT * FROM addresses WHERE userid= ? AND id= ?"
@@ -56,10 +63,12 @@ func (d *orderRepository) GetAddressExist(userID, addressesID string) error {
 		return errors.New("face some issue while chcking address is exist of user")
 	}
 	if result.RowsAffected == 0 {
-		return errors.New("user does not have specified address")
+		return errors.New("user does not have specified address (no data matched the specified criteria)")
 	}
 	return nil
 }
+
+//-------------------------Get the All Orders-----------------------------------//
 
 func (d *orderRepository) GetOrderShowcase(userID string) (*[]responsemodel.OrderShowcase, error) {
 	fmt.Println("***", userID)
@@ -70,24 +79,28 @@ func (d *orderRepository) GetOrderShowcase(userID string) (*[]responsemodel.Orde
 		return nil, errors.New("face some issue while order showcase")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("show all orders row is not affected (no data matched the specified criteria)")
 	}
 	return &OrderShowcase, nil
 }
 
+//-------------------------Get single order by item_id-----------------------------------//
+
 func (d *orderRepository) GetSingleOrder(orderID string, userID string) (*responsemodel.SingleOrder, error) {
 
 	var OrderShowcase *responsemodel.SingleOrder
-	query := "SELECT * FROM orders INNER JOIN order_products ON orders.id=order_products.order_id INNER JOIN products ON products.id=order_products.product_id INNER JOIN addresses ON addresses.id= orders.address_id WHERE order_products.order_id=? AND orders.user_id=?"
+	query := "SELECT * FROM orders INNER JOIN order_products ON orders.id=order_products.order_id INNER JOIN products ON products.id=order_products.product_id INNER JOIN addresses ON addresses.id= orders.address_id WHERE  order_products.item_id=? AND orders.user_id=?"
 	result := d.DB.Raw(query, orderID, userID).Scan(&OrderShowcase)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while get single order")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("get single order row is not affected (no data matched the specified criteria)")
 	}
 	return OrderShowcase, nil
 }
+
+//-------------------------Check the product Units-----------------------------------//
 
 func (d *orderRepository) GetProductUnits(ProductID string) (*uint, error) {
 
@@ -98,10 +111,12 @@ func (d *orderRepository) GetProductUnits(ProductID string) (*uint, error) {
 		return nil, errors.New("face some issue while get product units")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("get product units order row is not affected (no data matched the specified criteria)")
 	}
 	return &units, nil
 }
+
+//-------------------------Create the Order-----------------------------------//
 
 func (d *orderRepository) GetPaymentType(orderItemID string) (string, error) {
 
@@ -113,11 +128,12 @@ func (d *orderRepository) GetPaymentType(orderItemID string) (string, error) {
 		return "", errors.New("face some issue while get payment type of order")
 	}
 	if result.RowsAffected == 0 {
-		return "", resCustomError.ErrNoRowAffected
+		return "", errors.New("get payment type row is not affected (no data matched the specified criteria)")
 	}
 	return paymentType, nil
-
 }
+
+//-------------------------Create the Order-----------------------------------//
 
 func (d *orderRepository) UpdateProductUnits(ProductID string, units uint) error {
 
@@ -127,11 +143,12 @@ func (d *orderRepository) UpdateProductUnits(ProductID string, units uint) error
 		return errors.New("face some issue while updating Products unit")
 	}
 	if result.RowsAffected == 0 {
-
-		return resCustomError.ErrNoRowAffected
+		return errors.New("updating Products units row is not affected (no data matched the specified criteria)")
 	}
 	return nil
 }
+
+//-------------------------Get Order Price-----------------------------------//
 
 func (d *orderRepository) GetOrderPrice(orderID string) (uint, error) {
 	fmt.Println("&&77", orderID)
@@ -142,42 +159,47 @@ func (d *orderRepository) GetOrderPrice(orderID string) (uint, error) {
 		return 0, errors.New("face some issue while get credit from seller table")
 	}
 	if result.RowsAffected == 0 {
-		return 0, resCustomError.ErrNoRowAffected
+		return 0, errors.New("get order price row is not affected (no data matched the specified criteria)")
 	}
 	return price, nil
 }
 
-func (d *orderRepository) UpdateUserOrderCancel(orderItemID string, userID string) (*responsemodel.OrderDetails, error) {
+//-------------------------Update User Order Cancel -----------------------------------//
 
+func (d *orderRepository) UpdateUserOrderCancel(orderItemID string, userID string) (*responsemodel.OrderDetails, error) {
 	var cancelOrder responsemodel.OrderDetails
 	today := time.Now().Format("2006-01-02 15:04:05")
 
-	query := "UPDATE order_products SET order_status= 'cancelled', payment_status= 'refunded', end_date=? FROM orders WHERE orders.id=order_products.order_id AND order_id=? AND user_id= ? AND order_status='processing' RETURNING*"
+	query := "UPDATE order_products SET order_status= 'cancelled', payment_status= 'refunded', end_date=? FROM orders WHERE orders.id=order_products.order_id AND item_id=? AND user_id= ? AND order_status='processing' RETURNING*"
 	result := d.DB.Raw(query, today, orderItemID, userID).Scan(&cancelOrder)
 	if result.Error != nil {
-		return nil, errors.New("face some issue while order is cancel")
+		return nil, errors.New("face some issue while order is canceling")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrProductOrderCompleted
+		return nil, errors.New("update user order cancel row is not affected (no data matched the specified criteria)")
 	}
 	return &cancelOrder, nil
 }
+
+//-------------------------Update User Order Return -----------------------------------//
 
 func (d *orderRepository) UpdateUserOrderReturn(orderItemID string, userID string) (*responsemodel.OrderDetails, error) {
 
 	var returnOrder responsemodel.OrderDetails
 	today := time.Now().Format("2006-01-02 15:04:05")
 
-	query := "UPDATE order_products SET order_status= 'return', payment_status= 'refunded', end_date=? FROM orders WHERE orders.id=order_products.order_id AND order_id=? AND user_id= ? AND order_status='delivered' RETURNING*"
+	query := "UPDATE order_products SET order_status= 'return', payment_status= 'refunded', end_date=? FROM orders WHERE orders.id=order_products.order_id AND item_id=? AND user_id= ? AND order_status='delivered' RETURNING*"
 	result := d.DB.Raw(query, today, orderItemID, userID).Scan(&returnOrder)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while order is return")
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.New("no deliverd order exist for the given order item id of the user")
+		return nil, errors.New("no deliverd order exist for the given order item id of the user (no data matched the specified criteria)")
 	}
 	return &returnOrder, nil
 }
+
+//-------------------------Update Delivery Time-----------------------------------//
 
 func (d *orderRepository) UpdateDeliveryTimeByUser(userID string, orderItemID string) error {
 
@@ -189,10 +211,12 @@ func (d *orderRepository) UpdateDeliveryTimeByUser(userID string, orderItemID st
 		return errors.New("face some issue while updating delivary time")
 	}
 	if result.RowsAffected == 0 {
-		return resCustomError.ErrNoRowAffected
+		return errors.New("update delivery time row is not affected (no data matched the specified criteria)")
 	}
 	return nil
 }
+
+//-------------------------Check Order Exists of User-----------------------------------//
 
 func (d *orderRepository) GetOrderExistOfUser(orderItemID, userID string) error {
 
@@ -203,7 +227,7 @@ func (d *orderRepository) GetOrderExistOfUser(orderItemID, userID string) error 
 		return errors.New("encountered an issue while checking if the order exists")
 	}
 	if result.RowsAffected == 0 {
-		return errors.New("no orders were found matching the specified criteria")
+		return errors.New("no orders were found matching the specified criteria (no data matched the specified criteria)")
 	}
 	if result.RowsAffected != 0 {
 		return nil
@@ -212,6 +236,8 @@ func (d *orderRepository) GetOrderExistOfUser(orderItemID, userID string) error 
 }
 
 // ------------------------------------------Seller Control Orders------------------------------------\\
+
+//-------------------------Get All Orders-----------------------------------//
 
 func (d *orderRepository) GetSellerOrders(sellerID string, remainingQuery string) (*[]responsemodel.OrderDetails, error) {
 
@@ -222,72 +248,79 @@ func (d *orderRepository) GetSellerOrders(sellerID string, remainingQuery string
 		return nil, errors.New("face some issue while get user orders")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("get all seller order row is not affected (no data matched the specified criteria)")
 	}
 	return orderList, nil
 }
 
-func (d *orderRepository) UpdateDeliveryTime(sellerID string, orderItemID string) error {
-    deliveryTime := time.Now().Format("2006-01-02 15:04:05")
+//-------------------------Update Delivery Time By Seller-----------------------------------//
 
-    query := `
-        UPDATE order_products 
-        SET end_date = ? 
-        WHERE order_id IN (SELECT id FROM orders WHERE seller_id = ? AND order_id = ? AND order_status = 'processing')
-    `
-    result := d.DB.Exec(query, deliveryTime, sellerID, orderItemID)
-    if result.Error != nil {
-        return errors.New("encountered an issue while updating delivery time")
-    }
-    if result.RowsAffected == 0 {
-        return errors.New("no rows were updated (no data matched the specified criteria)")
-    }
-    return nil
+func (d *orderRepository) UpdateDeliveryTime(sellerID string, orderItemID string) error {
+	deliveryTime := time.Now().Format("2006-01-02 15:04:05")
+
+	query := "UPDATE order_products SET end_date= ? FROM orders WHERE orders.id= order_products.order_id AND seller_id= ? AND order_products.item_id= ? AND order_status='processing'"
+	result := d.DB.Exec(query, deliveryTime, sellerID, orderItemID)
+	if result.Error != nil {
+		return errors.New("encountered an issue while updating delivery time")
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("no rows were updated (no data matched the specified criteria)")
+	}
+	return nil
 }
+
+//-------------------------Update Order Delivered-----------------------------------//
 
 func (d *orderRepository) UpdateOrderDelivered(sellerID string, orderItemID string) (*responsemodel.OrderDetails, error) {
 	var deliveryDetails responsemodel.OrderDetails
-	query := "UPDATE order_products SET order_status='delivered' FROM orders WHERE orders.id= order_products.order_id AND seller_id= ? AND order_products.order_id= ? RETURNING*"
+	query := "UPDATE order_products SET order_status='delivered',payment_status = 'success' FROM orders WHERE orders.id= order_products.order_id AND seller_id= ? AND order_products.item_id= ? RETURNING*"
 	result := d.DB.Raw(query, sellerID, orderItemID).Scan(&deliveryDetails)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while update order delivered")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("no rows were update order delivered (no data matched the specified criteria)")
 	}
 	return &deliveryDetails, nil
 }
 
+//-------------------------Update Order Payment Success-----------------------------------//
+
 func (d *orderRepository) UpdateOrderPaymetSuccess(sellerID string, orderItemID string) error {
 
 	query := "UPDATE order_products SET payment_status = 'success' FROM orders WHERE orders.id= order_products.order_id AND seller_id= ? AND order_products.item_id= ?"
+
 	result := d.DB.Exec(query, sellerID, orderItemID)
 	if result.Error != nil {
 		return errors.New("face some issue while update payment status success")
 	}
 	if result.RowsAffected == 0 {
-		return resCustomError.ErrNoRowAffected
+		return errors.New("no rows were update order payment success (no data matched the specified criteria)")
 	}
 	return nil
 }
 
+//-------------------------Update Order Cancel By Seller-----------------------------------//
+
 func (d *orderRepository) UpdateOrderCancel(orderID string, sellerID string) (*responsemodel.OrderDetails, error) {
 
 	var cancelOrder responsemodel.OrderDetails
-	query := "UPDATE orders SET order_status= 'cancel', payment_status='cancel' WHERE id=? AND seller_id= ? AND order_status='processing' RETURNING*"
+	query := "UPDATE order_products SET order_status= 'cancel', payment_status='cancel' WHERE order_id=? AND seller_id= ? AND order_status='processing' RETURNING*"
 	result := d.DB.Raw(query, orderID, sellerID).Scan(&cancelOrder)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while order is cancel")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrProductOrderCompleted
+		return nil, errors.New("no rows were update order cancel (no data matched the specified criteria)")
 	}
 	return &cancelOrder, nil
 }
 
+//-------------------------Check Order Exist By Using Seller_id-----------------------------------//
+
 func (d *orderRepository) GetOrderExistOfSeller(orderID, sellerID string) error {
 
-	query := "SELECT * FROM orders WHERE id= $1 AND seller_id=$2"
+	query := "SELECT * FROM order_products WHERE order_id= $1 AND seller_id=$2"
 
 	result := d.DB.Exec(query, orderID, sellerID)
 	if result.Error != nil {
@@ -304,40 +337,136 @@ func (d *orderRepository) GetOrderExistOfSeller(orderID, sellerID string) error 
 
 // ------------------------------------------Sales Report------------------------------------\\
 
-func (d *orderRepository) GetSalesReport(sellerID, year, month, day string) (*responsemodel.SalesReport, error) {
+//-------------------------Get Sales Report by Year-Month-Day-----------------------------------//
 
+func (d *orderRepository) GetSalesReport(sellerID, year, month, day string) (*responsemodel.SalesReport, error) {
 	var remainingQuery string
 
 	if year != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year
 	}
 	if year != "" && month != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(Month FROM order_date)=" + month
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(MONTH FROM order_date)=" + month
 	}
 	if year != "" && month != "" && day != "" {
-		remainingQuery = " EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(Month FROM order_date)=" + month + " AND EXTRACT(Day FROM order_date)=" + day
+		remainingQuery = "EXTRACT(YEAR FROM order_date)=" + year + " AND EXTRACT(MONTH FROM order_date)=" + month + " AND EXTRACT(DAY FROM order_date)=" + day
 	}
 
 	var report responsemodel.SalesReport
-	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id= ? AND order_status='delivered' AND" + remainingQuery
-	result := d.DB.Raw(query, sellerID).Scan(&report)
-	if result.Error != nil {
-		return nil, errors.New("face some issue while get report")
+
+	// Query for delivered orders, total units sold, and total revenue
+	query1 := `SELECT
+                    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
+                    SUM(CASE WHEN order_status = 'delivered' THEN quantity ELSE 0 END) AS total_units_sold,
+                    SUM(CASE WHEN order_status = 'delivered' THEN price ELSE 0 END) AS total_revenue
+               FROM order_products
+               WHERE seller_id = ? AND ` + remainingQuery
+
+	var deliveredData struct {
+		DeliveredOrders uint
+		TotalUnitsSold  uint
+		TotalRevenue    uint
 	}
+
+	result1 := d.DB.Raw(query1, sellerID).Scan(&deliveredData)
+	if result1.Error != nil {
+		return nil, errors.New("error occurred while fetching the delivered orders, total units sold, and total revenue: " + result1.Error.Error())
+	}
+
+	// Query for ongoing and cancelled orders
+	query2 := `SELECT
+                    SUM(CASE WHEN order_status = 'processing' THEN 1 ELSE 0 END) AS ongoing_orders,
+                    SUM(CASE WHEN order_status = 'cancel' THEN 1 ELSE 0 END) AS cancelled_orders
+               FROM order_products
+               WHERE seller_id = ? AND ` + remainingQuery
+
+	var additionalData struct {
+		OngoingOrders   uint
+		CancelledOrders uint
+	}
+
+	result2 := d.DB.Raw(query2, sellerID).Scan(&additionalData)
+	if result2.Error != nil {
+		return nil, errors.New("error occurred while fetching the ongoing and cancelled orders: " + result2.Error.Error())
+	}
+
+	// Populate the report struct with the fetched data
+	report.DeliveredOrders = deliveredData.DeliveredOrders
+	report.Quantity = deliveredData.TotalUnitsSold
+	report.Price = deliveredData.TotalRevenue
+	report.OngoingOrders = additionalData.OngoingOrders
+	report.CancelledOrders = additionalData.CancelledOrders
+
 	return &report, nil
 }
 
-func (d *orderRepository) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
+//-------------------------Get Sales Report by Days-----------------------------------//
+
+// func (d *orderRepository) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
+// 	var report responsemodel.SalesReport
+// 	remainingQuery := "(now() - interval '" + days + " day')"
+// 	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id = ? AND order_date >= " + remainingQuery
+// 	result := d.DB.Raw(query, sellerID).Scan(&report)
+
+// 	if result.Error != nil {
+// 		return nil, errors.New("face some issue while get report by days (no data matched the specified criteria)")
+// 	}
+// 	return &report, nil
+// }
+
+func (d *orderRepository) GetSalesReportByDays(sellerID string, days int) (*responsemodel.SalesReport, error) {
 	var report responsemodel.SalesReport
-	remainingQuery := "(now() - interval '" + days + " day')"
-	query := "SELECT COUNT(*) AS Orders, SUM(quantity) AS Quantity, SUM(price) AS Price FROM order_products WHERE seller_id = ? AND order_status='delivered' AND order_date >= " + remainingQuery
-	result := d.DB.Raw(query, sellerID).Scan(&report)
 
-	if result.Error != nil {
-		return nil, errors.New("face some issue while get report by days")
+	// Calculate the date for the interval
+	intervalDate := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
+
+	// Query for delivered orders, total units sold, and total revenue
+	query1 := `SELECT
+                    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
+                    SUM(CASE WHEN order_status = 'delivered' THEN quantity ELSE 0 END) AS total_units_sold,
+                    SUM(CASE WHEN order_status = 'delivered' THEN price ELSE 0 END) AS total_revenue
+               FROM order_products
+               WHERE seller_id = ? AND order_date >= ?`
+
+	var deliveredData struct {
+		DeliveredOrders uint
+		TotalUnitsSold  uint
+		TotalRevenue    uint
 	}
+
+	result1 := d.DB.Raw(query1, sellerID, intervalDate).Scan(&deliveredData)
+	if result1.Error != nil {
+		return nil, errors.New("error occurred while fetching the delivered orders, total units sold, and total revenue: " + result1.Error.Error())
+	}
+
+	// Query for ongoing and cancelled orders
+	query2 := `SELECT
+                    SUM(CASE WHEN order_status = 'processing' THEN 1 ELSE 0 END) AS ongoing_orders,
+                    SUM(CASE WHEN order_status = 'cancel' THEN 1 ELSE 0 END) AS cancelled_orders
+               FROM order_products
+               WHERE seller_id = ? AND order_date >= ?`
+
+	var additionalData struct {
+		OngoingOrders   uint
+		CancelledOrders uint
+	}
+
+	result2 := d.DB.Raw(query2, sellerID, intervalDate).Scan(&additionalData)
+	if result2.Error != nil {
+		return nil, errors.New("error occurred while fetching the ongoing and cancelled orders: " + result2.Error.Error())
+	}
+
+	// Populate the report struct with the fetched data
+	report.DeliveredOrders = deliveredData.DeliveredOrders
+	report.Quantity = deliveredData.TotalUnitsSold
+	report.Price = deliveredData.TotalRevenue
+	report.OngoingOrders = additionalData.OngoingOrders
+	report.CancelledOrders = additionalData.CancelledOrders
+
 	return &report, nil
 }
+
+//-------------------------Get Excel Sales Report-----------------------------------//
 
 func (d *orderRepository) GetOrderXlSalesReport(sellerID string) (*[]responsemodel.XlSalesReport, error) {
 	var order []responsemodel.XlSalesReport
@@ -348,12 +477,14 @@ func (d *orderRepository) GetOrderXlSalesReport(sellerID string) (*[]responsemod
 		return nil, errors.New("face some issue while order is cancel")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrProductOrderCompleted
+		return nil, errors.New("face some issue while get report by xl report (no data matched the specified criteria)")
 	}
 	return &order, nil
 }
 
 // ------------------------------------------category_offers------------------------------------\\
+
+// ------------------------------------------Check Coupon Applied Or Not ------------------------------------\\
 
 func (d *orderRepository) CheckCouponAppliedOrNot(userID, couponID string) uint {
 	var exist uint
@@ -362,6 +493,8 @@ func (d *orderRepository) CheckCouponAppliedOrNot(userID, couponID string) uint 
 	return exist
 }
 
+// ------------------------------------------Get Category_offers to make discount------------------------------------\\
+
 func (d *orderRepository) GetCategoryOffers(productID string) uint {
 	var categoryDiscount uint
 	query := "SELECT category_discount FROM category_offers RIGHT JOIN products ON products.seller_id=category_offers.seller_id AND category_offers.category_id=products.category_id AND category_offers.status='active' AND category_offers.end_date>now() WHERE products.status='active'  AND products.id=?"
@@ -369,18 +502,22 @@ func (d *orderRepository) GetCategoryOffers(productID string) uint {
 	return categoryDiscount
 }
 
+// ------------------------------------------Get Full Order Details------------------------------------\\
+
 func (d *orderRepository) GetOrderFullDetails(orderItemID string) (*responsemodel.Invoice, error) {
 	var orderDetails responsemodel.Invoice
-	query := "SELECT * FROM orders INNER JOIN order_products ON orders.id=order_products.order_id WHERE order_products.order_id= ?;	"
+	query := "SELECT * FROM orders INNER JOIN order_products ON orders.id=order_products.order_id WHERE  order_products.item_id= ?;	"
 	result := d.DB.Raw(query, orderItemID).Scan(&orderDetails)
 	if result.Error != nil {
 		return nil, errors.New("face some issue while get order details")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("face some issue while get full order details (no data matched the specified criteria)")
 	}
 	return &orderDetails, nil
 }
+
+// ------------------------------------------Get Address For Invoice------------------------------------\\
 
 func (d *orderRepository) GetAddressForInvoice(addressID string) (*requestmodel.Address, error) {
 
@@ -391,10 +528,12 @@ func (d *orderRepository) GetAddressForInvoice(addressID string) (*requestmodel.
 		return nil, errors.New("face some issue while address fetch")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("face some issue while fetch address for invoice (no data matched the specified criteria)")
 	}
 	return address, nil
 }
+
+// ------------------------------------------Get Product Invoice------------------------------------\\
 
 func (d *orderRepository) GetAInventoryForInvoice(id string) (*responsemodel.ProductRes, error) {
 	var inventory responsemodel.ProductRes
@@ -402,10 +541,10 @@ func (d *orderRepository) GetAInventoryForInvoice(id string) (*responsemodel.Pro
 	query := "SELECT * FROM category_offers RIGHT JOIN products ON category_offers.category_id= products.category_id AND products.seller_id=category_offers.seller_id AND category_offers.status='active' AND category_offers.end_date>=now() WHERE products.id=? AND products.status='active'"
 	result := d.DB.Raw(query, id).Scan(&inventory)
 	if result.Error != nil {
-		return nil, errors.New("can't get inventory data from db or inventory is not active state")
+		return nil, errors.New("can't get product data from db or product is not active state")
 	}
 	if result.RowsAffected == 0 {
-		return nil, resCustomError.ErrNoRowAffected
+		return nil, errors.New("face some issue while get product invoice (no data matched the specified criteria)")
 	}
 	return &inventory, nil
 }

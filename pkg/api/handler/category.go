@@ -19,6 +19,16 @@ func NewCategoryHandler(useCase interfaceUseCase.ICategoryUseCase) *CategoryHand
 	return &CategoryHandler{categoryUseCase: useCase}
 }
 
+// @Summary		Add Category
+// @Description	Using this handler, admin can add a new category
+// @Tags			Category
+// @Accept			json
+// @Produce		json
+// @Security		BearerTokenAuth
+// @Param			Category	Details		body	requestmodel.Category	true	"Details of the category"
+// @Success		200			{object}	response.Response{}
+// @Failure		400			{object}	response.Response{}
+// @Router			/admin/category/ [post]
 func (u *CategoryHandler) NewCategory(c *gin.Context) {
 
 	var categoryDetails requestmodel.Category
@@ -45,11 +55,20 @@ func (u *CategoryHandler) NewCategory(c *gin.Context) {
 	}
 }
 
+// @Summary      Get All Categories
+// @Description  Using this handler, admin can get a list of all categories
+// @Tags         Category
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        page  query  int  true  "Page number for pagination (default 1)"  default(1)
+// @Param        limit  query  int  true  "Number of items to return per page (default 5)"  default(5)
+// @Success      200    {object}  response.Response  "Paginated list of categories"
+// @Failure      400    {object}  response.Response  "Bad request"
+// @Router       /admin/category/ [get]
 func (u *CategoryHandler) FetchAllCatogry(c *gin.Context) {
-	page := c.Param("page")
-	limit := c.DefaultQuery("limit", "1")
 
-	category, err := u.categoryUseCase.GetAllCategory(page, limit)
+	category, err := u.categoryUseCase.GetAllCategory()
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
@@ -59,6 +78,16 @@ func (u *CategoryHandler) FetchAllCatogry(c *gin.Context) {
 
 }
 
+// @Summary      Edit a Category by ID
+// @Description  Edit an existing category using this handler.
+// @Tags         Category
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        category  body  requestmodel.CategoryDetails  true  "Updated category"
+// @Success      200       {object}  response.Response  "Category edited successfully"
+// @Failure      400       {object}  response.Response  "Invalid input or validation error"
+// @Router       /admin/category/ [patch]
 func (u *CategoryHandler) UpdateCategory(c *gin.Context) {
 	var categoryData requestmodel.CategoryDetails
 
@@ -85,6 +114,16 @@ func (u *CategoryHandler) UpdateCategory(c *gin.Context) {
 	}
 }
 
+// @Summary      Delete a Category by ID
+// @Description  Delete an existing category using this handler.
+// @Tags         Category
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        id  path  int  true  "ID of the category to delete"
+// @Success      204  "Category deleted successfully"
+// @Failure      400  {object}  response.Response  "Invalid input or validation error"
+// @Router       /admin/category/{id} [delete]
 func (u *CategoryHandler) DeleteCategory(c *gin.Context) {
 
 	id := c.Param("id")
@@ -101,6 +140,16 @@ func (u *CategoryHandler) DeleteCategory(c *gin.Context) {
 
 //----------------------------------Brand-----------------------------------------------
 
+// @Summary      Create a Brand
+// @Description  Create a new brand using this handler.
+// @Tags         Brand
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        Brand  body  requestmodel.Brand  true  "Name of the brand"
+// @Success      201    {object}  response.Response  "Brand created successfully"
+// @Failure      400    {object}  response.Response  "Invalid input or validation error"
+// @Router       /admin/brand/ [post]
 func (u *CategoryHandler) CreateBrand(c *gin.Context) {
 	var BrandDetails requestmodel.Brand
 
@@ -127,11 +176,20 @@ func (u *CategoryHandler) CreateBrand(c *gin.Context) {
 	}
 }
 
+// @Summary      Get List of Brands
+// @Description  Get a paginated list of brands using this handler.
+// @Tags         Brand
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        page  query  int  true  "Page number for pagination (default 1)"  default(1)
+// @Param        limit  query  int  true  "Number of items to return per page (default 5)"  default(5)
+// @Success      200    {object}  response.Response  "Paginated list of brands"
+// @Failure      400    {object}  response.Response  "Invalid input or validation error"
+// @Router       /admin/brand/ [get]
 func (u *CategoryHandler) FetchAllBrand(c *gin.Context) {
-	page := c.Param("page")
-	limit := c.DefaultQuery("limit", "1")
 
-	brand, err := u.categoryUseCase.GetAllBrand(page, limit)
+	brand, err := u.categoryUseCase.GetAllBrand()
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
@@ -141,6 +199,16 @@ func (u *CategoryHandler) FetchAllBrand(c *gin.Context) {
 
 }
 
+// @Summary      Edit a Brand by ID
+// @Description  Edit an existing brand using this handler.
+// @Tags         Brand
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        name  body  requestmodel.BrandDetails  true  "Updated name of the brand"
+// @Success      200   {object}  response.Response  "Brand edited successfully"
+// @Failure      400   {object}  response.Response  "Invalid input or validation error"
+// @Router       /admin/brand/ [patch]
 func (u *CategoryHandler) UpdateBrand(c *gin.Context) {
 	var brandData requestmodel.BrandDetails
 
@@ -167,6 +235,17 @@ func (u *CategoryHandler) UpdateBrand(c *gin.Context) {
 	}
 }
 
+// @Summary Delete a Brand by ID
+// @Description Delete an existing brand by its ID.
+// @Tags Brand
+// @Accept json
+// @Produce json
+// @Security BearerTokenAuth
+// @Security Refreshtoken
+// @Param id path int true "ID of the brand to delete"
+// @Success 204 "Brand deleted successfully"
+// @Failure 400 {object} response.Response{} "Invalid input or validation error"
+// @Router /admin/brand/{id} [delete]
 func (u *CategoryHandler) DeleteBrand(c *gin.Context) {
 
 	id := c.Param("id")
@@ -183,6 +262,18 @@ func (u *CategoryHandler) DeleteBrand(c *gin.Context) {
 
 //--------------------------Category Offer------------------------------------------------
 
+//---------------------------Create Category Offer--------------------------------------------------------//
+
+// CreateCategoryOffer creates a new offer for a category by the seller.
+// @Summary      Create Category Offer
+// @Description  Create a new offer for a category by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Param        categoryOffer body requestmodel.CategoryOffer true "Details for creating a category offer"
+// @Success      201 {object} response.Response "Category offer created successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide valid details for creating a category offer."
+// @Router       /seller/categoryoffer/{seller_id} [post]
 func (u *CategoryHandler) CreateCategoryOffer(c *gin.Context) {
 	var categoryOffer requestmodel.CategoryOffer
 	if err := c.BindJSON(&categoryOffer); err != nil {
@@ -209,6 +300,18 @@ func (u *CategoryHandler) CreateCategoryOffer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Category offer created successfully", "data": result})
 }
 
+//---------------------------Block Category Offer--------------------------------------------------------//
+
+// BlockCategoryOffer blocks or disables a category offer by the seller.
+// @Summary      Block Category Offer
+// @Description  Block or disable a category offer by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Param        categoryOfferID path int true "ID of the category offer to be blocked"
+// @Success      200 {object} response.Response "Category offer blocked successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide a valid category offer ID."
+// @Router       /seller/categoryoffer/block/{categoryOfferID} [patch]
 func (u *CategoryHandler) BlockCategoryOffer(c *gin.Context) {
 
 	categoryOfferID := c.Param("categoryOfferID")
@@ -222,6 +325,18 @@ func (u *CategoryHandler) BlockCategoryOffer(c *gin.Context) {
 	}
 }
 
+//---------------------------UnBlock of Category Offer--------------------------------------------------------//
+
+// UnBlockCategoryOffer unblocks or enables a previously blocked category offer by the seller.
+// @Summary      Unblock Category Offer
+// @Description  Unblock or enable a previously blocked category offer by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Param        categoryOfferID path int true "ID of the category offer to be unblocked"
+// @Success      200 {object} response.Response "Category offer unblocked successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide a valid category offer ID."
+// @Router       /seller/categoryoffer/unblock/{categoryOfferID} [patch]
 func (u *CategoryHandler) UnBlockCategoryOffer(c *gin.Context) {
 
 	categoryOfferID := c.Param("categoryOfferID")
@@ -235,6 +350,18 @@ func (u *CategoryHandler) UnBlockCategoryOffer(c *gin.Context) {
 	}
 }
 
+//---------------------------Delete Category Offer--------------------------------------------------------//
+
+// DeleteCategoryOffer deletes a category offer by the seller.
+// @Summary      Delete Category Offer
+// @Description  Delete a category offer by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Param        categoryOfferID path int true "ID of the category offer to be deleted"
+// @Success      200 {object} response.Response "Category offer deleted successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide a valid category offer ID."
+// @Router       /seller/categoryoffer/delete/{categoryOfferID} [patch]
 func (u *CategoryHandler) DeleteCategoryOffer(c *gin.Context) {
 
 	categoryOfferID := c.Param("categoryOfferID")
@@ -248,6 +375,17 @@ func (u *CategoryHandler) DeleteCategoryOffer(c *gin.Context) {
 	}
 }
 
+//---------------------------Get ALL Category Offer--------------------------------------------------------//
+
+// GetAllCategoryOffer retrieves all category offers by the seller.
+// @Summary      Get Seller Category Offers
+// @Description  Retrieve all category offers by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} response.Response "Category offers retrieved successfully"
+// @Failure      400 {object} response.Response "Bad request. Unable to retrieve category offers."
+// @Router       /seller/categoryoffer/{SellerID} [get]
 func (u *CategoryHandler) GetAllCategoryOffer(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 
@@ -261,6 +399,17 @@ func (u *CategoryHandler) GetAllCategoryOffer(c *gin.Context) {
 	}
 }
 
+// ---------------------------Edit Category Offer--------------------------------------------------------//
+// EditCategoryOffer edits details of a category offer by the seller.
+// @Summary      Edit Category Offer
+// @Description  Edit details of a category offer by the seller.
+// @Tags         Seller category offers
+// @Accept       json
+// @Produce      json
+// @Param        editDetails body requestmodel.EditCategoryOffer true "Details for editing a category offer"
+// @Success      200 {object} response.Response "Category offer edited successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide valid edit details."
+// @Router       /seller/categoryoffer/{seller_id} [patch]
 func (u *CategoryHandler) EditCategoryOffer(c *gin.Context) {
 	// Retrieve the seller ID from the URL path parameter
 	sellerID := c.Param("seller_id")

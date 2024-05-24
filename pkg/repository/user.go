@@ -223,15 +223,15 @@ func (d *userRepository) CreateAddress(address *requestmodel.Address) (*requestm
 
 //---Retrieves a list of addresses belonging to a specific user ID from the database.
 
-func (d *userRepository) GetAddress(userID string, offset int, limit int) (*[]requestmodel.Address, error) {
+func (d *userRepository) GetAddress(userID string) (*[]requestmodel.Address, error) {
 	if userID == "" {
 		return nil, errors.New("userID is empty")
 	}
 
 	var address []requestmodel.Address
 
-	query := "SELECT * FROM addresses WHERE userid=? AND status='active' ORDER BY id OFFSET ? LIMIT ?"
-	result := d.DB.Raw(query, userID, offset, limit).Scan(&address)
+	query := "SELECT * FROM addresses WHERE userid=? AND status='active' ORDER BY id"
+	result := d.DB.Raw(query, userID).Scan(&address)
 	if result.Error != nil {
 		return nil, errors.New("error fetching address")
 	}

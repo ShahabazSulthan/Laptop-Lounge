@@ -19,6 +19,17 @@ func NewCouponHandler(useCase interfaceUseCase.ICouponUseCase) *CouponHandler {
 	return &CouponHandler{useCase: useCase}
 }
 
+// CreateCoupon creates a new coupon by the admin.
+// @Summary      Create Coupon (Admin)
+// @Description  Create a new coupon by the admin.
+// @Tags         Admin Coupons
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        coupon body requestmodel.Coupon true "Coupon details to be created"
+// @Success      201 {object} response.Response "Coupon created successfully"
+// @Failure      400 {object} response.Response "Bad request. Unable to create the coupon."
+// @Router       /admin/coupon/ [post]
 func (u *CouponHandler) CreateCoupon(c *gin.Context) {
 	var newCoupon requestmodel.Coupon
 
@@ -45,6 +56,16 @@ func (u *CouponHandler) CreateCoupon(c *gin.Context) {
 	}
 }
 
+// GetCoupons retrieves a list of coupons for the admin.
+// @Summary      Get Coupons (Admin)
+// @Description  Retrieve a list of coupons for the admin.
+// @Tags         Admin Coupons
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Success      200 {object} response.Response "Coupons retrieved successfully"
+// @Failure      400 {object} response.Response "Bad request. Unable to retrieve coupons."
+// @Router       /admin/coupon/ [get]
 func (u *CouponHandler) GetCoupons(c *gin.Context) {
 	coupon, err := u.useCase.GetCoupons()
 	if err != nil {
@@ -56,6 +77,17 @@ func (u *CouponHandler) GetCoupons(c *gin.Context) {
 	}
 }
 
+// / UnblockCoupon unblocks a coupon by the admin.
+// @Summary      Unblock Coupon (Admin)
+// @Description  Unblock a coupon by the admin.
+// @Tags         Admin Coupons
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        couponID path int true "ID of the coupon to be unblocked"
+// @Success      200 {object} response.Response "Coupon unblocked successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide a valid coupon ID."
+// @Router       /admin/coupon/unblock/{couponID} [patch]
 func (u *CouponHandler) UnblockCoupon(c *gin.Context) {
 	couponID := c.Param("couponID")
 	coupon, err := u.useCase.UpdateCouponStatus(couponID, "active")
@@ -68,6 +100,17 @@ func (u *CouponHandler) UnblockCoupon(c *gin.Context) {
 	}
 }
 
+// BlockCoupon blocks a coupon by the admin.
+// @Summary      Block Coupon (Admin)
+// @Description  Block a coupon by the admin.
+// @Tags         Admin Coupons
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Param        couponID path int true "ID of the coupon to be blocked"
+// @Success      200 {object} response.Response "Coupon blocked successfully"
+// @Failure      400 {object} response.Response "Bad request. Please provide a valid coupon ID."
+// @Router       /admin/coupon/block/{couponID} [patch]
 func (u *CouponHandler) BlockCoupon(c *gin.Context) {
 	couponID := c.Param("couponID")
 	coupon, err := u.useCase.UpdateCouponStatus(couponID, "block")

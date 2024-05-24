@@ -20,12 +20,23 @@ func NewPaymentHandler(useCase interfaceUseCase.IPaymentUseCase) *PaymentHandler
 	return &PaymentHandler{useCase: useCase}
 }
 
+// OnlinePayment retrieves the Razorpay payment page for the specified user.
+// @Summary      Get Razorpay Payment Page
+// @Description  Retrieve the Razorpay payment page for the specified user.
+// @Tags         PaymentIntegration
+// @Accept       html
+// @Produce      html
+// @Param        userID  query   int     true  "User ID for which the payment page is requested"
+// @Param        orderID query   int     true  "Order ID for which the payment page is requested"
+// @Success      200     {string} html   "HTML page for Razorpay payment"
+// @Failure      400     {object} response.Response "Bad request. Please provide valid user ID and order ID."
+// @Router       /razorpay [get]
 func (u *PaymentHandler) OnlinePayment(c *gin.Context) {
 	userID := c.Query("userID")
 	orderID := c.Query("orderID")
 	fmt.Println("**", userID, orderID)
 	orderDetails, err := u.useCase.OnlinePayment(userID, orderID)
-	fmt.Println("--------",orderDetails)
+	fmt.Println("--------", orderDetails)
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "razopay.html", gin.H{"badRequest": "Refine your request"})
 	} else {
@@ -33,6 +44,18 @@ func (u *PaymentHandler) OnlinePayment(c *gin.Context) {
 	}
 }
 
+// VerifyOnlinePayment verifies an online payment using the provided details.
+// @Summary      Verify Online Payment
+// @Description  Verify an online payment using the provided details.
+// @Tags         PaymentIntegration
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Security     Refreshtoken
+// @Param        verificationDetails body requestmodel.OnlinePaymentVerification true "Details for online payment verification"
+// @Success      200 {object} response.Response "Payment verification successful"
+// @Failure      400 {object} response.Response "Bad request. Please provide valid verification details."
+// @Router       /payment/verify [post]
 func (u *PaymentHandler) VerifyOnlinePayment(c *gin.Context) {
 	var onlinePaymentDetails requestmodel.OnlinePaymentVerification
 
@@ -59,6 +82,17 @@ func (u *PaymentHandler) VerifyOnlinePayment(c *gin.Context) {
 	}
 }
 
+// ViewWallet retrieves details of the user's wallet.
+// @Summary      Get User Wallet
+// @Description  Retrieve details of the user's wallet.
+// @Tags         User Wallet
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Security     Refreshtoken
+// @Success      200 {object} response.Response "User wallet details retrieved successfully"
+// @Failure      400 {object} response.Response "Bad request. Unable to retrieve user wallet details."
+// @Router       /wallet/ [get]
 func (u *PaymentHandler) ViewWallet(c *gin.Context) {
 	userID, exist := c.MustGet("UserID").(string)
 	if !exist {
@@ -77,6 +111,17 @@ func (u *PaymentHandler) ViewWallet(c *gin.Context) {
 	}
 }
 
+// GetWalletTransaction retrieves the transaction history of the user's wallet.
+// @Summary      Get User Wallet Transactions
+// @Description  Retrieve the transaction history of the user's wallet.
+// @Tags         User Wallet
+// @Accept       json
+// @Produce      json
+// @Security     BearerTokenAuth
+// @Security     Refreshtoken
+// @Success      200 {object} response.Response "User wallet transactions retrieved successfully"
+// @Failure      400 {object} response.Response "Bad request. Unable to retrieve user wallet transactions."
+// @Router       /wallet/transaction [get]
 func (u *PaymentHandler) GetWalletTransaction(c *gin.Context) {
 	userID, exist := c.MustGet("UserID").(string)
 	if !exist {

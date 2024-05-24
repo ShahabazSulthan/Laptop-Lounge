@@ -29,28 +29,33 @@ func NewOrderUseCase(repository interfaces.IOrderRepository, cartrepository inte
 	return &orderUseCase{repo: repository, cartrepo: cartrepository, sellerRepository: sellerRepository, paymentRepo: paymentRepository, couponrepo: coupon, razopay: razopay}
 }
 
-func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order, error) {
-	var couponData *responsemodel.Coupon
+//---------------------------------Create a new order-----------------------------------//
 
-	if order.Payment == "COD" {
+func (r *orderUseCase) NewOrder(order *requestmodel.Order) (resp *responsemodel.Order, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("error creating order: %v", err)
+		}
+	}()
+
+	var couponData *responsemodel.Coupon
+	// check payment method
+	switch order.Payment {
+	case "COD":
 		order.OrderStatus = "processing"
 		order.PaymentStatus = "pending"
-	}
-	if order.Payment == "ONLINE" {
+	case "ONLINE":
 		order.OrderStatus = "pending"
 		order.PaymentStatus = "pending"
-	}
-	if order.Payment == "WALLET" {
+	case "WALLET":
 		order.OrderStatus = "processing"
 		order.PaymentStatus = "success"
 	}
-
-	err := r.repo.GetAddressExist(order.UserID, order.Address)
-	if err != nil {
+	// check Address
+	if err = r.repo.GetAddressExist(order.UserID, order.AddressID); err != nil {
 		return nil, err
 	}
-
-	// fetch products details from cart
+	// check usercart
 	userCart, err := r.cartrepo.GetCart(order.UserID)
 	if err != nil {
 		return nil, err
@@ -62,14 +67,11 @@ func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order
 		if err != nil {
 			return nil, err
 		}
-
 		if *unit < data.Quantity {
-			return nil, fmt.Errorf("sorry for inconvinent for insafishend stock , we have only %d units, your requirement is %d unit,of product id %s", *unit, data.Quantity, data.ProductID)
+			return nil, fmt.Errorf("insufficient stock for product ID %s (Available: %d, Requested: %d)", data.ProductID, *unit, data.Quantity)
 		}
-
 		newUnit := *unit - data.Quantity
-		err = r.repo.UpdateProductUnits(data.ProductID, newUnit)
-		if err != nil {
+		if err := r.repo.UpdateProductUnits(data.ProductID, newUnit); err != nil {
 			return nil, err
 		}
 	}
@@ -81,32 +83,24 @@ func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order
 		}
 		order.FinalPrice += ProductPrice
 	}
-
-	// verify coupon
+	// check coupon
 	if order.Coupon != "" {
 		couponData, err = r.couponrepo.CheckCouponExpired(order.Coupon)
 		if err != nil {
 			return nil, err
 		}
-
 		if order.FinalPrice < couponData.MinimumRequired || order.FinalPrice >= couponData.MaximumAllowed {
-			return nil, fmt.Errorf("total price of order is %d not satisfying, for apply this coupon code %s of maximum allowed %d", order.FinalPrice, order.Coupon, couponData.MaximumAllowed)
+			return nil, fmt.Errorf("order price does not meet coupon requirements (Total Price: %d, Coupon: %s, Maximum Allowed: %d)", order.FinalPrice, order.Coupon, couponData.MaximumAllowed)
 		}
-
-		rightNow := time.Now()
-		if couponData.EndDate.Before(rightNow) {
-			return nil, errors.New("coupon exeed the expiredata, better luck next times")
+		if couponData.EndDate.Before(time.Now()) {
+			return nil, errors.New("coupon has expired")
 		}
-
-		exist := r.repo.CheckCouponAppliedOrNot(order.UserID, order.Coupon)
-		if exist > 0 {
-			return nil, fmt.Errorf("you are alredy apply %s coupon for %d time", order.Coupon, exist)
+		if exist := r.repo.CheckCouponAppliedOrNot(order.UserID, order.Coupon); exist > 0 {
+			return nil, fmt.Errorf("coupon %s already applied %d times", order.Coupon, exist)
 		}
-
 		order.CouponDiscount = couponData.Discount
 	}
 
-	// find total amount
 	order.FinalPrice = 0
 	for i, product := range order.Cart {
 		order.Cart[i].Price = helper.FindDiscount(float64(product.Price), float64(product.CategoryDiscount+product.Discount)) * product.Quantity
@@ -115,44 +109,33 @@ func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order
 		order.FinalPrice += order.Cart[i].FinalPrice
 	}
 
-	// place order on payment is online
-	if order.Payment == "ONLINE" {
+	switch order.Payment {
+	case "ONLINE":
 		orderID, err := service.Razopay(order.FinalPrice, r.razopay.RazopayKey, r.razopay.RazopaySecret)
 		if err != nil {
 			return nil, err
 		}
 		order.OrderIDRazopay = orderID
-	}
-
-	// made payment using wallet
-	if order.Payment == "WALLET" {
+	case "WALLET":
 		userWallet, err := r.paymentRepo.GetWallet(order.UserID)
 		if err != nil {
 			return nil, err
 		}
-
 		if userWallet.Balance < order.FinalPrice {
-			return nil, fmt.Errorf("no sufficient balance in the wallet have %d wand %d", userWallet.Balance, order.FinalPrice)
+			return nil, fmt.Errorf("insufficient balance in the wallet (Available: %d, Required: %d)", userWallet.Balance, order.FinalPrice)
 		}
-
-		err = r.paymentRepo.UpdateWalletReduceBalance(order.UserID, order.FinalPrice)
-		if err != nil {
+		if err := r.paymentRepo.UpdateWalletReduceBalance(order.UserID, order.FinalPrice); err != nil {
 			return nil, err
 		}
-
 		var walletTransactions requestmodel.WalletTransaction
 		walletTransactions.UserID = order.UserID
 		walletTransactions.Debit = order.FinalPrice
 		walletTransactions.TotalAmount = userWallet.Balance - order.FinalPrice
-
-		err = r.paymentRepo.WalletTransaction(walletTransactions)
-		if err != nil {
+		if err := r.paymentRepo.WalletTransaction(walletTransactions); err != nil {
 			return nil, err
 		}
-
 	}
 
-	// order is creating
 	orderResponse, err := r.repo.CreateOrder(order)
 	if err != nil {
 		return nil, err
@@ -164,8 +147,7 @@ func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order
 	}
 
 	for _, data := range order.Cart {
-		err = r.cartrepo.DeleteProductFromCart(data.ProductID, order.UserID)
-		if err != nil {
+		if err := r.cartrepo.DeleteProductFromCart(data.ProductID, order.UserID); err != nil {
 			return nil, err
 		}
 	}
@@ -173,6 +155,8 @@ func (r *orderUseCase) NewOrder(order *requestmodel.Order) (*responsemodel.Order
 	orderResponse.TotalPrice = order.FinalPrice
 	return OrderSuccessDetails, nil
 }
+
+//---------------------------------Get All Products-----------------------------------//
 
 func (r *orderUseCase) OrderShowcase(userID string) (*[]responsemodel.OrderShowcase, error) {
 	abstractOrder, err := r.repo.GetOrderShowcase(userID)
@@ -182,6 +166,8 @@ func (r *orderUseCase) OrderShowcase(userID string) (*[]responsemodel.OrderShowc
 	return abstractOrder, nil
 }
 
+//---------------------------------Get Single order using order_id-----------------------------------//
+
 func (r *orderUseCase) SingleOrder(orderID string, userID string) (*responsemodel.SingleOrder, error) {
 	singleOrder, err := r.repo.GetSingleOrder(orderID, userID)
 	if err != nil {
@@ -189,6 +175,8 @@ func (r *orderUseCase) SingleOrder(orderID string, userID string) (*responsemode
 	}
 	return singleOrder, nil
 }
+
+//---------------------------------Cancel User Order-----------------------------------//
 
 func (r *orderUseCase) CancelUserOrder(orderItemID string, userID string) (*responsemodel.OrderDetails, error) {
 
@@ -245,6 +233,8 @@ func (r *orderUseCase) CancelUserOrder(orderItemID string, userID string) (*resp
 	return orderDetails, nil
 }
 
+//---------------------------------Return User Order-----------------------------------//
+
 func (r *orderUseCase) ReturnUserOrder(orderItemID, userID string) (*responsemodel.OrderDetails, error) {
 
 	orderDetails, err := r.repo.UpdateUserOrderReturn(orderItemID, userID)
@@ -300,6 +290,8 @@ func (r *orderUseCase) ReturnUserOrder(orderItemID, userID string) (*responsemod
 
 // ------------------------------------------Seller Control Orders------------------------------------\\
 
+//---------------------------------Get All seller Orders-----------------------------------//
+
 func (r *orderUseCase) GetSellerOrders(sellerID string, remainingQuery string) (*[]responsemodel.OrderDetails, error) {
 	userOrders, err := r.repo.GetSellerOrders(sellerID, remainingQuery)
 	if err != nil {
@@ -307,6 +299,8 @@ func (r *orderUseCase) GetSellerOrders(sellerID string, remainingQuery string) (
 	}
 	return userOrders, nil
 }
+
+//---------------------------------Seller Conform Delivered-----------------------------------//
 
 func (r *orderUseCase) ConfirmDeliverd(sellerID string, orderItemID string) (*responsemodel.OrderDetails, error) {
 
@@ -341,6 +335,8 @@ func (r *orderUseCase) ConfirmDeliverd(sellerID string, orderItemID string) (*re
 	return orderDetails, nil
 }
 
+//---------------------------------Seller Cancel Order-----------------------------------//
+
 func (r *orderUseCase) CancelOrder(orderID string, sellerID string) (*responsemodel.OrderDetails, error) {
 	err := r.repo.GetOrderExistOfSeller(orderID, sellerID)
 	if err != nil {
@@ -356,8 +352,6 @@ func (r *orderUseCase) CancelOrder(orderID string, sellerID string) (*responsemo
 		return nil, err
 	}
 
-	//err = r.repo.UpdateDeliveryTime(sellerID, orderID)
-
 	updatedUnit := *units + orderDetails.Quantity
 
 	err = r.repo.UpdateProductUnits(orderDetails.ProductID, updatedUnit)
@@ -370,6 +364,8 @@ func (r *orderUseCase) CancelOrder(orderID string, sellerID string) (*responsemo
 
 // ------------------------------------------Seller Sales Report------------------------------------\\
 
+//---------------------------------Get Sales Report Year-Month-Day-----------------------------------//
+
 func (r *orderUseCase) GetSalesReport(sellerID, year, month, days string) (*responsemodel.SalesReport, error) {
 	report, err := r.repo.GetSalesReport(sellerID, year, month, days)
 	if err != nil {
@@ -378,7 +374,9 @@ func (r *orderUseCase) GetSalesReport(sellerID, year, month, days string) (*resp
 	return report, nil
 }
 
-func (r *orderUseCase) GetSalesReportByDays(sellerID string, days string) (*responsemodel.SalesReport, error) {
+//---------------------------------Get Sales Reports by days-----------------------------------//
+
+func (r *orderUseCase) GetSalesReportByDays(sellerID string, days int) (*responsemodel.SalesReport, error) {
 	report, err := r.repo.GetSalesReportByDays(sellerID, days)
 	if err != nil {
 		return nil, err
@@ -386,7 +384,7 @@ func (r *orderUseCase) GetSalesReportByDays(sellerID string, days string) (*resp
 	return report, nil
 }
 
-// ------------------------------------------Order Invoice------------------------------------\\
+// ------------------------------------------Order Invoice Pdf------------------------------------\\
 
 func (r *orderUseCase) OrderInvoiceCreation(orderItemID string) (*string, error) {
 	// Get order details
@@ -420,65 +418,73 @@ func (r *orderUseCase) OrderInvoiceCreation(orderItemID string) (*string, error)
 	pdf.SetMargins(marginX, marginY, marginX)
 	pdf.AddPage()
 
-	pdf.SetFont("Arial", "B", 16)
-	_, lineHeight := pdf.GetFontSize()
-	currentY := pdf.GetY() + lineHeight
-	pdf.SetY(currentY)
-	pdf.Cell(40, 10, "Tax Invoice")
-	pdf.Cell(40, 10, "|  Order ID: "+orderItemID)
-	pdf.Cell(40, 10, "|  Order Date: "+orderDetails.OrderDate.Format("2006-01-02 15:04:05"))
-	pdf.Ln(15)
+	// Set font and color for header
+	pdf.SetFont("Arial", "B", 20)
+	pdf.SetTextColor(51, 102, 153) // Dark blue color
+	pdf.Cell(0, 10, "Tax Invoice")
+	pdf.Ln(10)
 
-	pdf.Cell(40, 10, "Seller: "+sellerDetails.Name)
+	// Set font for the company name
+	pdf.SetFont("Arial", "B", 16)
+	pdf.SetTextColor(0, 0, 0)
+	pdf.Cell(0, 10, "Laptop Lounge")
+	pdf.Ln(10)
+
+	// Order details
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetTextColor(0, 0, 0) // Black color
+	pdf.Cell(0, 10, "Order ID: "+orderItemID)
+	pdf.Ln(5)
+	pdf.Cell(0, 10, "Order Date: "+orderDetails.OrderDate.Format("2006-01-02 15:04:05"))
+	pdf.Ln(5)
+	pdf.Cell(0, 10, "Payment Status: "+orderDetails.PaymentStatus)
+	pdf.Ln(10)
+
+	pdf.Cell(0, 10, "Seller: "+sellerDetails.Name)
 	pdf.Ln(10)
 
 	// Address
-	pdf.Cell(20, 10, "Address")
-	pdf.Ln(10)
+	pdf.Cell(0, 10, "Address")
+	pdf.Ln(5)
 
-	pdf.SetFont("Helvetica", "", 12)
-	pdf.Cell(40, 10, fmt.Sprintf("Name: %s %s", userAddresses.FirstName, userAddresses.LastName))
-	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(0, 10, fmt.Sprintf("Name: %s %s", userAddresses.FirstName, userAddresses.LastName))
+	pdf.Ln(5)
 	pdf.Cell(0, 10, fmt.Sprintf("Address: %s, %s, %s - %s", userAddresses.Street, userAddresses.City, userAddresses.State, userAddresses.Pincode))
-	pdf.Ln(10)
+	pdf.Ln(5)
 	pdf.Cell(0, 10, fmt.Sprintf("Landmark: %s", userAddresses.LandMark))
-	pdf.Ln(10)
+	pdf.Ln(5)
 	pdf.Cell(0, 10, fmt.Sprintf("Phone Number: %s", userAddresses.PhoneNumber))
-	pdf.Ln(20)
+	pdf.Ln(15)
 
-	lineHt := 10.0
-	const colNumber = 5
-	header := [colNumber]string{"No", "Product", "Quantity", "Mrp", "Final-Price"}
-	colWidth := [colNumber]float64{10.0, 75.0, 25.0, 40.0, 40.0}
+	// Table headers
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFillColor(230, 230, 230) // Light gray background for headers
+	header := [5]string{"No", "Product", "Quantity", "MRP", "Final Price"}
+	colWidth := [5]float64{10.0, 75.0, 25.0, 40.0, 40.0}
 
-	// Headers
-	pdf.SetFontStyle("B")
-	pdf.SetFillColor(200, 200, 200)
-	for colJ := 0; colJ < colNumber; colJ++ {
-		pdf.CellFormat(colWidth[colJ], lineHt, header[colJ], "1", 0, "CM", true, 0, "")
+	for colJ := 0; colJ < 5; colJ++ {
+		pdf.CellFormat(colWidth[colJ], 7, header[colJ], "1", 0, "CM", true, 0, "")
 	}
-
-	pdf.Ln(10)
+	pdf.Ln(7)
 
 	// Table data
-	pdf.CellFormat(colWidth[0], lineHt, fmt.Sprintf("%d", 1), "1", 0, "CM", false, 0, "")
-	pdf.CellFormat(colWidth[1], lineHt, product.ModelName, "1", 0, "LM", false, 0, "")
-	pdf.CellFormat(colWidth[2], lineHt, fmt.Sprintf("%d", orderDetails.Quantity), "1", 0, "CM", false, 0, "")
-	pdf.CellFormat(colWidth[3], lineHt, fmt.Sprintf("%d", product.Mrp), "1", 0, "CM", false, 0, "")
-	pdf.CellFormat(colWidth[4], lineHt, fmt.Sprintf("%d", orderDetails.PayableAmount), "1", 0, "CM", false, 0, "")
-	pdf.Ln(-1)
-
-	leftIndent := 0.0
-	for i := 0; i < 3; i++ {
-		leftIndent += colWidth[i]
+	pdf.SetFont("Arial", "B", 12)
+	data := [5]string{"1", product.ModelName, fmt.Sprintf("%d", orderDetails.Quantity), fmt.Sprintf("%d", product.Mrp), fmt.Sprintf("%d", orderDetails.PayableAmount)}
+	for colJ := 0; colJ < 5; colJ++ {
+		pdf.CellFormat(colWidth[colJ], 7, data[colJ], "1", 0, "CM", false, 0, "")
 	}
+	pdf.Ln(7)
 
-	pdf.SetX(marginX + leftIndent)
-	pdf.CellFormat(colWidth[3], lineHt, "Grand total", "1", 0, "CM", false, 0, "")
-	pdf.CellFormat(colWidth[4], lineHt, fmt.Sprintf("%d", orderDetails.PayableAmount), "1", 0, "CM", false, 0, "")
-	pdf.Ln(20)
+	pdf.SetFont("Arial", "B", 12)
+	pdf.CellFormat(colWidth[3], 7, "Grand Total", "1", 0, "CM", true, 0, "")
+	pdf.CellFormat(colWidth[4], 7, fmt.Sprintf("%d", orderDetails.PayableAmount), "1", 0, "CM", true, 0, "")
+	pdf.Ln(15)
 
-	pdf.Cell(40, 10, "Laptop_Lounge: Thanks for shopping!")
+	// Footer
+	pdf.SetFont("Arial", "I", 10)
+	pdf.SetTextColor(100, 100, 100) // Gray color for footer
+	pdf.Cell(0, 10, "Laptop_Lounge: Thanks for shopping!")
 
 	// Save PDF to a local folder
 	filePath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\invoice.pdf"
@@ -491,12 +497,14 @@ func (r *orderUseCase) OrderInvoiceCreation(orderItemID string) (*string, error)
 	return &filePath, nil
 }
 
-// ------------------------------------------Sales Report in xl------------------------------------\\
+// ------------------------------------------Sales Report in Excel------------------------------------\\
 
 func (r *orderUseCase) GenerateXlOfSalesReport(sellerID string) (string, error) {
-
-	orders, _ := r.repo.GetOrderXlSalesReport(sellerID)
-	if orders == nil {
+	orders, err := r.repo.GetOrderXlSalesReport(sellerID)
+	if err != nil {
+		return "", err
+	}
+	if orders == nil || len(*orders) == 0 {
 		return "", errors.New("seller has no sales for creating a sales report")
 	}
 
@@ -504,34 +512,41 @@ func (r *orderUseCase) GenerateXlOfSalesReport(sellerID string) (string, error) 
 	sheetName := "SalesReport"
 	f.NewSheet(sheetName)
 
-	// Set column headers
-	headers := []string{"SingleOrderID", "ProductID", "Model_name", "Quantity", "PayedAmount", "OrderDate", "EndDate"}
+	// Set the company name heading
+	f.MergeCell(sheetName, "A1", "G1")
+	f.SetCellValue(sheetName, "A1", "Laptop Lounge Sales Report")
+	style, _ := f.NewStyle(`{"font":{"bold":true,"size":16},"alignment":{"horizontal":"center"}}`)
+	f.SetCellStyle(sheetName, "A1", "G1", style)
+
+	// Set column headers with a color theme
+	headers := []string{"ItemID", "ProductID", "Productname", "Quantity", "PayedAmount", "OrderDate", "EndDate"}
+	headerStyle, _ := f.NewStyle(`{"font":{"bold":true,"color":"#FFFFFF"},"fill":{"type":"pattern","color":["#4F81BD"],"pattern":1}}`)
 	for colIndex, header := range headers {
-		cell := excelize.ToAlphaString(colIndex+1) + "1"
+		cell := excelize.ToAlphaString(colIndex) + "2"
 		f.SetCellValue(sheetName, cell, header)
+		f.SetCellStyle(sheetName, cell, cell, headerStyle)
 	}
 
 	// Populate the sheet with data
 	for rowIndex, record := range *orders {
-		colIndex := 1
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.ItemID)
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.ProductID)
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.Productname)
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.Quantity)
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.PayableAmount)
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.OrderDate.Format("2006-01-02 15:04:05"))
-		colIndex++
-		f.SetCellValue(sheetName, excelize.ToAlphaString(colIndex)+fmt.Sprint(rowIndex+2), record.EndDate.Format("2006-01-02 15:04:05"))
+		f.SetCellValue(sheetName, fmt.Sprintf("A%d", rowIndex+3), record.ItemID)
+		f.SetCellValue(sheetName, fmt.Sprintf("B%d", rowIndex+3), record.ProductID)
+		f.SetCellValue(sheetName, fmt.Sprintf("C%d", rowIndex+3), record.Model_name)
+		f.SetCellValue(sheetName, fmt.Sprintf("D%d", rowIndex+3), record.Quantity)
+		f.SetCellValue(sheetName, fmt.Sprintf("E%d", rowIndex+3), record.PayableAmount)
+		f.SetCellValue(sheetName, fmt.Sprintf("F%d", rowIndex+3), record.OrderDate.Format("2006-01-02 15:04:05"))
+		f.SetCellValue(sheetName, fmt.Sprintf("G%d", rowIndex+3), record.EndDate.Format("2006-01-02 15:04:05"))
+	}
+
+	// Auto-size columns for better readability
+	for colIndex := 0; colIndex < len(headers); colIndex++ {
+		col := excelize.ToAlphaString(colIndex)
+		f.SetColWidth(sheetName, col, col, 15)
 	}
 
 	// Save the Excel file locally
 	filePath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\salesReport.xlsx"
-	err := f.SaveAs(filePath)
+	err = f.SaveAs(filePath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return "", err

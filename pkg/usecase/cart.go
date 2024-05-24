@@ -18,18 +18,16 @@ func NewCartUseCase(repository interfaces.ICartRepository) interfaceUseCase.ICar
 	return &cartUseCase{repo: repository}
 }
 
+// CreateCart method in cartUseCase
 func (r *cartUseCase) CreateCart(cart *requestmodel.Cart) (*requestmodel.Cart, error) {
-
 	count, err := r.repo.IsProductExistInCart(cart.ProductID, cart.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	if count >= 1 {
-		return nil, errors.New("product alrady exist in cart now you can purchase")
+		return nil, errors.New("product already exists in cart; you can now purchase")
 	}
-
-	cart.Quantity = 1
 
 	inserCart, err := r.repo.InsertToCart(cart)
 	if err != nil {

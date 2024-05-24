@@ -6,6 +6,7 @@ import (
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	interfaces "Laptop_Lounge/pkg/repository/interface"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -30,15 +31,18 @@ func (d *cartRepository) IsProductExistInCart(ProductID string, userID string) (
 }
 
 func (d *cartRepository) InsertToCart(cart *requestmodel.Cart) (*requestmodel.Cart, error) {
+	// Check if quantity is less than 1
+	if cart.Quantity < 1 {
+		return nil, errors.New("quantity should be at least 1 to add to cart")
+	}
 
-	query := "INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?,  ?)   RETURNING *;"
+	query := "INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?, ?) RETURNING *;"
 	result := d.DB.Raw(query, cart.UserID, cart.ProductID, cart.Quantity).Scan(&cart)
 
 	if result.Error != nil {
-		return nil, errors.New("face some issue while Product insert to cart ")
+		return nil, errors.New("faced some issue while inserting product into cart")
 	}
 	if result.RowsAffected == 0 {
-
 		return nil, resCustomError.ErrNoRowAffected
 	}
 	return cart, nil
@@ -46,13 +50,14 @@ func (d *cartRepository) InsertToCart(cart *requestmodel.Cart) (*requestmodel.Ca
 
 func (d *cartRepository) GetProductPrice(productID string) (uint, error) {
 	var price uint
-	query := "SELECT sale_price FROM products WHERE id= ? AND status = 'active'"
+	fmt.Println("rrrr", productID)
+	query := "SELECT sale_price FROM products WHERE id = ? AND status = 'active'"
 	result := d.DB.Raw(query, productID).Scan(&price)
 	if result.Error != nil {
-		return 0, errors.New("face some issue while get user profile ")
+		return 0, errors.New("failed to fetch product price: " + result.Error.Error())
 	}
 	if result.RowsAffected == 0 {
-		return 0, resCustomError.ErrNoRowAffected
+		return 0, errors.New("product not found or inactive")
 	}
 	return price, nil
 }

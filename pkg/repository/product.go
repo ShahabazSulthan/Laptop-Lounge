@@ -143,6 +143,28 @@ func (d *productRepository) GetAProductHightoLow() (*[]responsemodel.ProductShow
 	return &Product, nil
 }
 
+func (d *productRepository) GetAProductAtoZ() (*[]responsemodel.ProductShowcase, error) {
+	var Product []responsemodel.ProductShowcase
+
+	query := `SELECT * FROM products WHERE status = 'active' ORDER BY model_name ASC`
+	err := d.DB.Raw(query).Scan(&Product).Error
+	if err != nil {
+		return nil, errors.New("can't get products data from db")
+	}
+	return &Product, nil
+}
+
+func (d *productRepository) GetAProductZtoA() (*[]responsemodel.ProductShowcase, error) {
+	var Product []responsemodel.ProductShowcase
+
+	query := `SELECT * FROM products WHERE status = 'active' ORDER BY model_name DESC`
+	err := d.DB.Raw(query).Scan(&Product).Error
+	if err != nil {
+		return nil, errors.New("can't get products data from db")
+	}
+	return &Product, nil
+}
+
 func (d *productRepository) GetSellerProduct(offSet int, limit int, sellerID string) (*[]responsemodel.ProductShowcase, error) {
 	var inventory []responsemodel.ProductShowcase
 
@@ -159,13 +181,13 @@ func (d *productRepository) GetSellerProduct(offSet int, limit int, sellerID str
 func (d *productRepository) UpdateProduct(product *requestmodel.EditProduct) (*responsemodel.ProductRes, error) {
 	var updatedData responsemodel.ProductRes
 
-	query := "UPDATE products SET mrp=?, discount= ?, saleprice= ?, units= ? WHERE id=? RETURNING*;"
-	result := d.DB.Raw(query, product.Mrp, product.Discount, product.Saleprice, product.Units, product.ID).Scan(&updatedData)
+	query := "UPDATE products SET model_name=?,mrp=?, discount= ?, sale_price= ?, units= ? WHERE id=? RETURNING*;"
+	result := d.DB.Raw(query, product.ModelName, product.Mrp, product.Discount, product.Saleprice, product.Units, product.ID).Scan(&updatedData)
 	if result.Error != nil {
-		return nil, errors.New("inventory is not updated into database")
+		return nil, errors.New("products is not updated into database")
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.New("inventory is not updated in database , face some error")
+		return nil, errors.New("products is not updated in database , face some error")
 	}
 	return &updatedData, nil
 }
