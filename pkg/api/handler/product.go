@@ -25,10 +25,10 @@ func NewProductHandler(usercase interfaceUseCase.IProductUseCase) *ProductHandle
 // @Summary      Add Product
 // @Description  Add a new product from the seller.
 // @Tags         Seller Products
-// @Accept       multipart/form-data
+// @Accept       json
 // @Produce      json
-// @Param        productImage  formData  file                     true  "Product image for adding"
-// @Param        product       formData  requestmodel.ProductReq  true  "Product details for adding"
+// @Param        SellerID      path      string                 true  "ID of the seller"
+// @Param        product       body      requestmodel.ProductReq true  "Product details for adding"
 // @Success      200           {object}  response.Response        "Successfully added the product"
 // @Failure      400           {object}  response.Response        "Bad request"
 // @Router       /seller/products/{SellerID} [post]
@@ -239,7 +239,7 @@ func (u *ProductHandler) GetAProduct(c *gin.Context) {
 
 // @Summary		Get High To Low Price
 // @Description	Retrieve a list of products sorted by price from high to low.
-// @Tags			User
+// @Tags			Search
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	response.Response	"Successfully retrieved products"
@@ -262,7 +262,7 @@ func (u *ProductHandler) GetAProductHightoLow(c *gin.Context) {
 
 // @Summary		Get Low To High Price
 // @Description	Retrieve a list of products sorted by price from low to high.
-// @Tags			User
+// @Tags			Search
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	response.Response	"Successfully retrieved products"
@@ -285,7 +285,7 @@ func (u *ProductHandler) GetAProductLowtoHigh(c *gin.Context) {
 
 // @Summary		Get A To Z Product Name
 // @Description	Retrieve a list of products sorted by name from A to Z.
-// @Tags			User
+// @Tags			Search
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	response.Response	"Successfully retrieved products"
@@ -308,7 +308,7 @@ func (u *ProductHandler) GetAProductAtoZ(c *gin.Context) {
 
 // @Summary		Get Z To A Product Name
 // @Description	Retrieve a list of products sorted by name from Z to A.
-// @Tags			User
+// @Tags			Search
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	response.Response	"Successfully retrieved products"
@@ -339,7 +339,7 @@ func (u *ProductHandler) GetAProductZtoA(c *gin.Context) {
 // @Param			limit		query		int		false	"Number of items per page"	default(5)
 // @Success		200		{object}	response.Response	"Successfully retrieved seller products"
 // @Failure		400		{object}	response.Response	"Bad request"
-// @Router			/seller/{SellerID}/{page} [get]
+// @Router			/seller/products/seller/{SellerID}/{page} [get]
 func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
 	page := c.Param("page")
 	limit := c.DefaultQuery("limit", "1")
@@ -361,11 +361,10 @@ func (u *ProductHandler) GetSellerIProduct(c *gin.Context) {
 // @Accept			json
 // @Produce		json
 // @Param			SellerID	path		string						true	"Seller ID"
-// @Param			productid	path		string						true	"Product ID"
 // @Param			product		body		requestmodel.EditProduct	true	"Updated product details"
 // @Success		200		{object}	response.Response			"Successfully edited the seller product"
 // @Failure		400		{object}	response.Response			"Bad request"
-// @Router			/seller/products/{SellerID}/{productid} [patch]
+// @Router			/seller/products/{SellerID} [patch]
 func (u *ProductHandler) EditProduct(c *gin.Context) {
 	var editedProduct requestmodel.EditProduct
 
@@ -393,7 +392,7 @@ func (u *ProductHandler) EditProduct(c *gin.Context) {
 
 // @Summary		Filter Products
 // @Description	Filter products based on category, brand, product name, and price range.
-// @Tags			User
+// @Tags			Search
 // @Accept			json
 // @Produce		json
 // @Param			category	query		string				false	"Category filter"

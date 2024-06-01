@@ -26,7 +26,7 @@ func AdminRoutes(engin *gin.RouterGroup, admin *handler.AdminHandler, seller *ha
 
 		sellermanagement := engin.Group("/sellers")
 		{
-			sellermanagement.GET("/getsellers/:page", seller.GetSellers)
+			sellermanagement.GET("/getsellers", seller.GetSellers)
 			sellermanagement.PATCH("/block/:sellerID", seller.BlockSeller)
 			sellermanagement.PATCH("/unblock/:sellerID", seller.UnblockSeller)
 			sellermanagement.GET("/pending", seller.GetPendingSellers)

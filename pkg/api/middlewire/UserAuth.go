@@ -4,7 +4,9 @@ import (
 	"Laptop_Lounge/pkg/config"
 	"Laptop_Lounge/pkg/service"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -148,5 +150,34 @@ func UserAuthorization(c *gin.Context) {
 		// c.JSON(http.StatusOK, "All perfect, your access token is up-to-date")
 		c.Set("UserID", id)
 		c.Next()
+	}
+}
+
+func Logger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		startTime := time.Now()
+
+		// Process request
+		c.Next()
+
+		// Log after request has been processed
+		endTime := time.Now()
+		latency := endTime.Sub(startTime)
+
+		method := c.Request.Method
+		statusCode := c.Writer.Status()
+		clientIP := c.ClientIP()
+		userAgent := c.Request.UserAgent()
+		path := c.Request.URL.Path
+		if path == "" {
+			path = "/"
+		}
+
+		log.Printf("statusCode=%d latency=%v clientIP=%s method=%s path=%s userAgent=%s",
+			statusCode, latency, clientIP, method, path, userAgent)
+
+		if len(c.Errors) > 0 {
+			log.Printf("errors=%s", c.Errors.String())
+		}
 	}
 }

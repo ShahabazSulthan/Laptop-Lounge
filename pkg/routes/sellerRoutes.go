@@ -55,6 +55,8 @@ func SellerRoutes(engin *gin.RouterGroup, seller *handler.SellerHandler, Product
 		salesreportmanagement.GET("/day/:SellerID", order.SalesReport)
 		salesreportmanagement.GET("/days/:SellerID/:days", order.SalesReportCustomDays)
 		salesreportmanagement.GET("/xlsx/:SellerID", order.SalesReportXlSX)
+		salesreportmanagement.GET("/pdf/:SellerID", order.GenerateSalesReportPDF)
+
 	}
 
 }

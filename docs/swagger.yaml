@@ -269,6 +269,65 @@ definitions:
       otp:
         type: string
     type: object
+  requestmodel.ProductReq:
+    properties:
+      batteryCapacity:
+        minimum: 3000
+        type: integer
+      brandID:
+        type: integer
+      categoryID:
+        type: integer
+      description:
+        minLength: 5
+        type: string
+      discount:
+        maximum: 99
+        minimum: 0
+        type: integer
+      graphicsCard:
+        type: string
+      imageURL:
+        type: string
+      modelName:
+        maxLength: 100
+        minLength: 3
+        type: string
+      mrp:
+        minimum: 0
+        type: integer
+      operatingSystem:
+        type: string
+      processorType:
+        type: string
+      salePrice:
+        type: integer
+      screenSize:
+        minimum: 10
+        type: number
+      sellerID:
+        type: integer
+      storageCapacityGB:
+        minimum: 128
+        type: integer
+      units:
+        minimum: 0
+        type: integer
+    required:
+    - batteryCapacity
+    - brandID
+    - categoryID
+    - description
+    - discount
+    - graphicsCard
+    - modelName
+    - mrp
+    - operatingSystem
+    - processorType
+    - screenSize
+    - storageCapacityGB
+    - units
+    type: object
   requestmodel.ReviewRequest:
     properties:
       comment:
@@ -423,11 +482,11 @@ definitions:
 info:
   contact:
     email: shahabazsulthan4@gmail.com
-    name: API Support
+    name: 'Creator: Shahabaz Sulthan'
   description: "Laptop Lounge - \U0001F680 Your One-Stop Destination for Ultimate
-    Laptop Shopping! \U0001F6D2\U0001F4BB Browse, compare, and buy top-notch laptops
-    effortlessly. Powered by cutting-edge technology, we bring you a seamless shopping
-    experience. \U0001F31F Dive into the future of laptop shopping with Laptop Lounge!
+    Laptop Shopping!\n\U0001F6D2\U0001F4BB Browse, compare, and buy top-notch laptops
+    effortlessly.\nPowered by cutting-edge technology, we bring you a seamless shopping
+    experience.\n\U0001F31F Dive into the future of laptop shopping with Laptop Lounge!
     \U0001F680\U0001F525"
   title: Laptop Lounge API
 paths:
@@ -901,6 +960,43 @@ paths:
       summary: Unblock Coupon (Admin)
       tags:
       - Admin Coupons
+  /admin/helpdesk/{requestID}:
+    patch:
+      consumes:
+      - application/json
+      description: Update the answer for a help desk request.
+      parameters:
+      - description: ID of the request to update
+        in: path
+        name: requestID
+        required: true
+        type: integer
+      - description: Updated answer details
+        in: body
+        name: answer
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.HelpDeskAnswer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Answer updated successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request. Invalid input.
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      summary: Update Help Desk Answer
+      tags:
+      - Admin Help Desk
   /admin/login:
     post:
       consumes:
@@ -963,7 +1059,7 @@ paths:
       - BearerTokenAuth: []
       summary: Block Seller
       tags:
-      - Admin
+      - Admin Seller Control
   /admin/sellers/getsellers:
     get:
       consumes:
@@ -997,7 +1093,7 @@ paths:
       - BearerTokenAuth: []
       summary: Get Sellers
       tags:
-      - Admin
+      - Admin Seller Control
   /admin/sellers/pending:
     get:
       consumes:
@@ -1031,7 +1127,7 @@ paths:
       - BearerTokenAuth: []
       summary: Get Pending Sellers
       tags:
-      - Admin
+      - Admin Seller Control
   /admin/sellers/singleview/{sellerID}:
     get:
       consumes:
@@ -1058,7 +1154,7 @@ paths:
       - BearerTokenAuth: []
       summary: Get Single Seller Details
       tags:
-      - Admin
+      - Admin Seller Control
   /admin/sellers/unblock/:sellerID:
     patch:
       consumes:
@@ -1085,7 +1181,7 @@ paths:
       - BearerTokenAuth: []
       summary: Block Seller
       tags:
-      - Admins
+      - Admin Seller Control
   /admin/sellers/verify/{sellerID}:
     patch:
       consumes:
@@ -1112,7 +1208,7 @@ paths:
       - BearerTokenAuth: []
       summary: Verify Seller
       tags:
-      - Admins
+      - Admin Seller Control
   /admin/users/block/{userID}:
     patch:
       consumes:
@@ -1139,7 +1235,7 @@ paths:
       - BearerTokenAuth: []
       summary: Block User
       tags:
-      - Admins
+      - Admin User Control
   /admin/users/getuser:
     get:
       consumes:
@@ -1171,7 +1267,7 @@ paths:
       - BearerTokenAuth: []
       summary: Get All Users
       tags:
-      - Admins
+      - Admins User Controll
   /admin/users/unblock/{userID}:
     patch:
       consumes:
@@ -1198,7 +1294,7 @@ paths:
       - BearerTokenAuth: []
       summary: Unblock User
       tags:
-      - Admins
+      - Admin User Control
   /cart/:
     get:
       consumes:
@@ -1249,14 +1345,14 @@ paths:
       summary: Create User Cart
       tags:
       - UserCart
-  /cart/:productID:
+  /cart/{productID}:
     delete:
       consumes:
       - application/json
       description: Delete a product from the user's cart.
       parameters:
       - description: Product ID to delete from the cart
-        in: query
+        in: path
         name: productID
         required: true
         type: string
@@ -1275,62 +1371,6 @@ paths:
       - BearerTokenAuth: []
       - Refreshtoken: []
       summary: Delete Item from User Cart
-      tags:
-      - UserCart
-  /cart/decrement/{productID}:
-    patch:
-      consumes:
-      - application/json
-      description: Decrease the count of a product in the user's cart.
-      parameters:
-      - description: Product ID to decrement in the cart
-        in: path
-        name: productID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Product count decremented in the cart successfully
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerTokenAuth: []
-      - RefreshtokenAuth: []
-      summary: Decrement Product Count in User Cart
-      tags:
-      - UserCart
-  /cart/increment/{productID}:
-    patch:
-      consumes:
-      - application/json
-      description: Increase the count of a product in the user's cart.
-      parameters:
-      - description: Inventory ID of the product to increment in the cart
-        in: path
-        name: productID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Product count incremented in the cart successfully
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerTokenAuth: []
-      - RefreshtokenAuth: []
-      summary: Increment Product Count in User Cart
       tags:
       - UserCart
   /filter:
@@ -1373,27 +1413,8 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: Filter Products
       tags:
-      - User
-  /helpdesk/replied:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all help desk requests that have been replied to.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully retrieved replied requests
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request. Unable to retrieve replied requests.
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get Replied Help Desk Requests
-      tags:
-      - Help Desk
-  /helpdesk/request:
+      - Search
+  /helpdesk/:
     post:
       consumes:
       - application/json
@@ -1423,42 +1444,26 @@ paths:
       summary: Create Help Desk Request
       tags:
       - Help Desk
-  /helpdesk/request/:requestID:
-    patch:
+  /helpdesk/replayed:
+    get:
       consumes:
       - application/json
-      description: Update the answer for a help desk request.
-      parameters:
-      - description: ID of the request to update
-        in: path
-        name: requestID
-        required: true
-        type: integer
-      - description: Updated answer details
-        in: body
-        name: answer
-        required: true
-        schema:
-          $ref: '#/definitions/requestmodel.HelpDeskAnswer'
+      description: Retrieve all help desk requests that have been replied to.
       produces:
       - application/json
       responses:
         "200":
-          description: Answer updated successfully
+          description: Successfully retrieved replied requests
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: Bad Request. Invalid input.
+          description: Bad Request. Unable to retrieve replied requests.
           schema:
             $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error.
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Update Help Desk Answer
+      summary: Get Replied Help Desk Requests
       tags:
       - Help Desk
-  /helpdesk/unreplied:
+  /helpdesk/unreplayed:
     get:
       consumes:
       - application/json
@@ -1477,6 +1482,53 @@ paths:
       summary: Get Unreplied Help Desk Requests
       tags:
       - Help Desk
+  /invoice/{orderItemID}:
+    get:
+      consumes:
+      - application/json
+      description: Generate an invoice for the specified order item ID
+      parameters:
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshToken: []
+      summary: Generate invoice
+      tags:
+      - User Invoice
+  /log:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve and display the content of the log file.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Log file content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Log File
+      tags:
+      - Logs
   /login:
     post:
       consumes:
@@ -1503,7 +1555,7 @@ paths:
       summary: User Login
       tags:
       - User
-  /orders:
+  /order:
     get:
       consumes:
       - application/json
@@ -1524,7 +1576,7 @@ paths:
       - Refreshtoken: []
       summary: Get all orders
       tags:
-      - orders
+      - User Orders
     post:
       consumes:
       - application/json
@@ -1552,35 +1604,8 @@ paths:
       - Refreshtoken: []
       summary: Create a new order
       tags:
-      - orders
-  /orders/{orderItemID}:
-    delete:
-      consumes:
-      - application/json
-      description: Cancel an order by its ID for the logged-in user
-      parameters:
-      - description: Order Item ID
-        in: path
-        name: orderItemID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerTokenAuth: []
-      - RefreshToken: []
-      summary: Cancel order
-      tags:
-      - orders
+      - User Orders
+  /order/{orderItemID}:
     get:
       consumes:
       - application/json
@@ -1607,12 +1632,11 @@ paths:
       - Refreshtoken: []
       summary: Get order details
       tags:
-      - orders
-  /orders/invoice/{orderItemID}:
-    get:
+      - User Orders
+    patch:
       consumes:
       - application/json
-      description: Generate an invoice for the specified order item ID
+      description: Cancel an order by its ID for the logged-in user
       parameters:
       - description: Order Item ID
         in: path
@@ -1633,11 +1657,11 @@ paths:
       security:
       - BearerTokenAuth: []
       - RefreshToken: []
-      summary: Generate invoice
+      summary: Cancel order
       tags:
-      - orders
-  /orders/return/{orderItemID}:
-    post:
+      - User Orders
+  /order/return/{orderItemID}:
+    patch:
       consumes:
       - application/json
       description: Return an order by its ID for the logged-in user
@@ -1663,168 +1687,7 @@ paths:
       - RefreshToken: []
       summary: Return order
       tags:
-      - orders
-  /orders/seller/{SellerID}:
-    get:
-      consumes:
-      - application/json
-      description: Get all orders for the specified seller ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get all seller orders
-      tags:
-      - orders
-  /orders/seller/{SellerID}/cancel/{orderID}:
-    delete:
-      consumes:
-      - application/json
-      description: Cancel an order by its ID for the specified seller ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      - description: Order ID
-        in: path
-        name: orderID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Cancel order
-      tags:
-      - orders
-  /orders/seller/{SellerID}/confirm/{orderItemID}:
-    post:
-      consumes:
-      - application/json
-      description: Confirm an order as delivered by its ID for the specified seller
-        ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      - description: Order Item ID
-        in: path
-        name: orderItemID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Confirm order delivered
-      tags:
-      - orders
-  /orders/seller/cancelled/{SellerID}:
-    get:
-      consumes:
-      - application/json
-      description: Get all cancelled orders for the specified seller ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get seller cancelled orders
-      tags:
-      - orders
-  /orders/seller/delivered/{SellerID}:
-    get:
-      consumes:
-      - application/json
-      description: Get all delivered orders for the specified seller ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get seller delivered orders
-      tags:
-      - orders
-  /orders/seller/processing/{SellerID}:
-    get:
-      consumes:
-      - application/json
-      description: Get all processing orders for the specified seller ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get seller processing orders
-      tags:
-      - orders
+      - User Orders
   /payment/verify:
     post:
       consumes:
@@ -1899,7 +1762,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: Get A To Z Product Name
       tags:
-      - User
+      - Search
   /product/HighToLow:
     get:
       consumes:
@@ -1918,7 +1781,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: Get High To Low Price
       tags:
-      - User
+      - Search
   /product/LowToHigh:
     get:
       consumes:
@@ -1937,7 +1800,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: Get Low To High Price
       tags:
-      - User
+      - Search
   /product/ZtoA:
     get:
       consumes:
@@ -1956,7 +1819,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: Get Z To A Product Name
       tags:
-      - User
+      - Search
   /products:
     get:
       consumes:
@@ -2038,37 +1901,7 @@ paths:
       summary: Update User Profile
       tags:
       - User Profile
-  /razorpay:
-    get:
-      consumes:
-      - text/html
-      description: Retrieve the Razorpay payment page for the specified user.
-      parameters:
-      - description: User ID for which the payment page is requested
-        in: query
-        name: userID
-        required: true
-        type: integer
-      - description: Order ID for which the payment page is requested
-        in: query
-        name: orderID
-        required: true
-        type: integer
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: HTML page for Razorpay payment
-          schema:
-            type: string
-        "400":
-          description: Bad request. Please provide valid user ID and order ID.
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get Razorpay Payment Page
-      tags:
-      - PaymentIntegration
-  /review/{productID}:
+  /review/:
     get:
       consumes:
       - application/json
@@ -2090,7 +1923,38 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
       summary: Get Reviews by Product ID
+      tags:
+      - Reviews
+  /review/{productID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the average rating for a product.
+      parameters:
+      - description: ID of the product
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved average rating
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
+      summary: Get Average Rating
       tags:
       - Reviews
     post:
@@ -2124,6 +1988,9 @@ paths:
           description: Internal Server Error.
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
       summary: Add Review
       tags:
       - Reviews
@@ -2149,91 +2016,12 @@ paths:
           description: Internal Server Error.
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerTokenAuth: []
+      - RefreshtokenAuth: []
       summary: Delete Review by ID
       tags:
       - Reviews
-  /review/average/{productID}:
-    get:
-      consumes:
-      - application/json
-      description: Get the average rating for a product.
-      parameters:
-      - description: ID of the product
-        in: path
-        name: productID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully retrieved average rating
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error.
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get Average Rating
-      tags:
-      - Reviews
-  /sales/seller/{SellerID}/report/days/{days}:
-    get:
-      consumes:
-      - application/json
-      description: Generate a custom sales report for the specified seller ID for
-        the given number of days
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      - description: Number of days
-        in: path
-        name: days
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Generate custom sales report
-      tags:
-      - sales
-  /sales/seller/{SellerID}/report/xlsx:
-    get:
-      consumes:
-      - application/json
-      description: Generate a sales report in XLSX format for the specified seller
-        ID
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Generate sales report in XLSX
-      tags:
-      - sales
   /seller/{SellerID}:
     get:
       consumes:
@@ -2262,46 +2050,17 @@ paths:
       summary: Get Seller Dashboard
       tags:
       - Seller
-  /seller/{SellerID}/{page}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of seller products with pagination.
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      - description: Page number
-        in: path
-        name: page
-        required: true
-        type: integer
-      - default: 5
-        description: Number of items per page
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully retrieved seller products
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Get Seller Products
-      tags:
-      - Seller Products
   /seller/categoryoffer/{SellerID}:
     get:
       consumes:
       - application/json
       description: Retrieve all category offers by the seller.
+      parameters:
+      - description: ID of the seller
+        in: path
+        name: SellerID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2322,6 +2081,11 @@ paths:
       - application/json
       description: Edit details of a category offer by the seller.
       parameters:
+      - description: ID of the seller
+        in: path
+        name: SellerID
+        required: true
+        type: string
       - description: Details for editing a category offer
         in: body
         name: editDetails
@@ -2347,6 +2111,11 @@ paths:
       - application/json
       description: Create a new offer for a category by the seller.
       parameters:
+      - description: ID of the seller
+        in: path
+        name: seller_id
+        required: true
+        type: string
       - description: Details for creating a category offer
         in: body
         name: categoryOffer
@@ -2394,7 +2163,7 @@ paths:
       tags:
       - Seller category offers
   /seller/categoryoffer/delete/{categoryOfferID}:
-    patch:
+    delete:
       consumes:
       - application/json
       description: Delete a category offer by the seller.
@@ -2466,91 +2235,221 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
       summary: Seller Login
       tags:
       - Seller
+  /seller/order/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all seller orders
+      tags:
+      - Order Management
+  /seller/order/{SellerID}/{orderItemID}:
+    patch:
+      consumes:
+      - application/json
+      description: Confirm an order as delivered by its ID for the specified seller
+        ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Order Item ID
+        in: path
+        name: orderItemID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Confirm order delivered
+      tags:
+      - Order Management
+  /seller/order/cancel/{SellerID}/{orderID}:
+    patch:
+      consumes:
+      - application/json
+      description: Cancel an order by its ID for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Cancel order
+      tags:
+      - Order Management
+  /seller/order/cancelled/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all cancelled orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller cancelled orders
+      tags:
+      - Order Management
+  /seller/order/delivered/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all delivered orders for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller delivered orders
+      tags:
+      - Order Management
+  /seller/order/processing/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get all processing orders for the specified seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get seller processing orders
+      tags:
+      - Order Management
   /seller/products/{SellerID}:
+    patch:
+      consumes:
+      - application/json
+      description: Edit details of a seller product.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Updated product details
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requestmodel.EditProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully edited the seller product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Edit Seller Product
+      tags:
+      - Seller Products
     post:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Add a new product from the seller.
       parameters:
-      - description: Product image for adding
-        in: formData
-        name: productImage
-        required: true
-        type: file
-      - in: formData
-        minimum: 3000
-        name: batteryCapacity
-        required: true
-        type: integer
-      - in: formData
-        name: brandID
-        required: true
-        type: integer
-      - in: formData
-        name: categoryID
-        required: true
-        type: integer
-      - in: formData
-        minLength: 5
-        name: description
+      - description: ID of the seller
+        in: path
+        name: SellerID
         required: true
         type: string
-      - in: formData
-        maximum: 99
-        minimum: 0
-        name: discount
+      - description: Product details for adding
+        in: body
+        name: product
         required: true
-        type: integer
-      - in: formData
-        name: graphicsCard
-        required: true
-        type: string
-      - in: formData
-        name: imageURL
-        type: string
-      - in: formData
-        maxLength: 100
-        minLength: 3
-        name: modelName
-        required: true
-        type: string
-      - in: formData
-        minimum: 0
-        name: mrp
-        required: true
-        type: integer
-      - in: formData
-        name: operatingSystem
-        required: true
-        type: string
-      - in: formData
-        name: processorType
-        required: true
-        type: string
-      - in: formData
-        name: salePrice
-        type: integer
-      - in: formData
-        minimum: 10
-        name: screenSize
-        required: true
-        type: number
-      - in: formData
-        name: sellerID
-        type: integer
-      - in: formData
-        minimum: 128
-        name: storageCapacityGB
-        required: true
-        type: integer
-      - in: formData
-        minimum: 0
-        name: units
-        required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/requestmodel.ProductReq'
       produces:
       - application/json
       responses:
@@ -2593,41 +2492,6 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: Delete Product
-      tags:
-      - Seller Products
-    patch:
-      consumes:
-      - application/json
-      description: Edit details of a seller product.
-      parameters:
-      - description: Seller ID
-        in: path
-        name: SellerID
-        required: true
-        type: string
-      - description: Product ID
-        in: path
-        name: productid
-        required: true
-        type: string
-      - description: Updated product details
-        in: body
-        name: product
-        required: true
-        schema:
-          $ref: '#/definitions/requestmodel.EditProduct'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully edited the seller product
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Edit Seller Product
       tags:
       - Seller Products
   /seller/products/{SellerID}/{productid}/block:
@@ -2690,11 +2554,52 @@ paths:
       summary: Unblock Product
       tags:
       - Seller Products
+  /seller/products/seller/{SellerID}/{page}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of seller products with pagination.
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      - default: 5
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved seller products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get Seller Products
+      tags:
+      - Seller Products
   /seller/profile/{SellerID}:
     get:
       consumes:
       - application/json
       description: Retrieve details of the seller's profile.
+      parameters:
+      - description: Seller ID in the URL path
+        in: path
+        name: SellerID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2739,6 +2644,133 @@ paths:
       summary: Update Seller Profile
       tags:
       - Seller Profile
+  /seller/report/day/{SellerID}/{year}/{month}/{day}:
+    get:
+      consumes:
+      - application/json
+      description: Generate a sales report for the specified seller ID for the past
+        number of days
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Year
+        in: query
+        name: year
+        required: true
+        type: string
+      - description: Month
+        in: query
+        name: month
+        required: true
+        type: string
+      - description: Day
+        in: query
+        name: day
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate sales report for custom days
+      tags:
+      - Seller Report
+  /seller/report/days/{SellerID}/{days}:
+    get:
+      consumes:
+      - application/json
+      description: Generate a custom sales report for the specified seller ID for
+        the given number of days
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      - description: Number of days
+        in: path
+        name: days
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate custom sales report
+      tags:
+      - Seller Report
+  /seller/report/pdf/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Generate a sales report PDF for the specified seller ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sales report created successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Seller not found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate sales report PDF
+      tags:
+      - Seller Report
+  /seller/report/xlsx/{SellerID}:
+    get:
+      consumes:
+      - application/json
+      description: Generate a sales report in XLSX format for the specified seller
+        ID
+      parameters:
+      - description: Seller ID
+        in: path
+        name: SellerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Generate sales report in XLSX
+      tags:
+      - Seller Report
   /seller/signup:
     post:
       consumes:
@@ -2961,7 +2993,14 @@ paths:
         "201":
           description: Product added to wishlist successfully
           schema:
-            $ref: '#/definitions/response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
         "400":
           description: Bad Request. Invalid input.
           schema:

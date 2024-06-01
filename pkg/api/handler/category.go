@@ -270,6 +270,7 @@ func (u *CategoryHandler) DeleteBrand(c *gin.Context) {
 // @Tags         Seller category offers
 // @Accept       json
 // @Produce      json
+// @Param        seller_id path string true "ID of the seller"
 // @Param        categoryOffer body requestmodel.CategoryOffer true "Details for creating a category offer"
 // @Success      201 {object} response.Response "Category offer created successfully"
 // @Failure      400 {object} response.Response "Bad request. Please provide valid details for creating a category offer."
@@ -361,7 +362,7 @@ func (u *CategoryHandler) UnBlockCategoryOffer(c *gin.Context) {
 // @Param        categoryOfferID path int true "ID of the category offer to be deleted"
 // @Success      200 {object} response.Response "Category offer deleted successfully"
 // @Failure      400 {object} response.Response "Bad request. Please provide a valid category offer ID."
-// @Router       /seller/categoryoffer/delete/{categoryOfferID} [patch]
+// @Router       /seller/categoryoffer/delete/{categoryOfferID} [delete]
 func (u *CategoryHandler) DeleteCategoryOffer(c *gin.Context) {
 
 	categoryOfferID := c.Param("categoryOfferID")
@@ -383,8 +384,9 @@ func (u *CategoryHandler) DeleteCategoryOffer(c *gin.Context) {
 // @Tags         Seller category offers
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} response.Response "Category offers retrieved successfully"
-// @Failure      400 {object} response.Response "Bad request. Unable to retrieve category offers."
+// @Param        SellerID      path      string                 true  "ID of the seller"
+// @Success      200           {object}  response.Response      "Category offers retrieved successfully"
+// @Failure      400           {object}  response.Response      "Bad request. Unable to retrieve category offers."
 // @Router       /seller/categoryoffer/{SellerID} [get]
 func (u *CategoryHandler) GetAllCategoryOffer(c *gin.Context) {
 	sellerID := c.Param("SellerID")
@@ -406,6 +408,7 @@ func (u *CategoryHandler) GetAllCategoryOffer(c *gin.Context) {
 // @Tags         Seller category offers
 // @Accept       json
 // @Produce      json
+// @Param        SellerID      path      string                 true  "ID of the seller"
 // @Param        editDetails body requestmodel.EditCategoryOffer true "Details for editing a category offer"
 // @Success      200 {object} response.Response "Category offer edited successfully"
 // @Failure      400 {object} response.Response "Bad request. Please provide valid edit details."

@@ -21,20 +21,53 @@ func NewOrderHandler(orderUseCase interfaceUseCase.IOrderUseCase) *OrderHandler 
 	return &OrderHandler{useCase: orderUseCase}
 }
 
+type Order struct {
+	UserID        string `json:"userId"`
+	AddressID     string `json:"addressId"`
+	PaymentMethod string `json:"paymentMethod"`
+	Coupon        string `json:"coupon"`
+}
+
+type OrderDetails struct {
+	ID         string   `json:"orderID"`
+	UserID     string   `json:"userID"`
+	Address    string   `json:"addressID"`
+	Payment    string   `json:"paymentMethod"`
+	TotalPrice float64  `json:"payableAmount"`
+	Orders     []string `json:"orders"`
+}
+
+// OrderHtml handles the HTML request to create an order
+func (u *OrderHandler) OrderHtml(c *gin.Context) {
+	var order requestmodel.Order
+
+	if err := c.ShouldBindJSON(&order); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	orderDetails, err := u.useCase.NewOrder(&order)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, orderDetails)
+}
+
 //---------------------------------Create a NewOrder-----------------------------------//
 
-// NewOrder creates a new order
 // @Summary Create a new order
 // @Description Create a new order with the input payload
-// @Tags orders
+// @Tags User Orders
 // @Accept  json
 // @Produce  json
-// @Security		BearerTokenAuth
-// @Security		Refreshtoken
+// @Security BearerTokenAuth
+// @Security Refreshtoken
 // @Param order body requestmodel.Order true "Order data"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders [post]
+// @Router /order [post]
 func (u *OrderHandler) NewOrder(c *gin.Context) {
 
 	var order *requestmodel.Order
@@ -82,14 +115,14 @@ func (u *OrderHandler) NewOrder(c *gin.Context) {
 // ShowAbstractOrders retrieves all orders
 // @Summary Get all orders
 // @Description Get a list of all orders for the logged in user
-// @Tags orders
+// @Tags User Orders
 // @Accept  json
 // @Produce  json
 // @Security		BearerTokenAuth
 // @Security		Refreshtoken
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders [get]
+// @Router /order [get]
 func (u *OrderHandler) ShowAbstractOrders(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -114,7 +147,7 @@ func (u *OrderHandler) ShowAbstractOrders(c *gin.Context) {
 // SingleOrderDetails retrieves a single order's details
 // @Summary Get order details
 // @Description Get the details of a single order by its ID
-// @Tags orders
+// @Tags User Orders
 // @Accept  json
 // @Produce  json
 // @Security		BearerTokenAuth
@@ -122,7 +155,7 @@ func (u *OrderHandler) ShowAbstractOrders(c *gin.Context) {
 // @Param orderItemID path string true "Order Item ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/{orderItemID} [get]
+// @Router /order/{orderItemID} [get]
 func (u *OrderHandler) SingleOrderDetails(c *gin.Context) {
 
 	orderID, _ := c.Params.Get("orderItemID")
@@ -149,7 +182,7 @@ func (u *OrderHandler) SingleOrderDetails(c *gin.Context) {
 // CancelUserOrder cancels a user's order
 // @Summary Cancel order
 // @Description Cancel an order by its ID for the logged-in user
-// @Tags orders
+// @Tags User Orders
 // @Accept  json
 // @Produce  json
 // @Security BearerTokenAuth
@@ -157,7 +190,7 @@ func (u *OrderHandler) SingleOrderDetails(c *gin.Context) {
 // @Param orderItemID path string true "Order Item ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/{orderItemID} [delete]
+// @Router /order/{orderItemID} [patch]
 func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -183,7 +216,7 @@ func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 // ReturnUserOrder returns a user's order
 // @Summary Return order
 // @Description Return an order by its ID for the logged-in user
-// @Tags orders
+// @Tags User Orders
 // @Accept  json
 // @Produce  json
 // @Security BearerTokenAuth
@@ -191,7 +224,7 @@ func (u *OrderHandler) CancelUserOrder(c *gin.Context) {
 // @Param orderItemID path string true "Order Item ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/return/{orderItemID} [post]
+// @Router /order/return/{orderItemID} [patch]
 func (u *OrderHandler) ReturnUserOrder(c *gin.Context) {
 
 	userID, exist := c.MustGet("UserID").(string)
@@ -219,13 +252,13 @@ func (u *OrderHandler) ReturnUserOrder(c *gin.Context) {
 // GetSellerOrders gets all orders for a seller
 // @Summary Get all seller orders
 // @Description Get all orders for the specified seller ID
-// @Tags orders
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/{SellerID} [get]
+// @Router /seller/order/{SellerID} [get]
 func (u *OrderHandler) GetSellerOrders(c *gin.Context) {
 
 	sellerID := c.Param("SellerID")
@@ -248,14 +281,14 @@ func (u *OrderHandler) GetSellerOrders(c *gin.Context) {
 
 // GetSellerOrdersProcessing gets all processing orders for a seller
 // @Summary Get seller processing orders
-// @Description Get all processing orders for the specified seller ID
-// @Tags orders
+// @Description Get all processing orders for the specified seller
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/processing/{SellerID} [get]
+// @Router /seller/order/processing/{SellerID} [get]
 func (u *OrderHandler) GetSellerOrdersProcessing(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -280,13 +313,13 @@ func (u *OrderHandler) GetSellerOrdersProcessing(c *gin.Context) {
 // GetSellerOrdersDelivered gets all delivered orders for a seller
 // @Summary Get seller delivered orders
 // @Description Get all delivered orders for the specified seller ID
-// @Tags orders
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/delivered/{SellerID} [get]
+// @Router /seller/order/delivered/{SellerID} [get]
 func (u *OrderHandler) GetSellerOrdersDeliverd(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -311,13 +344,13 @@ func (u *OrderHandler) GetSellerOrdersDeliverd(c *gin.Context) {
 // GetSellerOrdersCancelled gets all cancelled orders for a seller
 // @Summary Get seller cancelled orders
 // @Description Get all cancelled orders for the specified seller ID
-// @Tags orders
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/cancelled/{SellerID} [get]
+// @Router /seller/order/cancelled/{SellerID} [get]
 func (u *OrderHandler) GetSellerOrdersCancelled(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -342,14 +375,14 @@ func (u *OrderHandler) GetSellerOrdersCancelled(c *gin.Context) {
 // ConfirmDelivered confirms an order as delivered
 // @Summary Confirm order delivered
 // @Description Confirm an order as delivered by its ID for the specified seller ID
-// @Tags orders
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Param orderItemID path string true "Order Item ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/{SellerID}/confirm/{orderItemID} [post]
+// @Router /seller/order/{SellerID}/{orderItemID} [patch]
 func (u *OrderHandler) ConfirmDeliverd(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -374,14 +407,14 @@ func (u *OrderHandler) ConfirmDeliverd(c *gin.Context) {
 // CancelOrder cancels an order by the seller
 // @Summary Cancel order
 // @Description Cancel an order by its ID for the specified seller ID
-// @Tags orders
+// @Tags Order Management
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Param orderID path string true "Order ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/seller/{SellerID}/cancel/{orderID} [delete]
+// @Router /seller/order/cancel/{SellerID}/{orderID} [patch]
 func (u *OrderHandler) CancelOrder(c *gin.Context) {
 
 	sellerID := c.Param("SellerID")
@@ -407,14 +440,16 @@ func (u *OrderHandler) CancelOrder(c *gin.Context) {
 // SalesReportCustomDays generates a sales report for the past custom number of days for a seller
 // @Summary Generate sales report for custom days
 // @Description Generate a sales report for the specified seller ID for the past number of days
-// @Tags sales
+// @Tags Seller Report
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
-// @Param days path int true "Number of days"
+// @Param year query string true "Year"
+// @Param month query string true "Month"
+// @Param day query string true "Day"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /sales/seller/{SellerID}/report/days/{days} [get]
+// @Router /seller/report/day/{SellerID}/{year}/{month}/{day} [get]
 func (u *OrderHandler) SalesReport(c *gin.Context) {
 
 	sellerID := c.Param("SellerID")
@@ -442,14 +477,14 @@ func (u *OrderHandler) SalesReport(c *gin.Context) {
 // SalesReportCustomDays generates a custom sales report for a seller based on the number of days
 // @Summary Generate custom sales report
 // @Description Generate a custom sales report for the specified seller ID for the given number of days
-// @Tags sales
+// @Tags Seller Report
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Param days path int true "Number of days"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /sales/seller/{SellerID}/report/days/{days} [get]
+// @Router /seller/report/days/{SellerID}/{days} [get]
 func (u *OrderHandler) SalesReportCustomDays(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -475,13 +510,13 @@ func (u *OrderHandler) SalesReportCustomDays(c *gin.Context) {
 // SalesReportXLSX generates a sales report in XLSX format
 // @Summary Generate sales report in XLSX
 // @Description Generate a sales report in XLSX format for the specified seller ID
-// @Tags sales
+// @Tags Seller Report
 // @Accept  json
 // @Produce  json
 // @Param SellerID path string true "Seller ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /sales/seller/{SellerID}/report/xlsx [get]
+// @Router /seller/report/xlsx/{SellerID} [get]
 func (u *OrderHandler) SalesReportXlSX(c *gin.Context) {
 	sellerID := c.Param("SellerID")
 	if sellerID == "" {
@@ -505,7 +540,7 @@ func (u *OrderHandler) SalesReportXlSX(c *gin.Context) {
 // GetInvoice generates an invoice for an order
 // @Summary Generate invoice
 // @Description Generate an invoice for the specified order item ID
-// @Tags orders
+// @Tags User Invoice
 // @Accept  json
 // @Produce  json
 // @Security BearerTokenAuth
@@ -513,7 +548,7 @@ func (u *OrderHandler) SalesReportXlSX(c *gin.Context) {
 // @Param orderItemID path string true "Order Item ID"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
-// @Router /orders/invoice/{orderItemID} [get]
+// @Router /invoice/{orderItemID} [get]
 func (u *OrderHandler) GetInvoice(c *gin.Context) {
 
 	orderItemID := c.Param("orderItemID")
@@ -523,6 +558,35 @@ func (u *OrderHandler) GetInvoice(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, finalReslt)
 	} else {
 		finalReslt := response.Responses(http.StatusOK, "invoice successfully created", pdfLink, nil)
+		c.JSON(http.StatusOK, finalReslt)
+	}
+}
+
+// GenerateSalesReportPDF generates a sales report PDF for a seller
+// @Summary Generate sales report PDF
+// @Description Generate a sales report PDF for the specified seller ID
+// @Tags Seller Report
+// @Accept  json
+// @Produce  json
+// @Param SellerID path string true "Seller ID"
+// @Success 200 {object} response.Response "Sales report created successfully"
+// @Failure 400 {object} response.Response "Bad request"
+// @Failure 404 {object} response.Response "Seller not found"
+// @Router /seller/report/pdf/{SellerID} [get]
+func (u *OrderHandler) GenerateSalesReportPDF(c *gin.Context) {
+	sellerID := c.Param("SellerID")
+	if sellerID == "" {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusBadRequest, finalReslt)
+		return
+	}
+
+	result, err := u.useCase.GenerateSalesReportPDF(sellerID)
+	if err != nil {
+		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
+		c.JSON(http.StatusBadRequest, finalReslt)
+	} else {
+		finalReslt := response.Responses(http.StatusOK, "sales report create succesfully", result, nil)
 		c.JSON(http.StatusOK, finalReslt)
 	}
 }

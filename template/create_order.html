@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Order</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Order</h1>
+        <form id="orderForm" method="post">
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" name="userId" required>
+
+            <label for="addressId">Address ID:</label>
+            <input type="text" id="addressId" name="addressId" required>
+
+            <label for="paymentMethod">Payment Method:</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option value="COD">Cash on Delivery</option>
+                <option value="ONLINE">Online Payment</option>
+                <option value="WALLET">Wallet</option>
+            </select>
+
+            <label for="coupon">Coupon Code:</label>
+            <input type="text" id="coupon" name="coupon">
+
+            <button type="submit">Create Order</button>
+        </form>
+        <div id="responseMessage"></div>
+        <div id="orderDetails"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        $(document).ready(function() {
+            $('#orderForm').on('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting via the browser.
+
+                // Get the form data
+                var formData = $(this).serializeArray().reduce(function(obj, item) {
+                    obj[item.name] = item.value;
+                    return obj;
+                }, {});
+
+                // Convert the form data to JSON
+                var jsonData = JSON.stringify(formData);
+
+                // Send the data via AJAX
+                $.ajax({
+                    url: '/html/orders', // Make sure this matches your backend route
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: jsonData,
+                    success: function(response) {
+                        console.log('Success:', response);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed Successfully',
+                            text: 'Your order has been placed successfully!',
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                                displayOrderDetails(response);
+                            }
+                        });
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error Placing Order',
+                            text: error.responseJSON.error || 'There was an error placing your order. Please try again.',
+                        });
+                    }
+                });
+            });
+
+            function displayOrderDetails(order) {
+                var orderDetailsHtml = `
+                    <h2>Order Details</h2>
+                    <p><strong>Order ID:</strong> ${order.orderID}</p>
+                    <p><strong>User ID:</strong> ${order.userID}</p>
+                    <p><strong>Address ID:</strong> ${order.addressID}</p>
+                    <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                    <p><strong>Total Price:</strong> ${order.totalPrice}</p>
+                    <p><strong>Wallet Balance:</strong> ${order.walletBalance || 'N/A'}</p>
+                    <p><strong>Razorpay Order ID:</strong> ${order.razopayOrderID || 'N/A'}</p>
+                    <p><strong>Coupon:</strong> ${order.coupon || 'N/A'}</p>
+                `;
+
+                if (order.orders && order.orders.length > 0) {
+                    orderDetailsHtml += '<h3>Products</h3>';
+                    order.orders.forEach(function(product) {
+                        orderDetailsHtml += `
+                            <p><strong>Item ID:</strong> ${product.itemID}</p>
+                            <p><strong>Product ID:</strong> ${product.productID}</p>
+                            <p><strong>Seller ID:</strong> ${product.sellerID}</p>
+                            <p><strong>Price:</strong> ${product.price}</p>
+                            <p><strong>Quantity:</strong> ${product.quantity}</p>
+                            <p><strong>Final Price:</strong> ${order.totalPrice}</p>
+                            <p><strong>Order Date:</strong> ${product.orderDate}</p>
+                            <p><strong>Delivery Date:</strong> ${product.deliveryDate || 'N/A'}</p>
+                            <p><strong>Order Status:</strong> ${product.orderStatus || 'N/A'}</p>
+                            <p><strong>Payment Status:</strong> ${product.paymentStatus || 'N/A'}</p>
+                        `;
+                    });
+                }
+
+                $('#orderDetails').html(orderDetailsHtml);
+            }
+        });
+    </script>
+</body>
+</html>

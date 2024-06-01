@@ -554,3 +554,97 @@ func (r *orderUseCase) GenerateXlOfSalesReport(sellerID string) (string, error) 
 
 	return filePath, nil
 }
+
+func (r *orderUseCase) GenerateSalesReportPDF(sellerID string) (string, error) {
+	orders, err := r.repo.GetOrderXlSalesReport(sellerID)
+	if err != nil {
+		return "", err
+	}
+	if orders == nil || len(*orders) == 0 {
+		return "", errors.New("seller has no sales for creating a sales report")
+	}
+
+	// Create PDF
+	marginX := 10.0
+	marginY := 20.0
+	pdf := gofpdf.New("P", "mm", "A3", "")
+	pdf.SetMargins(marginX, marginY, marginX)
+	pdf.AddPage()
+
+	// Set font and title
+	pdf.SetFont("Arial", "B", 20)
+	pdf.SetTextColor(51, 102, 153)
+	pdf.CellFormat(0, 15, "Laptop Lounge Sales Report", "", 1, "C", false, 0, "")
+	pdf.Ln(5)
+
+	// Add a horizontal line
+	pdf.SetDrawColor(51, 102, 153)
+	pdf.SetLineWidth(0.5)
+	pdf.Line(marginX, marginY+25, 210-marginX, marginY+25)
+	pdf.Ln(10)
+
+	// Table headers
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFillColor(51, 102, 153)  // Dark blue background for headers
+	pdf.SetTextColor(255, 255, 255) // White text color for headers
+	headers := []string{"ItemID", "ProductID", "Product Name", "Quantity", "Paid Amount", "Order Date", "Delivered Date"}
+	colWidth := []float64{25.0, 25.0, 70.0, 25.0, 35.0, 50.0, 50.0}
+
+	for i, header := range headers {
+		pdf.CellFormat(colWidth[i], 10, header, "1", 0, "C", true, 0, "")
+	}
+	pdf.Ln(10)
+
+	// Table data
+	pdf.SetFont("Arial", "", 12)
+	pdf.SetTextColor(0, 0, 0) // Black text color for data rows
+	for _, record := range *orders {
+		data := []string{
+			record.ItemID,
+			record.ProductID,
+			record.Model_name,
+			fmt.Sprintf("%d", record.Quantity),
+			fmt.Sprintf("%d", record.PayableAmount),
+			record.OrderDate.Format("2006-01-02 15:04:05"),
+			record.EndDate.Format("2006-01-02 15:04:05"),
+		}
+		for i, datum := range data {
+			pdf.CellFormat(colWidth[i], 10, datum, "1", 0, "L", false, 0, "")
+		}
+		pdf.Ln(10)
+	}
+
+	// Summary
+	pdf.SetFont("Arial", "B", 12)
+	pdf.SetTextColor(51, 102, 153)
+	pdf.Ln(10)
+	pdf.CellFormat(0, 10, "Summary", "", 1, "L", false, 0, "")
+
+	var totalQuantity uint = 0
+	var totalAmount uint = 0
+	for _, record := range *orders {
+		totalQuantity += record.Quantity
+		totalAmount += record.PayableAmount
+	}
+
+	pdf.SetFont("Arial", "", 12)
+	pdf.SetTextColor(0, 0, 0)
+	pdf.CellFormat(0, 10, fmt.Sprintf("Total Quantity Sold: %d", totalQuantity), "", 1, "L", false, 0, "")
+	pdf.CellFormat(0, 10, fmt.Sprintf("Total Amount Received: %d", totalAmount), "", 1, "L", false, 0, "")
+	pdf.Ln(10)
+
+	// Footer
+	pdf.SetFont("Arial", "I", 10)
+	pdf.SetTextColor(100, 100, 100) // Gray color for footer
+	pdf.CellFormat(0, 10, "Thank you for being a part of Laptop_Lounge! Explore more at www.laptoplounge.com", "", 1, "C", false, 0, "")
+
+	// Save PDF to a local folder
+	filePath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\salesReport.pdf"
+	err = pdf.OutputFileAndClose(filePath)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return "", err
+	}
+
+	return filePath, nil
+}

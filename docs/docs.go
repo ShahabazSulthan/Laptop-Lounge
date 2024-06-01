@@ -10,7 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "API Support",
+            "name": "Creator: Shahabaz Sulthan",
             "email": "shahabazsulthan4@gmail.com"
         },
         "version": "{{.Version}}"
@@ -765,6 +765,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/helpdesk/{requestID}": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    }
+                ],
+                "description": "Update the answer for a help desk request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Help Desk"
+                ],
+                "summary": "Update Help Desk Answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the request to update",
+                        "name": "requestID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated answer details",
+                        "name": "answer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestmodel.HelpDeskAnswer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Answer updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request. Invalid input.",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error.",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/login": {
             "post": {
                 "description": "Using this handler, admins can log in and receive an authentication token.",
@@ -838,7 +896,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admin"
+                    "Admin Seller Control"
                 ],
                 "summary": "Block Seller",
                 "parameters": [
@@ -881,7 +939,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admin"
+                    "Admin Seller Control"
                 ],
                 "summary": "Get Sellers",
                 "parameters": [
@@ -933,7 +991,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admin"
+                    "Admin Seller Control"
                 ],
                 "summary": "Get Pending Sellers",
                 "parameters": [
@@ -985,7 +1043,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admin"
+                    "Admin Seller Control"
                 ],
                 "summary": "Get Single Seller Details",
                 "parameters": [
@@ -1028,7 +1086,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admins"
+                    "Admin Seller Control"
                 ],
                 "summary": "Block Seller",
                 "parameters": [
@@ -1071,7 +1129,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admins"
+                    "Admin Seller Control"
                 ],
                 "summary": "Verify Seller",
                 "parameters": [
@@ -1114,7 +1172,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admins"
+                    "Admin User Control"
                 ],
                 "summary": "Block User",
                 "parameters": [
@@ -1157,7 +1215,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admins"
+                    "Admins User Controll"
                 ],
                 "summary": "Get All Users",
                 "parameters": [
@@ -1207,7 +1265,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admins"
+                    "Admin User Control"
                 ],
                 "summary": "Unblock User",
                 "parameters": [
@@ -1318,7 +1376,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/cart/:productID": {
+        "/cart/{productID}": {
             "delete": {
                 "security": [
                     {
@@ -1344,105 +1402,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Product ID to delete from the cart",
                         "name": "productID",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Product deleted from the cart successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/decrement/{productID}": {
-            "patch": {
-                "security": [
-                    {
-                        "BearerTokenAuth": []
-                    },
-                    {
-                        "RefreshtokenAuth": []
-                    }
-                ],
-                "description": "Decrease the count of a product in the user's cart.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserCart"
-                ],
-                "summary": "Decrement Product Count in User Cart",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Product ID to decrement in the cart",
-                        "name": "productID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Product count decremented in the cart successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/increment/{productID}": {
-            "patch": {
-                "security": [
-                    {
-                        "BearerTokenAuth": []
-                    },
-                    {
-                        "RefreshtokenAuth": []
-                    }
-                ],
-                "description": "Increase the count of a product in the user's cart.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserCart"
-                ],
-                "summary": "Increment Product Count in User Cart",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Inventory ID of the product to increment in the cart",
-                        "name": "productID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Product count incremented in the cart successfully",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1466,7 +1432,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Search"
                 ],
                 "summary": "Filter Products",
                 "parameters": [
@@ -1517,36 +1483,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/helpdesk/replied": {
-            "get": {
-                "description": "Retrieve all help desk requests that have been replied to.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Help Desk"
-                ],
-                "summary": "Get Replied Help Desk Requests",
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved replied requests",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request. Unable to retrieve replied requests.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/helpdesk/request": {
+        "/helpdesk/": {
             "post": {
                 "description": "Create a new help desk request.",
                 "consumes": [
@@ -1592,9 +1529,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/helpdesk/request/:requestID": {
-            "patch": {
-                "description": "Update the answer for a help desk request.",
+        "/helpdesk/replayed": {
+            "get": {
+                "description": "Retrieve all help desk requests that have been replied to.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1604,40 +1541,16 @@ const docTemplate = `{
                 "tags": [
                     "Help Desk"
                 ],
-                "summary": "Update Help Desk Answer",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the request to update",
-                        "name": "requestID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated answer details",
-                        "name": "answer",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requestmodel.HelpDeskAnswer"
-                        }
-                    }
-                ],
+                "summary": "Get Replied Help Desk Requests",
                 "responses": {
                     "200": {
-                        "description": "Answer updated successfully",
+                        "description": "Successfully retrieved replied requests",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "Bad Request. Invalid input.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error.",
+                        "description": "Bad Request. Unable to retrieve replied requests.",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1645,7 +1558,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/helpdesk/unreplied": {
+        "/helpdesk/unreplayed": {
             "get": {
                 "description": "Retrieve all help desk requests that are yet to be replied to.",
                 "consumes": [
@@ -1667,6 +1580,81 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoice/{orderItemID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    },
+                    {
+                        "RefreshToken": []
+                    }
+                ],
+                "description": "Generate an invoice for the specified order item ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Invoice"
+                ],
+                "summary": "Generate invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order Item ID",
+                        "name": "orderItemID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/log": {
+            "get": {
+                "description": "Retrieve and display the content of the log file.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "Get Log File",
+                "responses": {
+                    "200": {
+                        "description": "Log file content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error.",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1714,7 +1702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders": {
+        "/order": {
             "get": {
                 "security": [
                     {
@@ -1732,7 +1720,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "User Orders"
                 ],
                 "summary": "Get all orders",
                 "responses": {
@@ -1767,7 +1755,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "User Orders"
                 ],
                 "summary": "Create a new order",
                 "parameters": [
@@ -1797,54 +1785,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/invoice/{orderItemID}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerTokenAuth": []
-                    },
-                    {
-                        "RefreshToken": []
-                    }
-                ],
-                "description": "Generate an invoice for the specified order item ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Generate invoice",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order Item ID",
-                        "name": "orderItemID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/return/{orderItemID}": {
-            "post": {
+        "/order/return/{orderItemID}": {
+            "patch": {
                 "security": [
                     {
                         "BearerTokenAuth": []
@@ -1861,7 +1803,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "User Orders"
                 ],
                 "summary": "Return order",
                 "parameters": [
@@ -1889,249 +1831,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/seller/cancelled/{SellerID}": {
-            "get": {
-                "description": "Get all cancelled orders for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Get seller cancelled orders",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/seller/delivered/{SellerID}": {
-            "get": {
-                "description": "Get all delivered orders for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Get seller delivered orders",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/seller/processing/{SellerID}": {
-            "get": {
-                "description": "Get all processing orders for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Get seller processing orders",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/seller/{SellerID}": {
-            "get": {
-                "description": "Get all orders for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Get all seller orders",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/seller/{SellerID}/cancel/{orderID}": {
-            "delete": {
-                "description": "Cancel an order by its ID for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Cancel order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "orderID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/seller/{SellerID}/confirm/{orderItemID}": {
-            "post": {
-                "description": "Confirm an order as delivered by its ID for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "Confirm order delivered",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Order Item ID",
-                        "name": "orderItemID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/{orderItemID}": {
+        "/order/{orderItemID}": {
             "get": {
                 "security": [
                     {
@@ -2149,7 +1849,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "User Orders"
                 ],
                 "summary": "Get order details",
                 "parameters": [
@@ -2176,7 +1876,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "delete": {
+            "patch": {
                 "security": [
                     {
                         "BearerTokenAuth": []
@@ -2193,7 +1893,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "User Orders"
                 ],
                 "summary": "Cancel order",
                 "parameters": [
@@ -2279,7 +1979,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Search"
                 ],
                 "summary": "Get A To Z Product Name",
                 "responses": {
@@ -2308,7 +2008,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Search"
                 ],
                 "summary": "Get High To Low Price",
                 "responses": {
@@ -2337,7 +2037,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Search"
                 ],
                 "summary": "Get Low To High Price",
                 "responses": {
@@ -2366,7 +2066,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Search"
                 ],
                 "summary": "Get Z To A Product Name",
                 "responses": {
@@ -2560,91 +2260,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/razorpay": {
+        "/review/": {
             "get": {
-                "description": "Retrieve the Razorpay payment page for the specified user.",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "tags": [
-                    "PaymentIntegration"
-                ],
-                "summary": "Get Razorpay Payment Page",
-                "parameters": [
+                "security": [
                     {
-                        "type": "integer",
-                        "description": "User ID for which the payment page is requested",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
+                        "BearerTokenAuth": []
                     },
                     {
-                        "type": "integer",
-                        "description": "Order ID for which the payment page is requested",
-                        "name": "orderID",
-                        "in": "query",
-                        "required": true
+                        "RefreshtokenAuth": []
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "HTML page for Razorpay payment",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request. Please provide valid user ID and order ID.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/review/average/{productID}": {
-            "get": {
-                "description": "Get the average rating for a product.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Reviews"
-                ],
-                "summary": "Get Average Rating",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of the product",
-                        "name": "productID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved average rating",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/review/{productID}": {
-            "get": {
                 "description": "Retrieve reviews for a product by its ID.",
                 "consumes": [
                     "application/json"
@@ -2679,8 +2304,62 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/review/{productID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    },
+                    {
+                        "RefreshtokenAuth": []
+                    }
+                ],
+                "description": "Get the average rating for a product.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Get Average Rating",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the product",
+                        "name": "productID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved average rating",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error.",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    },
+                    {
+                        "RefreshtokenAuth": []
+                    }
+                ],
                 "description": "Add a review for a product.",
                 "consumes": [
                     "application/json"
@@ -2734,6 +2413,14 @@ const docTemplate = `{
         },
         "/review/{reviewID}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerTokenAuth": []
+                    },
+                    {
+                        "RefreshtokenAuth": []
+                    }
+                ],
                 "description": "Delete a review by its ID.",
                 "consumes": [
                     "application/json"
@@ -2763,89 +2450,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/sales/seller/{SellerID}/report/days/{days}": {
-            "get": {
-                "description": "Generate a custom sales report for the specified seller ID for the given number of days",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "sales"
-                ],
-                "summary": "Generate custom sales report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Number of days",
-                        "name": "days",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/sales/seller/{SellerID}/report/xlsx": {
-            "get": {
-                "description": "Generate a sales report in XLSX format for the specified seller ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "sales"
-                ],
-                "summary": "Generate sales report in XLSX",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2892,7 +2496,7 @@ const docTemplate = `{
             }
         },
         "/seller/categoryoffer/delete/{categoryOfferID}": {
-            "patch": {
+            "delete": {
                 "description": "Delete a category offer by the seller.",
                 "consumes": [
                     "application/json"
@@ -2980,6 +2584,15 @@ const docTemplate = `{
                     "Seller category offers"
                 ],
                 "summary": "Get Seller Category Offers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the seller",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Category offers retrieved successfully",
@@ -3010,6 +2623,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create Category Offer",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the seller",
+                        "name": "seller_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Details for creating a category offer",
                         "name": "categoryOffer",
@@ -3048,6 +2668,13 @@ const docTemplate = `{
                 ],
                 "summary": "Edit Category Offer",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the seller",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Details for editing a category offer",
                         "name": "editDetails",
@@ -3110,6 +2737,306 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/cancel/{SellerID}/{orderID}": {
+            "patch": {
+                "description": "Cancel an order by its ID for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Cancel order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/cancelled/{SellerID}": {
+            "get": {
+                "description": "Get all cancelled orders for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Get seller cancelled orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/delivered/{SellerID}": {
+            "get": {
+                "description": "Get all delivered orders for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Get seller delivered orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/processing/{SellerID}": {
+            "get": {
+                "description": "Get all processing orders for the specified seller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Get seller processing orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/{SellerID}": {
+            "get": {
+                "description": "Get all orders for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Get all seller orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/order/{SellerID}/{orderItemID}": {
+            "patch": {
+                "description": "Confirm an order as delivered by its ID for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Management"
+                ],
+                "summary": "Confirm order delivered",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order Item ID",
+                        "name": "orderItemID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/products/seller/{SellerID}/{page}": {
+            "get": {
+                "description": "Retrieve a list of seller products with pagination.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Products"
+                ],
+                "summary": "Get Seller Products",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 5,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved seller products",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     }
                 }
             }
@@ -3118,7 +3045,7 @@ const docTemplate = `{
             "post": {
                 "description": "Add a new product from the seller.",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -3129,119 +3056,70 @@ const docTemplate = `{
                 "summary": "Add Product",
                 "parameters": [
                     {
-                        "type": "file",
-                        "description": "Product image for adding",
-                        "name": "productImage",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "minimum": 3000,
-                        "type": "integer",
-                        "name": "batteryCapacity",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "name": "brandID",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "name": "categoryID",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "minLength": 5,
                         "type": "string",
-                        "name": "description",
-                        "in": "formData",
+                        "description": "ID of the seller",
+                        "name": "SellerID",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "maximum": 99,
-                        "minimum": 0,
-                        "type": "integer",
-                        "name": "discount",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "graphicsCard",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "imageURL",
-                        "in": "formData"
-                    },
-                    {
-                        "maxLength": 100,
-                        "minLength": 3,
-                        "type": "string",
-                        "name": "modelName",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "minimum": 0,
-                        "type": "integer",
-                        "name": "mrp",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "operatingSystem",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "processorType",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "name": "salePrice",
-                        "in": "formData"
-                    },
-                    {
-                        "minimum": 10,
-                        "type": "number",
-                        "name": "screenSize",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "name": "sellerID",
-                        "in": "formData"
-                    },
-                    {
-                        "minimum": 128,
-                        "type": "integer",
-                        "name": "storageCapacityGB",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "minimum": 0,
-                        "type": "integer",
-                        "name": "units",
-                        "in": "formData",
-                        "required": true
+                        "description": "Product details for adding",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestmodel.ProductReq"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successfully added the product",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit details of a seller product.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Products"
+                ],
+                "summary": "Edit Seller Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated product details",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestmodel.EditProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully edited the seller product",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3287,58 +3165,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Successfully deleted the product",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Edit details of a seller product.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller Products"
-                ],
-                "summary": "Edit Seller Product",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "productid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated product details",
-                        "name": "product",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requestmodel.EditProduct"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully edited the seller product",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3455,6 +3281,15 @@ const docTemplate = `{
                     "Seller Profile"
                 ],
                 "summary": "Get Seller Profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID in the URL path",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved the seller's profile",
@@ -3509,6 +3344,192 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/report/day/{SellerID}/{year}/{month}/{day}": {
+            "get": {
+                "description": "Generate a sales report for the specified seller ID for the past number of days",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Report"
+                ],
+                "summary": "Generate sales report for custom days",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Year",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Month",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Day",
+                        "name": "day",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/report/days/{SellerID}/{days}": {
+            "get": {
+                "description": "Generate a custom sales report for the specified seller ID for the given number of days",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Report"
+                ],
+                "summary": "Generate custom sales report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of days",
+                        "name": "days",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/report/pdf/{SellerID}": {
+            "get": {
+                "description": "Generate a sales report PDF for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Report"
+                ],
+                "summary": "Generate sales report PDF",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sales report created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Seller not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/report/xlsx/{SellerID}": {
+            "get": {
+                "description": "Generate a sales report in XLSX format for the specified seller ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller Report"
+                ],
+                "summary": "Generate sales report in XLSX",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller ID",
+                        "name": "SellerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3595,58 +3616,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized. Authentication required.",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/{SellerID}/{page}": {
-            "get": {
-                "description": "Retrieve a list of seller products with pagination.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller Products"
-                ],
-                "summary": "Get Seller Products",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Seller ID",
-                        "name": "SellerID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 5,
-                        "description": "Number of items per page",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved seller products",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3925,7 +3894,22 @@ const docTemplate = `{
                     "201": {
                         "description": "Product added to wishlist successfully",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -4387,6 +4371,84 @@ const docTemplate = `{
                 }
             }
         },
+        "requestmodel.ProductReq": {
+            "type": "object",
+            "required": [
+                "batteryCapacity",
+                "brandID",
+                "categoryID",
+                "description",
+                "discount",
+                "graphicsCard",
+                "modelName",
+                "mrp",
+                "operatingSystem",
+                "processorType",
+                "screenSize",
+                "storageCapacityGB",
+                "units"
+            ],
+            "properties": {
+                "batteryCapacity": {
+                    "type": "integer",
+                    "minimum": 3000
+                },
+                "brandID": {
+                    "type": "integer"
+                },
+                "categoryID": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 5
+                },
+                "discount": {
+                    "type": "integer",
+                    "maximum": 99,
+                    "minimum": 0
+                },
+                "graphicsCard": {
+                    "type": "string"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "modelName": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "mrp": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "operatingSystem": {
+                    "type": "string"
+                },
+                "processorType": {
+                    "type": "string"
+                },
+                "salePrice": {
+                    "type": "integer"
+                },
+                "screenSize": {
+                    "type": "number",
+                    "minimum": 10
+                },
+                "sellerID": {
+                    "type": "integer"
+                },
+                "storageCapacityGB": {
+                    "type": "integer",
+                    "minimum": 128
+                },
+                "units": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "requestmodel.ReviewRequest": {
             "type": "object",
             "required": [
@@ -4632,7 +4694,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Laptop Lounge API",
-	Description:      "Laptop Lounge - 🚀 Your One-Stop Destination for Ultimate Laptop Shopping! 🛒💻 Browse, compare, and buy top-notch laptops effortlessly. Powered by cutting-edge technology, we bring you a seamless shopping experience. 🌟 Dive into the future of laptop shopping with Laptop Lounge! 🚀🔥",
+	Description:      "Laptop Lounge - 🚀 Your One-Stop Destination for Ultimate Laptop Shopping!\n🛒💻 Browse, compare, and buy top-notch laptops effortlessly.\nPowered by cutting-edge technology, we bring you a seamless shopping experience.\n🌟 Dive into the future of laptop shopping with Laptop Lounge! 🚀🔥",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

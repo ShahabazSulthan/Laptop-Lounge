@@ -63,6 +63,7 @@ func (u *SellerHandler) SellerSignup(c *gin.Context) {
 // @Param			Seller	body		requestmodel.SellerLogin	true	"Seller login details"
 // @Success		200		{object}	response.Response	"Successfully logged in"
 // @Failure		400		{object}	response.Response	"Bad request"
+// @Failure		500		{object}	response.Response	"Internal server error"
 // @Router			/seller/login [post]
 func (u *SellerHandler) SellerLogin(c *gin.Context) {
 	var loginData requestmodel.SellerLogin
@@ -90,7 +91,7 @@ func (u *SellerHandler) SellerLogin(c *gin.Context) {
 
 // @Summary		Get Sellers
 // @Description	Using this handler, admin can get a list of sellers.
-// @Tags			Admin
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -100,7 +101,7 @@ func (u *SellerHandler) SellerLogin(c *gin.Context) {
 // @Failure		400		{object}	response.Response	"Bad request"
 // @Router			/admin/sellers/getsellers [get]
 func (u *SellerHandler) GetSellers(c *gin.Context) {
-	page := c.Param("page")
+	page := c.Query("page")
 	limit := c.DefaultQuery("limit", "1")
 
 	sellers, count, err := u.usecase.GetAllSellers(page, limit)
@@ -117,7 +118,7 @@ func (u *SellerHandler) GetSellers(c *gin.Context) {
 
 // @Summary		Block Seller
 // @Description	Using this handler, admin can block a seller.
-// @Tags			Admin
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -147,7 +148,7 @@ func (u *SellerHandler) BlockSeller(c *gin.Context) {
 
 // @Summary		Block Seller
 // @Description	Using this handler, admin can block a seller
-// @Tags			Admins
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -176,7 +177,7 @@ func (u *SellerHandler) UnblockSeller(c *gin.Context) {
 
 // @Summary		Get Pending Sellers
 // @Description	Using this handler, admin can get a list of pending sellers.
-// @Tags			Admin
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -200,7 +201,7 @@ func (u *SellerHandler) GetPendingSellers(c *gin.Context) {
 
 // @Summary		Get Single Seller Details
 // @Description	Using this handler, admin can get details of a single seller.
-// @Tags			Admin
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -230,7 +231,7 @@ func (u *SellerHandler) FetchSingleSeller(c *gin.Context) {
 
 // @Summary		Verify Seller
 // @Description	Using this handler, admin can verify a seller.
-// @Tags			Admins
+// @Tags			Admin Seller Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -265,6 +266,7 @@ func (u *SellerHandler) VerifySeller(c *gin.Context) {
 // @Tags			Seller Profile
 // @Accept			json
 // @Produce		json
+// @Param			SellerID	path		string							true	"Seller ID in the URL path"
 // @Success		200	{object}	response.Response	"Successfully retrieved the seller's profile"
 // @Failure		400	{object}	response.Response	"Bad request"
 // @Router			/seller/profile/{SellerID} [get]

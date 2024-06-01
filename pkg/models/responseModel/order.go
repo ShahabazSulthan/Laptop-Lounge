@@ -36,7 +36,7 @@ type OrderDetails struct {
 type OrderProducts struct {
 	ItemID           string    `json:"itemID"`
 	OrderID          string    `json:"parentOrderID"`
-	ProductID        string    `json:"proSductID"`
+	ProductID        string    `json:"productID"`
 	SellerID         string    `json:"sellerID"`
 	CategoryID       string    `json:"categoryID"`
 	Discount         uint      `json:"discount,omitempty"`
@@ -44,23 +44,23 @@ type OrderProducts struct {
 	Quantity         uint      `json:"quantity"`
 	CategoryDiscount uint      `json:"categoryDiscount,omitempty"`
 	FinalPrice       uint      `json:"payableAmount,omitempty"`
-	PayableAmount    uint      `json:"PayableAmount"`
 	OrderDate        time.Time `json:"orderDate"`
-	DeliveryDate     string    `json:"delivaryDate,omitempty"`
-	OrderStatus      string    `json:"OrderStatus,omitempty"`
+	DeliveryDate     string    `json:"deliveryDate,omitempty"`
+	OrderStatus      string    `json:"orderStatus,omitempty"`
 	PaymentStatus    string    `json:"paymentStatus,omitempty"`
 }
 
 type Order struct {
-	ID             string `json:"orderID"`
-	UserID         string `gorm:"column:user_id" json:"userid"`
-	Address        string `gorm:"column:address_id" json:"address_id"`
-	Payment        string `gorm:"column:payment_method" json:"payment"`
-	TotalPrice     uint   `json:"payable_amount"`
-	Wallet         uint   `json:"walletBalance,omitempty"`
-	OrderIDRazopay string `json:"razopayOrderID,omitempty"`
-	Coupon         string `json:"coupon,omitempty"`
-	Orders         []OrderProducts
+	ID             string          `json:"orderID"`
+	UserID         string          `gorm:"column:user_id" json:"userID"`
+	Address        string          `gorm:"column:address_id" json:"addressID"`
+	Payment        string          `gorm:"column:payment_method" json:"paymentMethod"`
+	TotalPrice     uint            `json:"totalPrice"`
+	Wallet         uint            `json:"walletBalance,omitempty"`
+	OrderIDRazopay string          `json:"razopayOrderID,omitempty"`
+	Coupon         string          `json:"coupon,omitempty"`
+	ImageURL       string          `json:"imageURL"`
+	Orders         []OrderProducts `json:"orders"`
 }
 
 type SingleOrder struct {

@@ -192,7 +192,6 @@ func (u *UserHandler) UserLogin(c *gin.Context) {
 
 // ---------------------------Forgot Password----------------------------------------
 
-
 func (u *UserHandler) ForgotPassword(c *gin.Context) {
 	var forgotPassword requestmodel.ForgetPassword
 
@@ -231,7 +230,7 @@ func (u *UserHandler) ForgotPassword(c *gin.Context) {
 
 // @Summary		Get All Users
 // @Description	Using this handler, admin can view users.
-// @Tags			Admins
+// @Tags			Admins User Controll
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -260,7 +259,7 @@ func (u *UserHandler) GetUser(c *gin.Context) {
 
 // @Summary		Block User
 // @Description	Using this handler, admin can block a user.
-// @Tags			Admins
+// @Tags			Admin User Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth
@@ -291,7 +290,7 @@ func (u *UserHandler) BlockUser(c *gin.Context) {
 
 // @Summary		Unblock User
 // @Description	Using this handler, admin can unblock a user.
-// @Tags			Admins
+// @Tags			Admin User Control
 // @Accept			json
 // @Produce		json
 // @Security		BearerTokenAuth

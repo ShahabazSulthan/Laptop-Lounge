@@ -21,4 +21,5 @@ type IOrderUseCase interface {
 
 	OrderInvoiceCreation(string) (*string, error)
 	GenerateXlOfSalesReport(string) (string, error)
+	GenerateSalesReportPDF(string) (string, error)
 }

@@ -1,11 +1,9 @@
 package handler
 
 import (
-	requestmodel "Laptop_Lounge/pkg/models/requestModel"
 	resCustomError "Laptop_Lounge/pkg/models/responseModel/custom_error"
 	"Laptop_Lounge/pkg/models/responseModel/response"
 	interfaceUseCase "Laptop_Lounge/pkg/usecase/interface"
-	"Laptop_Lounge/pkg/utils/helper"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,45 +22,37 @@ func NewwishlistHandler(useCase interfaceUseCase.IwishlistRepo) *WishlistHandler
 // @Tags Wishlist
 // @Accept json
 // @Produce json
-// @Security     BearerTokenAuth
-// @Security     RefreshtokenAuth
+// @Security BearerTokenAuth
+// @Security RefreshtokenAuth
 // @Param productID path string true "ID of the product to add"
-// @Success 201 {object} response.Response "Product added to wishlist successfully"
+// @Success 201 {object} response.Response{data=map[string]string} "Product added to wishlist successfully"
 // @Failure 400 {object} response.Response "Bad Request. Invalid input."
 // @Failure 401 {object} response.Response "Unauthorized. User ID not found in context."
 // @Failure 500 {object} response.Response "Internal Server Error."
 // @Router /wishlist/{productID} [post]
 func (w *WishlistHandler) AddToWishlist(c *gin.Context) {
-	var wishlist *requestmodel.WishlistRequest
-
-	if err := c.BindJSON(&wishlist); err != nil {
-		finalReslt := response.Responses(http.StatusBadRequest, resCustomError.BindingConflict, nil, err.Error())
-		c.JSON(http.StatusBadRequest, finalReslt)
-		return
-	}
-
-	data, err := helper.Validation(wishlist)
-	if err != nil {
-		finalReslt := response.Responses(http.StatusBadRequest, "", data, err.Error())
-		c.JSON(http.StatusBadRequest, finalReslt)
-		return
-	}
-
-	userID, exist := c.MustGet("UserID").(string)
+	// Get the UserID from the context
+	userID, exist := c.Get("UserID")
 	if !exist {
-		finalReslt := response.Responses(http.StatusBadRequest, "", nil, resCustomError.NotGetSellerIDinContexr)
-		c.JSON(http.StatusBadRequest, finalReslt)
+		finalReslt := response.Responses(http.StatusUnauthorized, "", nil, resCustomError.NotGetSellerIDinContexr)
+		c.JSON(http.StatusUnauthorized, finalReslt)
 		return
 	}
 
+	// Get the productID from the URL path
 	productID := c.Param("productID")
 
-	err = w.useCase.AddProductToWishlist(productID, userID)
+	// Add the product to the wishlist using the use case
+	err := w.useCase.AddProductToWishlist(productID, userID.(string))
 	if err != nil {
-		finalReslt := response.Responses(http.StatusBadRequest, "", nil, err.Error())
-		c.JSON(http.StatusBadRequest, finalReslt)
+		finalReslt := response.Responses(http.StatusInternalServerError, "", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, finalReslt)
 	} else {
-		finalReslt := response.Responses(http.StatusCreated, "", wishlist, nil) // Use HTTP 201 for resource creation
+		// Return a success response with user_id and product_id
+		finalReslt := response.Responses(http.StatusCreated, "", map[string]string{
+			"user_id":    userID.(string),
+			"product_id": productID,
+		}, nil)
 		c.JSON(http.StatusCreated, finalReslt)
 	}
 }

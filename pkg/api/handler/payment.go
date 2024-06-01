@@ -20,17 +20,6 @@ func NewPaymentHandler(useCase interfaceUseCase.IPaymentUseCase) *PaymentHandler
 	return &PaymentHandler{useCase: useCase}
 }
 
-// OnlinePayment retrieves the Razorpay payment page for the specified user.
-// @Summary      Get Razorpay Payment Page
-// @Description  Retrieve the Razorpay payment page for the specified user.
-// @Tags         PaymentIntegration
-// @Accept       html
-// @Produce      html
-// @Param        userID  query   int     true  "User ID for which the payment page is requested"
-// @Param        orderID query   int     true  "Order ID for which the payment page is requested"
-// @Success      200     {string} html   "HTML page for Razorpay payment"
-// @Failure      400     {object} response.Response "Bad request. Please provide valid user ID and order ID."
-// @Router       /razorpay [get]
 func (u *PaymentHandler) OnlinePayment(c *gin.Context) {
 	userID := c.Query("userID")
 	orderID := c.Query("orderID")

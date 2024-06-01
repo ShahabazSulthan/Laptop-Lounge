@@ -18,6 +18,11 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 	engin.GET("/filter", product.FilterProduct)
 
 	engin.GET("/razopay", payment.OnlinePayment)
+
+	engin.GET("/log", review.GetLogFile)
+	engin.GET("/invoice", review.GetInvoice)
+	engin.GET("/excel", review.GetExcelReport)
+
 	// User-related routes
 
 	engin.POST("/signup", user.UserSignup)
@@ -25,6 +30,13 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 	engin.POST("/sendOTP", user.SendOtp)
 	engin.POST("/login", user.UserLogin)
 	engin.POST("/forgetpassword", user.ForgotPassword)
+
+	helpdeskmenagement := engin.Group("/helpdesk")
+		{
+			helpdeskmenagement.POST("/", helpdesk.CreateRequest)
+			helpdeskmenagement.GET("/replayed", helpdesk.GetRepliedRequests)
+			helpdeskmenagement.GET("/unreplayed", helpdesk.GetUnrepliedRequests)
+		}
 
 	engin.Use(middlewire.UserAuthorization)
 	{
@@ -53,7 +65,7 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 
 		ordermanagement := engin.Group("/order")
 		{
-			ordermanagement.POST("", order.NewOrder)
+			ordermanagement.POST("/", order.NewOrder)
 			ordermanagement.POST("/Address", user.NewAddress)
 			ordermanagement.GET("/Address", user.GetAddress)
 			ordermanagement.PATCH("/EditAddress", user.EditAddress)
@@ -91,12 +103,8 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 
 		}
 
-		helpdeskmenagement := engin.Group("/helpdesk")
-		{
-			helpdeskmenagement.POST("/", helpdesk.CreateRequest)
-			helpdeskmenagement.GET("/replayed", helpdesk.GetRepliedRequests)
-			helpdeskmenagement.GET("/unreplayed", helpdesk.GetUnrepliedRequests)
-		}
 	}
+
+	
 
 }

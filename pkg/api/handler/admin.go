@@ -21,7 +21,7 @@ func NewAdminHandler(useCase interfaceUseCase.IAdminUseCAse) *AdminHandler {
 
 // @Summary Admin Login
 // @Description Using this handler, admins can log in and receive an authentication token.
-// @Tags Admins
+// @Tags  Admins
 // @Accept json
 // @Produce json
 // @Param admin body requestmodel.AdminLoginData true "Admin login details"
@@ -58,7 +58,7 @@ func (u *AdminHandler) AdminLogin(c *gin.Context) {
 
 // @Summary Get Admin Dashboard Details
 // @Description Retrieve details for the admin. Requires a valid Bearer token.
-// @Tags Admins
+// @Tags  Admins
 // @Accept json
 // @Produce json
 // @Security BearerTokenAuth
