@@ -44,7 +44,7 @@ Laptop Lounge is an e-commerce website dedicated to laptops, featuring three mai
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/laptop-lounge.git
+   https://github.com/ShahabazSulthan/Laptop-Lounge.git
    ```
 2. Navigate to the project directory:
    ```sh
@@ -58,7 +58,7 @@ Laptop Lounge is an e-commerce website dedicated to laptops, featuring three mai
 
 5. Run the application:
    ```sh
-   go run main.go
+   go run cmd/main.go
    ```
 
 ## Usage
