@@ -1,0 +1,28 @@
+2024/06/01 11:16:29 Starting the server on :8000
+2024/06/01 11:16:48 statusCode=200 latency=83.5631ms clientIP=::1 method=GET path=/xl userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+2024/06/01 11:17:06 statusCode=200 latency=20.9454ms clientIP=::1 method=GET path=/excel userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+2024/06/01 11:17:06 statusCode=404 latency=0s clientIP=::1 method=GET path=/favicon.ico userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+2024/06/05 14:06:35 Starting the server on :8000
+2024/06/05 14:07:27 OTP sent successfully to 9496703880 with code: VE84bdaebefdce4727266c2b4c1b474e83
+2024/06/05 14:07:27 statusCode=200 latency=1.577939s clientIP=::1 method=POST path=/sendOTP userAgent=PostmanRuntime/7.39.0
+2024/06/05 14:08:03 statusCode=500 latency=310.6648ms clientIP=::1 method=POST path=/sendOTP userAgent=PostmanRuntime/7.39.0
+2024/06/05 14:16:27 statusCode=500 latency=1.8018653s clientIP=::1 method=POST path=/sendOTP userAgent=PostmanRuntime/7.39.0
+2024/06/05 14:18:13 Starting the server on :8000
+2024/06/05 14:18:20 statusCode=500 latency=1.673806s clientIP=::1 method=POST path=/sendOTP userAgent=PostmanRuntime/7.39.0
+2024/07/23 20:18:11 Starting the server on :8000
+2024/07/23 20:19:29 statusCode=200 latency=5.5388ms clientIP=::1 method=GET path=/swagger/index.html userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:29 statusCode=200 latency=1.32ms clientIP=::1 method=GET path=/swagger/swagger-ui.css userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:29 statusCode=200 latency=1.1255ms clientIP=::1 method=GET path=/swagger/swagger-ui-standalone-preset.js userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:29 statusCode=200 latency=10.0334ms clientIP=::1 method=GET path=/swagger/swagger-ui-bundle.js userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:30 statusCode=200 latency=0s clientIP=::1 method=GET path=/swagger/favicon-32x32.png userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:30 statusCode=200 latency=5.5173ms clientIP=::1 method=GET path=/swagger/doc.json userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:40 statusCode=200 latency=18.5666ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:19:40 statusCode=404 latency=0s clientIP=::1 method=GET path=/favicon.ico userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:20:03 statusCode=401 latency=2.5388ms clientIP=::1 method=GET path=/admin/helpdesk/Updated userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/23 20:20:39 statusCode=200 latency=13.0017ms clientIP=::1 method=GET path=/products userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+2024/07/31 15:45:13 Starting the server on :8000
+2024/07/31 15:45:21 statusCode=200 latency=10.792ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/07/31 15:45:24 statusCode=200 latency=11.1442ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/07/31 15:56:31 Starting the server on :8000
+2024/07/31 15:56:39 statusCode=200 latency=11.1716ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/07/31 15:56:40 statusCode=200 latency=9.9242ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36

@@ -173,16 +173,19 @@ func (r *ReviewHandler) GetLogFile(c *gin.Context) {
 	c.String(http.StatusOK, "%s", logData)
 }
 
-
-func (r *ReviewHandler) GetExcelReport(c *gin.Context) {
+func (r *ReviewHandler) GetExcelPDF(c *gin.Context) {
 	reportPath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\salesReport.pdf" // Path to the Excel report file
 
 	c.File(reportPath)
 }
 
-
 func (r *ReviewHandler) GetInvoice(c *gin.Context) {
 	invoicePath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\invoice.pdf" // Path to the invoice file
 
 	c.File(invoicePath)
+}
+
+func (r *ReviewHandler) GetExcelReport(c *gin.Context) {
+	reportPath := "C:\\Users\\shaha\\OneDrive\\Desktop\\GO-Workplace\\First Project\\Laptop_Lounge\\Report\\salesReport.xlsx" // Path to the Excel report file
+	c.File(reportPath)
 }

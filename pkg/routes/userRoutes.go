@@ -21,7 +21,8 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 
 	engin.GET("/log", review.GetLogFile)
 	engin.GET("/invoice", review.GetInvoice)
-	engin.GET("/excel", review.GetExcelReport)
+	engin.GET("/excel", review.GetExcelPDF)
+	engin.GET("/xl", review.GetExcelReport)
 
 	// User-related routes
 
@@ -32,11 +33,11 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 	engin.POST("/forgetpassword", user.ForgotPassword)
 
 	helpdeskmenagement := engin.Group("/helpdesk")
-		{
-			helpdeskmenagement.POST("/", helpdesk.CreateRequest)
-			helpdeskmenagement.GET("/replayed", helpdesk.GetRepliedRequests)
-			helpdeskmenagement.GET("/unreplayed", helpdesk.GetUnrepliedRequests)
-		}
+	{
+		helpdeskmenagement.POST("/", helpdesk.CreateRequest)
+		helpdeskmenagement.GET("/replayed", helpdesk.GetRepliedRequests)
+		helpdeskmenagement.GET("/unreplayed", helpdesk.GetUnrepliedRequests)
+	}
 
 	engin.Use(middlewire.UserAuthorization)
 	{
@@ -104,7 +105,5 @@ func UserRoutes(engin *gin.RouterGroup, user *handler.UserHandler, product *hand
 		}
 
 	}
-
-	
 
 }
