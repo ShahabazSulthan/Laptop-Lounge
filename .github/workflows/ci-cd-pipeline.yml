@@ -1,0 +1,72 @@
+# Name of the GitHub Actions workflow
+name: Laptop Lounge CI/CD Pipeline
+
+# Events that trigger the workflow
+on:
+  push:
+    branches:
+      - Feature  # Trigger on pushes to the 'Feature' branch
+  pull_request:
+    branches:
+      - Feature  # Trigger on pull requests to the 'Feature' branch
+
+# Define the jobs to be run in the workflow
+jobs:
+  # First job: Build
+  build:
+    name: Build  # Name of the build job
+    runs-on: ubuntu-latest  # Specify the OS for the job
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3  # Use the checkout action to get the code
+
+      # Step 2: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v4  # Use the setup-go action to install Go
+        with:
+          go-version: 1.22.0  # Specify the Go version to be installed
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: go mod download  # Use Go command to download the dependencies
+
+      # Step 4: Run tests
+      - name: Run tests
+        run: go test -v ./...  # Run Go tests in verbose mode for all packages
+
+  # Second job: Deploy
+  deploy:
+    name: Deploy  # Name of the deploy job
+    runs-on: ubuntu-latest  # Specify the OS for the job
+    needs: build  # This job depends on the successful completion of the build job
+    if: github.ref == 'refs/heads/Feature' && github.event_name == 'push'  # Condition to run this job only on pushes to 'Feature' branch
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3  # Use the checkout action to get the code
+
+      # Step 2: Set up SSH for deployment
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.5.4  # Use the ssh-agent action to set up SSH
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}  # Use the SSH key stored in GitHub secrets
+
+      # Step 3: Deploy application
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7  # Use the ssh-action to deploy via SSH
+        with:
+          host: ${{ secrets.PUBLIC_IP }}  # Use the public IP stored in GitHub secrets
+          username: ubuntu  # Username for SSH connection
+          key: ${{ secrets.SSH_KEY }}  # SSH key for authentication
+          script: |
+            # Navigate to the project directory
+            cd Laptop-Lounge/
+            # Pull the latest code
+            git pull
+            # Build the Go application with CGO disabled
+            CGO_ENABLED=0 go build -o api cmd/main.go
+            # Restart the service for the application
+            sudo systemctl restart mygoapp.service

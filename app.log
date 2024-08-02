@@ -26,3 +26,7 @@
 2024/07/31 15:56:31 Starting the server on :8000
 2024/07/31 15:56:39 statusCode=200 latency=11.1716ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
 2024/07/31 15:56:40 statusCode=200 latency=9.9242ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/08/01 18:55:44 Starting the server on :8000
+2024/08/01 18:55:58 statusCode=200 latency=14.7936ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/08/01 18:55:58 statusCode=404 latency=0s clientIP=::1 method=GET path=/favicon.ico userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+2024/08/01 18:56:02 statusCode=200 latency=12.5229ms clientIP=::1 method=GET path=/log userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
