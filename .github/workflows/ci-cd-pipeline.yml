@@ -65,7 +65,7 @@ jobs:
             # Navigate to the project directory
             cd Laptop-Lounge/
             # Pull the latest code
-            git pull
+            git pull origin Feature
             # Build the Go application with CGO disabled
             CGO_ENABLED=0 go build -o api cmd/main.go
             # Restart the service for the application
