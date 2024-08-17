@@ -1,3 +1,6 @@
+Here's the updated README for your project:
+
+---
 
 # Laptop Lounge
 
@@ -9,8 +12,11 @@ Laptop Lounge is an e-commerce website dedicated to laptops, featuring three mai
 2. [Installation](#installation)
 3. [Usage](#usage)
 4. [Modules](#modules)
-5. [Contributing](#contributing)
-6. [License](#license)
+5. [Testing & Mocking](#testing--mocking)
+6. [CI/CD Pipeline](#cicd-pipeline)
+7. [Docker & Kubernetes](#docker--kubernetes)
+8. [Contributing](#contributing)
+9. [License](#license)
 
 ## Features
 
@@ -44,7 +50,7 @@ Laptop Lounge is an e-commerce website dedicated to laptops, featuring three mai
 
 1. Clone the repository:
    ```sh
-   https://github.com/ShahabazSulthan/Laptop-Lounge.git
+   git clone https://github.com/ShahabazSulthan/Laptop-Lounge.git
    ```
 2. Navigate to the project directory:
    ```sh
@@ -85,6 +91,29 @@ Laptop Lounge is an e-commerce website dedicated to laptops, featuring three mai
 - Manage product categories and brands.
 - Create and manage discount coupons.
 
+## Testing & Mocking
+
+Laptop Lounge includes comprehensive testing and mocking to ensure reliability and maintainability:
+- **Unit Tests**: Thorough tests for individual components.
+- **Mocking**: Integrated with `gomock` to mock dependencies and isolate test scenarios.
+
+To run tests:
+```sh
+go test ./...
+```
+
+## CI/CD Pipeline
+
+The project is integrated with GitHub Actions for Continuous Integration and Continuous Deployment:
+- **Automated Testing**: Ensures code quality with every commit.
+- **Deployment**: The Docker image is automatically built and deployed to Kubernetes.
+
+## Docker & Kubernetes
+
+The project is fully containerized using Docker and deployed in a Kubernetes cluster:
+- **Docker Image**: The Docker image can be found on [Docker Hub](https://hub.docker.com/repository/docker/shahabaz4573/laptop_lounge/general).
+- **Kubernetes Deployment**: The application is deployed in a scalable Kubernetes environment.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any features, bug fixes, or enhancements.
@@ -93,6 +122,3 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
-
-Feel free to customize the content according to your project's specific details and requirements.
