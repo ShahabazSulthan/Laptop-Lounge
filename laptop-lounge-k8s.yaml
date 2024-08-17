@@ -1,0 +1,41 @@
+apiVersion: apps/v1  # Specifies the API version and the resource type (Deployment) in Kubernetes.
+kind: Deployment     # Defines the kind of resource; here, it's a Deployment.
+metadata:
+  name: laptop-lounge-deployment  # The name of the Deployment.
+  labels:
+    app: laptop-lounge  # A label to identify the Deployment.
+spec:
+  replicas: 1  # Specifies the number of pod replicas to run.
+  selector:
+    matchLabels:
+      app: laptop-lounge  # Selector to match the pods with the label "app: laptop-lounge".
+  template:
+    metadata:
+      labels:
+        app: laptop-lounge  # Labels for the pods created by this Deployment.
+    spec:
+      containers:
+      - name: laptop-lounge-container  # Name of the container within the pod.
+        image: shahabaz4573/laptop_lounge:latest  # Docker image to be used for the container.
+        ports:
+        - containerPort: 8000  # Port number on which the container listens.
+        env:
+        - name: DBHOST
+          value: "postgres-service"  # Environment variable DBHOST set to the PostgreSQL service.
+        - name: DBUSER
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbuser  # Key within the secret for the database username.
+        - name: DBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbpassword  # Key within the secret for the database password.
+        - name: DBNAME
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbname  # Key within the secret for the database name.
+        - name: DBPORT
+          value: "5432"  # Environment variable DBPORT set to the PostgreSQL default port.

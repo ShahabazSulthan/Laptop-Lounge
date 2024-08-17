@@ -1,0 +1,55 @@
+version: "3.9"  # Specify the version of the Docker Compose file format
+
+services:
+  postgres:
+    image: postgres:16.2  # Use the official PostgreSQL image with version 16.2
+    ports:
+      - "5432:5432"  # Map port 5432 on the host to port 5432 in the container
+    restart: always  # Always restart the container if it stops
+    container_name: laptop-lounge-postgres-container  # Assign a custom name to the PostgreSQL container
+    environment:
+      - POSTGRES_USER=${DBUSER}  # Set PostgreSQL user using environment variable
+      - POSTGRES_PASSWORD=${DBPASSWORD}  # Set PostgreSQL password using environment variable
+      - POSTGRES_DB=${DBNAME}  # Set PostgreSQL database name using environment variable
+    networks:
+      - project-net  # Connect this service to the 'project-net' network
+    volumes:
+      - project-volume:/var/lib/postgresql/data  # Persist PostgreSQL data using a named volume
+
+  laptoplounge:
+    image: Shahabaz/laptoplounge  # Use the custom image for the LaptopLounge application
+    build: .  # Build the image from the Dockerfile in the current directory
+    restart: on-failure  # Restart the container only if it fails
+    container_name: laptop-lounge-container  # Assign a custom name to the LaptopLounge container
+    depends_on:
+      - postgres  # Ensure the PostgreSQL service is started before this service
+    networks:
+      - project-net  # Connect this service to the 'project-net' network
+    ports:
+      - "8000:8000"  # Map port 8000 on the host to port 8000 in the container
+    environment:
+      # Environment variables for database connection and external services
+      - DBHOST=${DBHOST}  # Database host
+      - DBUSER=${DBUSER}  # Database user
+      - DBPASSWORD=${DBPASSWORD}  # Database password
+      - DBNAME=${DBNAME}  # Database name
+      - DBPORT=${DBPORT}  # Database port
+      - TWILIO_SID=${Account_SID}  # Twilio Account SID
+      - TWILIO_AUTH_TOKEN=${Auth_Token}  # Twilio Auth Token
+      - TWILIO_PHONE_NUMBER=${Service_SID}  # Twilio Service SID (Phone number)
+      - AWS_S3_ACCESS_KEY=${AccessKeyID}  # AWS S3 Access Key ID
+      - AWS_S3_SECRET_KEY=${AccessKeySecret}  # AWS S3 Secret Access Key
+      - AWS_S3_BUCKET=${BucketName}  # AWS S3 Bucket Name
+      - RAZORPAY_KEY_ID=${RAZOPAYKEY}  # Razorpay Key ID
+      - RAZORPAY_KEY_SECRET=${PAZOPAYSECRET}  # Razorpay Key Secret
+      - ADMIN_TOKENKEY=${ADMIN_TOKENKEY}  # Admin token key
+      - SELLER_TOKENKEY=${SELLER_TOKENKEY}  # Seller token key
+      - USER_TOKENKEY=${USER_TOKENKEY}  # User token key
+      - TEMPERVERY_TOKENKEY=${TEMPERVERY_TOKENKEY}  # Temporary verification token key
+
+volumes:
+  project-volume:  # Define a named volume to persist PostgreSQL data
+
+networks:
+  project-net:
+    driver: bridge  # Use the default bridge network driver

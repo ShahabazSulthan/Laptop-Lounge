@@ -1,0 +1,62 @@
+apiVersion: apps/v1  # Specifies the API version and the resource type (StatefulSet) in Kubernetes.
+kind: StatefulSet    # Defines the kind of resource; here, it's a StatefulSet, which manages stateful applications.
+metadata:
+  name: postgres-deployment  # The name of the StatefulSet.
+spec:
+  selector:
+    matchLabels:
+      app: postgres  # Selector to match the pods with the label "app: postgres".
+  template:
+    metadata:
+      labels:
+        app: postgres  # Labels for the pods created by this StatefulSet.
+  template:
+    metadata:
+      labels:
+        app: postgres  # Repeated metadata section with labels for the pods.
+    spec:
+      containers:
+      - name: postgres  # Name of the container within the pod.
+        image: postgres:16.2  # Docker image for PostgreSQL version 16.2.
+        ports:
+        - containerPort: 5432  # Port number on which the PostgreSQL container listens.
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbuser  # Key within the secret for the PostgreSQL username.
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbpassword  # Key within the secret for the PostgreSQL password.
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: secretcollection  # References the Kubernetes secret named 'secretcollection'.
+              key: dbname  # Key within the secret for the PostgreSQL database name.
+        volumeMounts:
+        - name: postgres-storage  # Name of the volume mount.
+          mountPath: /var/lib/postgresql/data  # Path where the volume will be mounted in the container.
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage  # Name of the PersistentVolumeClaim (PVC).
+    spec:
+      accessModes: ["ReadWriteOnce"]  # Access mode for the PVC, allowing read/write by a single node.
+      resources:
+        requests:
+          storage: 1Gi  # Specifies the amount of storage requested for the PVC (1 GiB).
+
+---
+
+# Postgres Service Configuration
+apiVersion: v1  # Specifies the API version and the resource type (Service) in Kubernetes.
+kind: Service  # Defines the kind of resource; here, it's a Service, which exposes the StatefulSet.
+metadata:
+  name: postgres-service  # The name of the Service.
+spec:
+  ports:
+    - port: 5432  # Port number exposed by the Service for PostgreSQL.
+  selector:
+    app: postgres  # Selector to match the pods with the label "app: postgres", linking the Service to the StatefulSet.

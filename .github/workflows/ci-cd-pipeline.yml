@@ -66,6 +66,7 @@ jobs:
             cd Laptop-Lounge/
             # Pull the latest code
             git pull origin Feature
+            # merge the latest code
             git merge origin/Feature
             # Build the Go application with CGO disabled
             CGO_ENABLED=0 go build -o api cmd/main.go
