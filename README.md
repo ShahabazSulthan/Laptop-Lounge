@@ -1,6 +1,4 @@
-Here's the updated README for your project:
 
----
 
 # Laptop Lounge
 
@@ -117,8 +115,4 @@ The project is fully containerized using Docker and deployed in a Kubernetes clu
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any features, bug fixes, or enhancements.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
